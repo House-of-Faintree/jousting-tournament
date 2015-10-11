@@ -66,8 +66,8 @@ void Inputs_motor_setup(void){
 
 void ADC_setup(void){
     T0CON = 0xC7; //  11000111  Enables TMR0, 8bit with 256 prescale (p103)
-    ADCON0 = 0x41;  //0100 0001 Fosc/8, A/D enabled
-    ADCON1 = 0x0E;  // 0000 1110 Make RA0 analog input, Left justify, 1 analog channel
+    ADCON0 = 0b01010001;  //0100 0001 Fosc/8, A/D enabled
+    ADCON1 = 0b00001001;  // 0000 1110 Make RA0 analog input, Left justify, 1 analog channel
 }
 
 void direction(void){
