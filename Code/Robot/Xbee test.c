@@ -18,7 +18,7 @@
 #include <adc.h>
 #include <p18f4520.h>
 #include <usart.h>
-#include <string.h> 
+#include <string.h>
 
 #define CR 0x0D
 #define LF 0x0A
@@ -28,7 +28,7 @@
 
 #pragma config  WDT = OFF
 #pragma config  LVP = OFF
-  
+
 void tx232Isr();
 void rx232Isr();
 #pragma code lowpriority = 0x18

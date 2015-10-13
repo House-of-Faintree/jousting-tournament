@@ -8,20 +8,13 @@ be compatible for running on the MOBILE ROBOT side.
 */
 
 
-#include  <stlib.h>
+
 #include  <p18f452.h>
 #include  <usart.h>
+#include  "serialcommander.h"
 
-void setup(void);
+void setupSerial(void);
 int sendByte(char *byte);
-
-
-void setup(void){
-  /*I need to read more about the requirements of the xbee, is it compatible with
-  9600 baud etc, and how we will manage single/continuous recieve.
-  to be implemented at a future date.
-  */
-}
 
 /*This function sends individual bytes and as such needs to have a iterative
 loop such as a while implemented in the calling function. With a minor modification,
@@ -38,12 +31,11 @@ while(sendByte(&someString)){
 }
 */
 int sendByte(char *byte){
-  if (*byte == 0x00) {
+    TXREG = *byte;
+    if (*byte == 0x00) {
     //we are finished, null terminator found
     return 0;
-  }
-  else
-    TXREG = *byte;
+    }
     *byte++;
     return 1;
 }
@@ -55,6 +47,8 @@ Baud rate set to 9600 but this is arbitrary. Lower baud is possibly better for m
 but higher baud makes for smaller data packets. Needs to be experimented with.
 */
 void setupSerial(void){
+  TRISCbits.RC6 = 0;              //set rc6 as output
+  TRISCbits.RC7 = 1;              //set rc7 as input
   TXSTAbits.SYNC = 0;             //Set to asynchronous mode
   TXSTAbits.BRGH = 1;             //Set baudrate generator to high
   TXSTAbits.TXEN = 1;

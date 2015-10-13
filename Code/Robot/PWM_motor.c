@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   PWM_motor.c
  * Author: ldra3_000
  *
@@ -14,7 +14,7 @@
 //#include <p18f4520.h>
 //#include "configReg4520.h"
 
-#define bit(x) (1<<(x)) 
+#define bit(x) (1<<(x))
 #define test_bit(var,pos) ((var) & (1<<(pos)))
 //#define change_bit(var,pos,val) ()
 //number ^= (-x ^ number) & (1 << n);
@@ -54,7 +54,7 @@ void PWM_motor_setup(void){
     CCPR1L = R_PWM;   // select duty cycle
     TRISC =0; // output for CCP1-RC<2> and CCP2-RC<1>
     CCP2CON = 0x0C; // Configures CCP2 for PWM mode (CCP2M2 and CCP2M3)
-    CCP1CON = 0X0C;     
+    CCP1CON = 0X0C;
 }
 
 void Inputs_motor_setup(void){
@@ -104,14 +104,14 @@ void main(void){
     Inputs_motor_setup();
     ADC_setup();
 
-    
+
     for(;;){
     while(INTCONbits.TMR0IF==0){}   // busy loop
-    ADCON0bits.GO=1; 
+    ADCON0bits.GO=1;
     while(PIR1bits.ADIF==0){}   // busy loop wait for conversion to finish
-    
+
     turn(ADRESH);  // does the 8 bit to unsigned int work?
-    
+
     }
-    
+
 }
