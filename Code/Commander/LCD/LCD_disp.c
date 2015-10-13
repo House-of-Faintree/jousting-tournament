@@ -28,30 +28,36 @@ const char s0[LCDL]="PID gain:";
 const char s1[LCDL]="Max speed:";
 const char s2[LCDL]="Max yaw:";
 const char s3[LCDL]="IR samp/est:";
-    
+const char t0[LCDL]="Manual Mode";
+const char t1[LCDL]="Assisted Mode";
+const char t2[LCDL]="Full Auto";
+const char t3[LCDL]="Factory Mode";
+
+const char *menutitle[4]={t0,t1,t2,t3};
 const char *stringtab[4]={s0,s1,s2,s3};
 
 void main(void)
 {   
-    void LCD_disp(int x);
+    void LCD_disp(int x,int y);
     TRISD = 0x00;
     Lcd_Init();
     
     while(1){
-    LCD_disp(2);
+    LCD_disp(1,2);
     }
     
 }
 
-void LCD_disp(int x)
+void LCD_disp(int x, int y)
 {
     
     int values[4]={pid_gain,max_speed,max_yaw,ir_samp_e};            
     char  string[LCDL];
     Lcd_Clear();
-    
+    Lcd_Set_Cursor(1,1);
+    Lcd_Write_String(menutitle[x]);
     //Display as _string:_value'%'_
-    sprintf(string, "%s%d%", stringtab[x],values[x]);
+    sprintf(string, "%s%d%", stringtab[y],values[y]);
     Lcd_Set_Cursor(2,1);
     Lcd_Write_String(string);
     Delay10KTCYx(200);
