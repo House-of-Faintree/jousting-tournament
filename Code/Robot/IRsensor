@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <p18f452.h>
+#include "ConfigRegs.h"
+#include <adc.h>
+
+char IRsensor;
+void main(void) {
+
+    IRsensor = 0;
+    
+    PORTB = 0x00;
+    TRISB = 0x00;
+
+    ADCON0 = 0b01010001;     //channel 1 (RA2) is output
+    ADCON1 = 0b00001001;     //Left justify, RA2 is analog signal
+    T0CON = 0xC7;            //TMR0 prescaler, 1:256
+
+    while(1){
+
+        while(INTCONbits.TMR0IF == 0); //Wait for Timer0 to timeout
+        
+        INTCONbits.TMR0IF = 0; //clear overflow interrupt
+        ADCON0bits.GO = 1;         //; Start A/D conversion
+
+        while (PIR1bits.ADIF == 0);  // Wait for conversion to complete
+                 
+        IRsensor = ADRESH;            
+          
+    }
+
+}
