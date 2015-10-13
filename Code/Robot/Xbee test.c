@@ -2,15 +2,18 @@
 /*Created By: ZIJI*/
 /*Last Edit by: ZIJI*/
 /*Create Date: 7/10/2015*/
-/*last modify date: 7/10/2015*/
+/*last modify date: 14/10/2015*/
+
 /*This file is to test the XBee module, and make simple implementation of that*/
 /*The final function we will be using for RF transmission called RFsend(), it */
 /*takes a input of a pointer point to the stuff you would like to transmit(the*/
 /*first character of a string for instance), then it will use serial interrupt to transmit the stuff out*/
+/*Before the transmission, a function called Clear_Rx_Buffer() should be called*/
+/*to clear everything within the receive buffer and reset the pointer*/
 /*For receiving, it will be interrupt driven, anything received will be stored*/
-/*into a string called rxbuffer(name to be determined), and please read the   */
-/* data from this buffer asap as it will be overwrite at the beginning of next*/
-/* transmit*/
+/*into a string called GLOBAL_RXBUFFER(name to be determined), and please read the*/
+/*data from this buffer asap as it will be cleared at the beginning of next transmit*/
+
 /*-------------------------------------------------------*/
 
 #include <stdio.h>
@@ -45,10 +48,11 @@ void low_priority_interrupt(){
 }
 #pragma code
 
-unsigned char numbers[] = "JACE";
-unsigned char rxbuffer[BUFFSIZE]={0};
+unsigned char array[] = "JACE";
+unsigned char number = 123;
+unsigned char GLOBAL_RXBUFFER[BUFFSIZE]={0};
 unsigned char *txptr;
-unsigned char *rxptr = rxbuffer;
+unsigned char *rxptr = GLOBAL_RXBUFFER;
 
 //serial setup
 void SerialSetup(void){
@@ -73,19 +77,33 @@ void disable_tx(void){
     TXSTAbits.TXEN = 0;
     PIE1bits.TXIE = 0;
 }
+void Clear_Rx_Buffer(void){
+    unsigned int i;
+    for ( i = 0;i <= BUFFSIZE ;i++ )
+    {
+       GLOBAL_RXBUFFER[i] = 0;
+    }
+    rxptr =& GLOBAL_RXBUFFER[0];
+    
+}
 void RFSend (unsigned char *str)
 // transmit function, it only transmit a string, so make sure the input is a pointer to a string
 // or we can come up with a way to change a variable into a string
 {
-    enable_tx();
     txptr = str;
+    enable_tx();
 }
 
 void main(){
     SerialSetup();
-    RFSend(numbers);
+    RFSend(array);
     while(1)
-    {}
+    {
+        if (PORTAbits.RA4 == 0)
+        {
+            Clear_Rx_Buffer();
+        }
+    }
 }
 
 //tx interrupt
@@ -104,8 +122,8 @@ void tx232Isr (){
 void rx232Isr (){
     *rxptr = RCREG ;
     rxptr++;
-    if (rxptr == &rxbuffer[BUFFSIZE])
+    if (rxptr == &GLOBAL_RXBUFFER[BUFFSIZE])
     {
-        rxptr =& rxbuffer[0];
+        rxptr =& GLOBAL_RXBUFFER[0];
     }
 }
