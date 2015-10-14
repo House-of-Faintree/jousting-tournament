@@ -9,7 +9,7 @@ be compatible for running on the MOBILE ROBOT side.
 
 
 
-#include  <p18f452.h>
+#include  <p18f4520.h>
 #include  <usart.h>
 #include  "serialcommander.h"
 
@@ -30,14 +30,25 @@ while(sendByte(&someString)){
   do other things between sending chars;
 }
 */
-int sendByte(char *byte){
+int sendByte(char *byte){ 
+    while(*byte != 0x00){
+    while(TXSTAbits.TRMT == 0);
     TXREG = *byte;
-    if (*byte == 0x00) {
-    //we are finished, null terminator found
-    return 0;
+    byte++;
     }
-    *byte++;
-    return 1;
+ /*
+    TXREG = 0x0d; //carriage return
+    _asm
+        NOP        
+        NOP        
+    _endasm
+    TXREG = 0x0a; //Line feed
+    _asm
+            nop
+            nop
+    _endasm
+            */
+    return 0;    //we are finished, null terminator found
 }
 
 /*This function sets up the serial port of the PIC for operation.
@@ -50,9 +61,10 @@ void setupSerial(void){
   TRISCbits.RC6 = 0;              //set rc6 as output
   TRISCbits.RC7 = 1;              //set rc7 as input
   TXSTAbits.SYNC = 0;             //Set to asynchronous mode
-  TXSTAbits.BRGH = 1;             //Set baudrate generator to high
+  TXSTAbits.BRGH = 0;             //Set baudrate generator to high
   TXSTAbits.TXEN = 1;
-  SPBRG = 25;                     //Set baudrate to 9600 for 4Mhz
+  BAUDCONbits.BRG16 = 0;
+  SPBRG = 16;                     //Set baudrate to 9600 for 10Mhz
   RCSTAbits.CREN = 1;             //Enables receiver in continuous mode
   RCSTAbits.SPEN = 1;             //enable serial port
   //TXSTA = 0x24;                 //All settings up TXSTA done
