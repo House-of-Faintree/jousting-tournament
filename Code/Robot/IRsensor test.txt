@@ -1,35 +1,147 @@
+/*This is an example that Read the IR sensor voltage value and convert it to 
+ * digital value, 0 -255. Then store the digital signal into a variable call 
+ * "IRsensor".
+ * Furthermore,there are 2 types of the operation in this script:
+ * 1. since the value of "IRsensor" is always changing, therefore, I store the value
+ *    of the "IRsensor" into a string buffer that located in the robot, which is call
+ *    IRbuffer, the length of the IRbuffer is 255, it will keep record the data, from 0 - 255
+ *    index. Once it reach the index 255, it will erase the data from index 0 and record 
+ *    the value again.
+ * 
+ * 2. Transmit the "IRsensor" value via serial (Xbee), and store the value into 
+ *    another string buffer call "rxbuffer". The string have a size 255.
+ *    The algorism to store the value into rxbuffer is same with IRbuffer.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <p18f452.h>
-#include "ConfigRegs.h"
 #include <adc.h>
+#include <string.h>
+#include <usart.h>
 
-char IRsensor;
+#define CR 0x0D
+#define LF 0x0A
+
+#pragma config  WDT = OFF
+#pragma config  LVP = OFF
+
+char IRsensor;              //record the instant digital value from IR sensor
+char rxbuffer[255];         //IRsensor value store to rxbuffer via serial. 
+char *rxptr = rxbuffer;     //pointer initialization
+char  IRbuffer[255];        //IRsensor value store to IRbuffer (store in robot, not require transmit)
+char *IRptr = IRbuffer;     //IRbuffer pointer initilization
+
+void SerialSetup(void);
+void IRsetup(void);
+void enable_tx(void);
+void disable_tx(void);
+//
+void store_in_string(void);
+
+void tx232Isr();
+void rx232Isr();
+
+#pragma code lowpriority = 0x18
+void low_priority_interrupt(){
+     if(PIR1bits.RCIF == 1)
+        _asm goto rx232Isr _endasm
+    else if (PIR1bits.TXIF== 1)
+        _asm goto tx232Isr _endasm
+}
+#pragma code
+
 void main(void) {
 
-    IRsensor = 0;
+    IRsetup();
+    SerialSetup();    
+    enable_tx();
     
+    while(1){
+        while(INTCONbits.TMR0IF == 0); // Wait for Timer0 to timeout
+        
+        INTCONbits.TMR0IF = 0;         // clear overflow interrupt
+        ADCON0bits.GO = 1;             // Start A/D conversion
+
+        while (PIR1bits.ADIF == 0);    // Wait for conversion to complete                 
+        IRsensor = ADRESH;       
+        
+        store_in_string();
+        
+    }
+}
+
+//serial setup
+void SerialSetup(void){
+    INTCONbits.GIE = 1;
+    INTCONbits.PEIE = 1;
+    IPR1 = INIT_IPR1;
+    RCONbits.IPEN = 1;
+    SPBRG = INIT_SPBRG;
+    TXSTAbits.BRGH = 1;
+    TRISCbits.RC6 = 0;
+    TRISCbits.RC7 = 1;
+    RCSTAbits.SPEN = 1;
+    RCSTAbits.CREN = 1;
+    PIE1bits.RCIE = 1;
+}
+
+//A/D for IR sensor setup
+void IRsetup(void){        
+    
+    IRsensor = 0;        
+
     PORTB = 0x00;
     TRISB = 0x00;
 
-    ADCON0 = 0b01010001;     //channel 1 (RA2) is output
-    ADCON1 = 0b00001001;     //Left justify, RA2 is analog signal
-    T0CON = 0xC7;            //TMR0 prescaler, 1:256
-
-    while(1){
-
-        while(INTCONbits.TMR0IF == 0); //Wait for Timer0 to timeout
-        
-        INTCONbits.TMR0IF = 0; //clear overflow interrupt
-        ADCON0bits.GO = 1;         //; Start A/D conversion
-
-        while (PIR1bits.ADIF == 0);  // Wait for conversion to complete
-                 
-        IRsensor = ADRESH;           
-         
-    }
+    ADCON0 = 0b01010001;         //channel 1 (RA2) is output
+    ADCON1 = 0b00001001;         //Left justify, RA2 is analog signal
+    T0CON = 0xC7;                //TMR0 prescaler, 1:256
 
 }
+
+//ZIJI serial interrupt
+#pragma interrupt tx232Isr
+void tx232Isr (){
+    while (BusyUSART());
+    TXREG = IRsensor;
+    
+    if (TXREG == 0)
+        disable_tx();
+
+}
+//ZIJI serial interrupt
+#pragma interrupt rx232Isr
+void rx232Isr (){
+    *rxptr = RCREG;
+    rxptr++;
+    
+    if (rxptr == &rxbuffer[255])
+        rxptr = &rxbuffer[0];
+    
+}
+
+//enable and disable the transmission.
+void enable_tx(void){
+    TXSTAbits.TXEN = 1;
+    PIE1bits.TXIE = 1;
+}
+void disable_tx(void){
+    TXSTAbits.TXEN = 0;
+    PIE1bits.TXIE = 0;
+}
+
+//store the instant value of the IRsensor into the buffer
+//buffer size 255, it will erase the the buffer from the beginning
+//once it is full.
+void store_in_string(void){
+    *IRptr = IRsensor;
+    IRptr++;
+    
+    if(IRptr == &IRbuffer[255])
+        IRptr = &IRbuffer[0];
+        
+}
+
 
 
 
