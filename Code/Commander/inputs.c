@@ -9,18 +9,21 @@ functions from here should be called externally by including a header file
 inputs.h.
 
 *TODO:
- * - implement serial transmission of joystick values. 
+ * 
  * - Implement multiple joysticks and buttons with interrupts. 
- * - Treat all ADC data as an 8 bit char for simplicity??? Discuss.
+ * 
 */
 
 
 #include <adc.h>
-#include <p18f452.h>
+#include <p18f4520.h>
 #include <usart.h>
+#include "serialcommander.h"
+#include "PWM_motor.h"
 
 #pragma config  WDT = OFF
 #pragma config  LVP = OFF
+#pragma config  OSC = HS  
 
 //These will be used in a function and correspond to bits in port A.
 #define leftjoyX    0;  //RA0
@@ -29,25 +32,43 @@ inputs.h.
 #define rightjoyY   3;  //RA3
 
 void ADC_setup(void);
-int doADC(void);
+char doADC(void);
 void switchChannels(int channel);
+
+char LXstring[10] = "leftjoyX";
+char LYstring[10] = "leftjoyY";
+char *ptr;
 
 /*A test main function which can evolve into the main function of the controller,
  since when idle, we want the main function to stay monitoring the joystick positions.
  */
 void main (void){
     int result;
-    int i = 0;
+    int i;
+
+    i = 0;
     ADC_setup();
-  //setupSerial();  //Can be implemented to send data via serial to xbee/Robot
+    setupSerial();  //Can be implemented to send data via serial to xbee/Robot
+    //PWM_motor_setup();
+    //Inputs_motor_setup();
     while(INTCONbits.TMR0IF==0){}   // wait for adc to charge up
     while(1){
         /*Following code block keeps scanning for changes to joystick positions*/
-        //for(i=0; i<4; i++){
+        for(i=0; i<2; i++){
             result = doADC();
-          //sendbyte(result); //this will work very well if i just make result a char, and I can find no reason not to.
+            ptr = LXstring;
+//            sendByte(ptr);
+            sendByte(result); //this will work very well if i just make result a char, 
+                              //and I can find no reason not to.
+            /*if(i = 0){
+                turn((int)result);
+            }
+            else if(i = 1){
+                vel = (int)result;
+            }
+            */
             switchChannels(i); //using variable 'i' rather than leftjoyX etc for convenience.
-        //}
+        }
         i = 0;
     }
 }
@@ -56,7 +77,7 @@ void main (void){
 @brief  Initiates conversion, waits for completion then returns result.
  * joystick potentiometers return  0x02 < values < 0x48 with nominal being 0x0F.
  */
-int doADC(void){
+char doADC(void){
     ADCON0bits.GO=1;
     while(PIR1bits.ADIF==0){}   // wait for conversion to finish
     return ADRESH;
