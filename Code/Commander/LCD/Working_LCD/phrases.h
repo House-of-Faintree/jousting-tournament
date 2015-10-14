@@ -38,5 +38,6 @@ const char t2[LCDL]="Full Auto";
 const char t3[LCDL]="Factory Mode";
 const char t4[LCDL]="Giddyup!";   //For run time
 const char t5[LCDL]="Whoa!";      //Stop
+const char t6[LCDL]="Running";
 
 #endif	/* PHRASES_H */
