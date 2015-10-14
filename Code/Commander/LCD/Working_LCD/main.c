@@ -23,10 +23,13 @@ later)
 int MNML=0;             //CHANGE DEPENDING ON WHAT BOARD IS USED, 1 FOR MNML
 
 //Global Variables (in (%))
-int pid_gain=50;
 int max_speed=20;
+int pid_gain=50;
 int max_yaw=30;
 int ir_samp_e=60;
+int ir_samp_r=30;
+int ir_raw=30;
+int ir_avg=50;
 
 
 //Pointers to Strings
@@ -56,9 +59,10 @@ void main(void)
 
 void LCD_disp(int x, int y)
 {
-    
-    int values[4]={pid_gain,max_speed,max_yaw,ir_samp_e};            
+    //Probably most important array in commander, note the order
+    int values[7]={max_speed, pid_gain, max_yaw, ir_samp_e, ir_samp_r, ir_raw, ir_avg};            
     char  string[LCDL];
+    
     Lcd_Clear();
     Lcd_Set_Cursor(1,1);
     Lcd_Write_String(menutitle[x]);
