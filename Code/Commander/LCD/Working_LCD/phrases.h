@@ -29,7 +29,7 @@ const char s2[LCDL]="Max yaw rate:";
 const char s3[LCDL]="IR samp/est:";
 const char s4[LCDL]="IR samp rate:";
 const char s5[LCDL]="Raw data:";
-const char s6[LCDL]="Ave. data:";
+const char s6[LCDL]="Avg. data:";
 
 //Menu titles
 const char t0[LCDL]="Manual Mode";
