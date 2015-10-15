@@ -16,7 +16,9 @@ be compatible for running on the MOBILE ROBOT side.
 
 void setupSerial(void);
 int sendByte(char *byte);
+void sendNewLine(void);
 void sendString(char *byte);
+void sendNum(int result);
 
 /*This function sends individual bytes and as such needs to have a iterative
 loop such as a while implemented in the calling function. With a minor modification,
@@ -41,21 +43,27 @@ int sendByte(char *byte){
     return 0;    //we are finished, null terminator found
 }
 
+void sendNum(int result){
+    while(TXSTAbits.TRMT == 0);
+    TXREG = result;
+    return;
+}
+
+void sendNewLine(void){
+    while(TXSTAbits.TRMT == 0);
+    TXREG = 0x0a; //Line feed
+    
+    while(TXSTAbits.TRMT == 0);
+    TXREG = 0x0d; //carriage return'
+    
+}
+
 void sendString(char *byte){
     
     while(sendByte(byte)){
         byte++;
     }
-    TXREG = 0x0a; //Line feed
-    _asm
-            nop
-            nop
-    _endasm
-    TXREG = 0x0d; //carriage return'
-    _asm
-            nop
-            nop
-    _endasm
+    sendNewLine();
     return;
     
 }
