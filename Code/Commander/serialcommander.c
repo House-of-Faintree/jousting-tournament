@@ -1,3 +1,4 @@
+
 /*
 Authored by Ayush Sharma
 Dated 24th September 2015
@@ -15,6 +16,7 @@ be compatible for running on the MOBILE ROBOT side.
 
 void setupSerial(void);
 int sendByte(char *byte);
+void sendString(char *byte);
 
 /*This function sends individual bytes and as such needs to have a iterative
 loop such as a while implemented in the calling function. With a minor modification,
@@ -31,24 +33,31 @@ while(sendByte(&someString)){
 }
 */
 int sendByte(char *byte){ 
-    while(*byte != 0x00){
+    if(*byte != 0x00){
     while(TXSTAbits.TRMT == 0);
     TXREG = *byte;
-    byte++;
+    return 1;
     }
- /*
-    TXREG = 0x0d; //carriage return
-    _asm
-        NOP        
-        NOP        
-    _endasm
+    return 0;    //we are finished, null terminator found
+}
+
+void sendString(char *byte){
+    
+    while(sendByte(byte)){
+        byte++;
+    }
     TXREG = 0x0a; //Line feed
     _asm
             nop
             nop
     _endasm
-            */
-    return 0;    //we are finished, null terminator found
+    TXREG = 0x0d; //carriage return'
+    _asm
+            nop
+            nop
+    _endasm
+    return;
+    
 }
 
 /*This function sets up the serial port of the PIC for operation.
@@ -68,4 +77,5 @@ void setupSerial(void){
   RCSTAbits.CREN = 1;             //Enables receiver in continuous mode
   RCSTAbits.SPEN = 1;             //enable serial port
   //TXSTA = 0x24;                 //All settings up TXSTA done
+  
 }
