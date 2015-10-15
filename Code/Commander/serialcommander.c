@@ -14,11 +14,33 @@ be compatible for running on the MOBILE ROBOT side.
 #include  <usart.h>
 #include  "serialcommander.h"
 
+#define INIT_IPR1   0B00100000
+#define BUFFSIZE    50
+
 void setupSerial(void);
 int sendByte(char *byte);
 void sendNewLine(void);
 void sendString(char *byte);
 void sendNum(int result);
+
+char GLOBAL_RXBUFFER[BUFFSIZE] = "0";
+char *rxptr;
+void rx232Isr();
+#pragma code lowpriority = 0x18
+void low_priority_interrupt(){
+
+    if(PIR1bits.RCIF == 1)
+
+        _asm goto rx232Isr 
+        _endasm
+    /*
+    else if (PIR1bits.TXIF== 1)
+
+        _asm goto tx232Isr _endasm
+     */
+}
+
+#pragma code
 
 /*This function sends individual bytes and as such needs to have a iterative
 loop such as a while implemented in the calling function. With a minor modification,
@@ -75,6 +97,10 @@ Baud rate set to 9600 but this is arbitrary. Lower baud is possibly better for m
 but higher baud makes for smaller data packets. Needs to be experimented with.
 */
 void setupSerial(void){
+  INTCONbits.GIE = 1;
+  INTCONbits.PEIE = 1;
+  IPR1 = INIT_IPR1;
+  RCONbits.IPEN = 1;
   TRISCbits.RC6 = 0;              //set rc6 as output
   TRISCbits.RC7 = 1;              //set rc7 as input
   TXSTAbits.SYNC = 0;             //Set to asynchronous mode
@@ -84,6 +110,18 @@ void setupSerial(void){
   SPBRG = 16;                     //Set baudrate to 9600 for 10Mhz
   RCSTAbits.CREN = 1;             //Enables receiver in continuous mode
   RCSTAbits.SPEN = 1;             //enable serial port
+  PIE1bits.RCIE = 1;
   //TXSTA = 0x24;                 //All settings up TXSTA done
   
+}
+
+//rx interrupt
+#pragma interrupt rx232Isr
+void rx232Isr (){
+    *rxptr = RCREG ;
+    rxptr++;
+    if (rxptr == &GLOBAL_RXBUFFER[BUFFSIZE])
+    {
+        rxptr = &GLOBAL_RXBUFFER[0];
+    }
 }
