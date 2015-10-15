@@ -15,6 +15,11 @@ be compatible for running on the MOBILE ROBOT side.
  *      GLOBAL_RXBUFFER. do not declare this variable anywhere else.
 */
 
+/*****IMPORTANT******************IMPORTANT*********************IMPORTANT*/
+/*
+DO NOT DECLARE ANY INTTERUPT SUBROUTINES IN OTHER FILES, MAKE SURE ALL INTTERUPTS ARE HANDLED HERE, OR
+CUT AND PASTE THE INTERRUPT CODE AND VECTOR ADDRESS INTO ANOTHER C FILE CALLED INTERRUPTS.C
+*/
 
 
 #include  <p18f452.h>
