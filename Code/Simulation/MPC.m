@@ -14,6 +14,11 @@
 % guassian fn? maybe control spread more than displacement in
 % ControlInputs.m
 
+% Idea: change cost algorithm, cost is the change of state from current? and the 
+% final cost from the desired state? would it take the whole time to get there then?
+% maybe keep as is and then it wants to stay there - current control randomisation 
+% doesnt work that way
+
 % - Only the optimisation code, feedback has not been added.
 % - Absolute constraints on state has not been added.
 % - make better plotting code to see the xy plane of the robot? vector sizes
