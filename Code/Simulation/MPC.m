@@ -1,7 +1,12 @@
-%% Model Predictive Control for Jousting Robot- Take 1
+%% Model Predictive Control for Jousting Robot- Take 2
 % by Lydia Drabsch
 % 18/10/15
 % other functions required: ControlInputs.m path.m
+
+% Edit 19/10: better integration over sub timesteps, included acceleration
+% in displacement variables. Fixed reference vector. Included control in
+% cost. Working much better but still not 'optimal' control, just best random values.
+
 % NOTES: control selection random over all timesteps, is there a way to
 % make it more uniform? This random selection results in the cost being
 % massive. 
@@ -88,22 +93,30 @@ qdd =@(X,U) inv(M)*transpose(C(X))*lambda_s(X,U)+inv(M)*T(U);
 
 Xdot =@(X,U) [X(6:10);qdd(X,U)]
 %  initial x at zero
- X_init = zeros(10,1);
-dt = 0.1; % time step (seconds?)
-T = 9; % horizion
+X_init = zeros(10,1);
+X_init(3) = pi/2; % travelling in y direction start orientated
+
+
+dt = 1; % time step (seconds?)
+subdt = dt/10;
+
+T = 5; % horizion
 N = 10; % number of controls to try
 spread = 1;
 spreadset = 1;  % 10^-spreadset decrement
 Cost_old = 100000; % infinite inital cost
 
 % Desired X
-Ref = [0.05;NaN;0;NaN;NaN;0.4;0;NaN;NaN;NaN];    % travelling in x direction
-Q = [30;NaN;1;NaN;NaN;3;1;NaN;NaN;NaN];   % weighted cost
-torques = linspace(0,1.7,100);    % potential torque values
+% Ref = [0.05;NaN;0;NaN;NaN;0.4;0;NaN;NaN;NaN];    % travelling in x direction
+Ref = [0.2;NaN;pi/2;NaN;NaN;0;0.2;0;NaN;NaN];    % travelling in y direction, x displacement, theta=90
+
+Q = [300;NaN;100;NaN;NaN;10;30;30;NaN;NaN];   % weighted cost
+torques = linspace(-1.7,1.7,100);    % potential torque values
 X(:,1) = X_init;
 
 % random control?
 U_init = randi(100,2,T);
+%U_init = 50*ones(2,T);
 centre = U_init;
 STOP = 0;
 
@@ -112,15 +125,19 @@ while(STOP==0)       % or a while loop? until convergance?
     Cost = zeros(1,N);
 for j = 1:1:N % over each control
 
-    eval(['Uc = Upot.i' num2str(j) ''])
-    for i = 1:1:T      % over the time
+    eval(['Uc = Upot.i' num2str(j) ';'])
+    for i = 1:1:T      % over time for control inputs
+       for t = 1:1:10
         % calculate cost using least squares
-        Cost(j) = Cost(j) + nansum(Q.*(X(:,i)-Ref).^2);   % maybe weighted costs?
-        
+        Cost(j) = Cost(j) + nansum(Q.*(X(:,(i-1)*10+t)-Ref).^2) + sum(abs(torques(Uc(:,i))));   % maybe weighted costs?    
         % integrate over time step
-        X(:,i+1) = X(:,i) + dt*Xdot(X(:,i),torques(Uc(:,i)));
+        Xd = Xdot(X(:,(i-1)*10+t),torques(Uc(:,i)));
+        X(:,(i-1)*10+t+1) = X(:,(i-1)*10+t) + subdt*Xd + 0.5*subdt.^2*[Xd(1:5);zeros(5,1)];
+    
+       end
     end
-       Cost(j) = Cost(j) + nansum((X(:,T)-Ref).^2)  % add final cost NOTE: no cost on control
+       Cost(j) = Cost(j) + 10*nansum((X(:,T*10)-Ref).^2);  % add final cost NOTE: no cost on control
+                                             % final cost is weighted
    
    
 end
@@ -131,22 +148,27 @@ end
        Cost_old = Cost_new;
         eval(['centre = Upot.i' num2str(index) ';'])
         %spread = spread-10^(-spreadset);  % error if less than 0?
-        frac = 1;
+        frac = 0.5;
    else
-       frac = 0.5;
+       frac = 0.2;
        %spread = spread-0.5*10^(-spreadset);  % error if less than 0?
        % try again? minimise spread?
    end
 
-   if spread<0.15
+   if spread <= 0.15
             spread = spread-frac*0.01;
             %spreadset = 2;
-   elseif spread > -0.005 || spread <0.005
-       STOP = 1;
-   else
+   elseif spread > 0.15
             spread = spread-frac*0.1;
+   end
+   
+   if spread < 0.01 && Cost_new < 100
+       STOP = 1;
+   elseif spread <= 0.01
+       spread = 0.01;
+       
    end
    
 end
 
- path(centre,X_init,Ref,Xdot,dt,T)
+ Xfinal = path(centre,X_init,Ref,Xdot,dt,subdt,T)
