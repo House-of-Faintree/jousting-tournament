@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <p18f452.h>
@@ -11,7 +10,7 @@
 #pragma config  WDT = OFF
 #pragma config  LVP = OFF
 
-int count;
+int count，Signal;
 #pragma code lowpriority = 0x18
 void low_priority_interrupt(){
     
@@ -48,12 +47,14 @@ void Config_CCP_Timer1(){
 /*setup an interrupt square wave with frequency 1Hz*/
 # pragma interrupt CCP1_ISR
 void CCP1_ISR(){
+    
     count++;
     PIR1bits.CCP1IF = 0;
-   
     TMR1H = 0;
     TMR1L = 0;
+    
     if(count == 50){
+     Signal = 1;
      PORTBbits.3 = !PORTBbits.3;
      count = 0;
     }
@@ -61,7 +62,7 @@ void CCP1_ISR(){
 
 
 void main(void){
-    
+    Signal = 0;
     ISR_CCP1_Setup();
     Config_CCP_Timer1();
     while(1);
