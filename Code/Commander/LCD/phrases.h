@@ -28,9 +28,9 @@ const char w0[LCDL]="Bow, for I am";
 const char w1[LCDL]="Charlemagne!";
 
 //NTS exercise care with string lengths, no more than 13 characters
-const char s0[LCDL]="Max speed: %";
-const char s1[LCDL]="PID gains: %";
-const char s2[LCDL]="Yaw rate: %";
+const char s0[LCDL]="Max speed:";
+const char s1[LCDL]="PID gains:";
+const char s2[LCDL]="Time hor.:"
 const char s3[LCDL]="IR samp/est:";
 const char s4[LCDL]="IR samp rate:";
 const char s5[LCDL]="Raw data:";
