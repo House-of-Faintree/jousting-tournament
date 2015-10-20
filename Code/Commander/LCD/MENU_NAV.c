@@ -11,6 +11,7 @@ be compatible for running on the MOBILE ROBOT side.
 //TODO: 
 //    - try and do naviagtion through function calls
 //    - move interrupt code to interrupts.c
+//    - different run time message for each runtime mode
 
 #include  <p18cxxx.h>
 #include  <delays.h>
@@ -93,29 +94,30 @@ void main(void){
   LCD_disp(menu_ref_1, menu_ref_2);
   RUN=0;
   while(1){
-    switchChannels(0);
-    joy_x = doADC();
-    switchChannels(1);
-    joy_y = doADC();
+
   
 //NORMAL OPERATION  
     while(RUN==0){
+        switchChannels(0);
+        joy_x = doADC();
+        switchChannels(1);
+        joy_y = doADC();    //Get joystick values
       
         if(menu_ref_1==0)   //IF IN MANUAL
         {
-            
+            menu_ref_2=0;         //Default menu ref, should only be SPEED
             if(joy_x<=LEFT){      //User pushes right joystick left
-                if (menu_ref_2<6 && values[menu_ref_2]>0){
-                  values[menu_ref_2]-=5;
-                }
+                
+                values[menu_ref_2]-=5;          //decrement value by 5%
+                
                 LCD_disp(menu_ref_1, menu_ref_2);
-                delayms(200);
+                delayms(200);     //Delay to prevent flickering, and also to prevent 100-0 increments
 
             }
             else if (joy_x>=RIGHT){     //User pushes right joystick right
-                if (menu_ref_2<6 && values[menu_ref_2]<100){
-                    values[menu_ref_2]+=5;
-                }
+                
+                values[menu_ref_2]+=5;          //increment value by 5%
+                
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(200);
 
@@ -127,11 +129,14 @@ void main(void){
         if(menu_ref_1==1){            //IF IN FACTORY MODE
 
             if (joy_y>=UP){            //User pushes left joystick UP
-                menu_ref_2--;
+                
                 //Circular selection
 
                 if(menu_ref_2==0){
                   menu_ref_2=4;
+                }
+                else{
+                  menu_ref_2--;             //switched the order of this to prevent overflow
                 }
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(250);               //Arbitrary delay of 250 milliseconds
@@ -159,8 +164,45 @@ void main(void){
                 delayms(100);
 
             }            
-        }   
+        }  
+        
+        else{       //All other menu_ref_1's do not values displayed
+        Lcd_Clear();
+        Lcd_Set_Cursor(1,1);
+        Lcd_Write_String(menutitle[title_item]);
+        }
       }
+      /*MOTOR ON MESSAGE*/
+      Lcd_Clear();
+      Lcd_Set_Cursor(1,1);
+      Lcd_Write_String(t4);
+      
+      delays(2);
+      Lcd_Clear();
+      Lcd_Set_Cursor(1,1);
+      Lcd_Write_String(t6);     //Display run-time message
+      
+      if (menu_ref_1=1){
+          menu_ref_1=0;       //If motor is set on while on factory, defaults to manual mode
+      }
+      
+      /*MOTOR ON BEHAVIOUR*/
+      while(RUN==1){
+        
+        switchChannels(0);
+        joy_x = doADC();
+        switchChannels(1);
+        joy_y = doADC();    //Get joystick values
+        
+      }
+      
+      /*MOTOR OFF MESSAGE*/  
+      Lcd_Clear();
+      Lcd_Set_Cursor(1,1);
+      Lcd_Write_String(t5);
+      delays(1);
+      LCD_disp(menu_ref_1, menu_ref_2); //Return to normal display
+      
   }
   
   
@@ -180,42 +222,36 @@ void main(void){
         if (RUN==0)
         {
             RUN==1;
-            Lcd_Clear();
-            Lcd_Set_Cursor(1,1);
-            Lcd_Write_String(t4);     //Motor on message
+
             //MOTOR ON FUNCTION GOES HERE
-            delays(2);
-            Lcd_Clear();
-            Lcd_Set_Cursor(1,1);
-            Lcd_Write_String(t6);     //Display run-time message
+
         }
         else
         {
             RUN==0;
-            Lcd_Clear();
-            Lcd_Set_Cursor(1,1);
-            Lcd_Write_String(t5);     //Motor off message
+
             //MOTOR OFF FUNCTION GOES HERE
             delays(2);
         }
         
-
+        INTCON3bits.INT0IF = 0; //clear flag
     }
 
     //Port B bit 1 external interrupt for menu button
-    if(INTCON3bits.INT1IF == 1)  
+    if(INTCON3bits.INT1IF == 1)         
     {
-        if (RUN==0){
+        if (RUN==0){                //menu_ref_1 does not change while running
            menu_ref_1++;
            if (menu_ref_1==5){
                menu_ref_1==0;
             }
 
         }
+        INTCON3bits.INT1IF = 0; //clear flag
     }
     
     //Re-enable interrupts
-    INTCON3bits.INT1IF = 0; //clear flag
+    
     INTCONbits.GIE = 1; //re-enable interrupts
     PORTBbits.RB1 = 0; //clear port B bit
 }        
@@ -239,13 +275,8 @@ void LCD_disp(int title_item, int value_item)
     if (menu_ref_1<=1){ //possibly need to change order of phrases to
                         //include a check for user assist mode, in which case
                         //we check if menu_ref_1 <= 2
-        Lcd_Set_Cursor(2,1);    
-        sprintf(string, "%s%d", valueStrings[value_item],values[value_item]);
-        Lcd_Write_String(string);
-        //Rather than checking for which string to send and appending a %,
-        //I added a % to the corresponding string in phrases.h - Ayush
-        
-        /*
+                        // Leo: we don't need to, it does it automatically
+
         if (menu_ref_2<=2){
             Lcd_Set_Cursor(2,1);
             sprintf(string, "%s%d%", stringtab[y],values[y]);
@@ -256,8 +287,10 @@ void LCD_disp(int title_item, int value_item)
             sprintf(string, "%s%d", stringtab[y],values[y]);//no % symbol
             Lcd_Write_String(string);
         }
-        */
+        
     }
+    
+
 
     //#############################
 
