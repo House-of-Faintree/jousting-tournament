@@ -22,10 +22,19 @@ be compatible for running on the MOBILE ROBOT side.
 #include  "lcd.h"
 #include  "AD.h"
 
-#define UP 200
-#define DOWN 40
-#define LEFT 40
-#define RIGHT 200
+#define UP 240
+#define DOWN 10
+#define LEFT 10
+#define RIGHT 240
+
+
+# define MAXSPEED 0
+# define PIDGAINS 1        //PID Gains
+# define MAXYAW 2        //Max Yaw
+# define IRSAMPE 3         //ir_samp_e;
+# define IRSAMPR 4         //ir_samp_r;
+# define IRRAW 5         //ir_raw
+# define IRAVG 6
 
 //ATTENTION
 int MNML=0;             //CHANGE DEPENDING ON WHAT BOARD IS USED, 1 FOR MNML
@@ -40,6 +49,14 @@ int ir_samp_e;
 int ir_samp_r;
 int ir_raw;
 int ir_avg;
+//int values[] = { max_speed, pid_gain, max_yaw, ir_samp_e, ir_samp_r, ir_raw, ir_avg}; 
+
+
+int values[8];
+
+
+
+
 
 /*
  *Pointer Arrays
@@ -50,7 +67,7 @@ int ir_avg;
  */
 char *menutitle[4]={t0,t1,t2,t3}; 
 char *valueStrings[4]={s0,s1,s2,s3};
-char *stringtab[4]={s0,s1,s2,s3};
+char *stringtab[7]={s0,s1,s2,s3,s4,s5,s6};
 
 /****************************************************************************
  * menu_ref_1 is a reference variable which keeps track of where in the menu
@@ -62,10 +79,6 @@ char *stringtab[4]={s0,s1,s2,s3};
  */
 int menu_ref_1;           //Change through ISR
 int menu_ref_2;  
-int values[8];
-
-
-
 
 //Prototypes
 void welcome(void);
@@ -77,18 +90,24 @@ void LCD_disp(int title_item, int value_item);
 
 void main(void){
   
-  max_speed=100;
-  pid_gain=100;
-  max_yaw=100;
-  ir_samp_e=100;
-  ir_samp_r=100;
-  ir_raw=30;
-  ir_avg=50;
+
 
   //Default
   TRISD = 0x00;         //set port D signals to output
   menu_ref_1=1;
   menu_ref_2=0;
+  
+  /*zone of disgust*/
+  
+  values[MAXSPEED]=100;        //Max speed
+  values[PIDGAINS]=100;        //PID Gains
+  values[MAXYAW]=100;        //Max Yaw
+  values[IRSAMPE]=50;         //ir_samp_e;
+  values[IRSAMPR]=20;         //ir_samp_r;
+  values[IRRAW]=60;         //ir_raw
+  values[IRAVG]=10;         //ir_avg;
+  
+  /*****************/
   
 
   Lcd_Init();
@@ -101,28 +120,31 @@ void main(void){
   
 //NORMAL OPERATION  
     while(RUN==0){
-        switchChannels(0);
-        joy_x = doADC();
         switchChannels(1);
-        joy_y = doADC();    //Get joystick values
+        joy_x = doADC();
+        switchChannels(2);
+        joy_y = doADC();    //Get joystick values CHANGE THIS
       
         if(menu_ref_1==0)   //IF IN MANUAL
         {
             menu_ref_2=0;         //Default menu ref, should only be SPEED
             if(joy_x<=LEFT){      //User pushes right joystick left
-                
-                values[menu_ref_2]=values[menu_ref_2]-5;          //decrement value by 5%
+                if(values[menu_ref_2]>0){
+                    values[menu_ref_2]=values[menu_ref_2]-5;          //decrement value by 5%
+                }
                 
                 LCD_disp(menu_ref_1, menu_ref_2);
-                delayms(200);     //Delay to prevent flickering, and also to prevent 100-0 increments
+                delayms(255);     //Delay to prevent flickering, and also to prevent 100-0 increments
 
             }
             else if (joy_x>=RIGHT){     //User pushes right joystick right
+                if(values[menu_ref_2]<100){
                 
                 values[menu_ref_2]=values[menu_ref_2]+5;          //increment value by 5%
+                }
                 
                 LCD_disp(menu_ref_1, menu_ref_2);
-                delayms(200);
+                delayms(255);
 
             }        
 
@@ -144,30 +166,40 @@ void main(void){
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(250);               //Arbitrary delay of 250 milliseconds
 
+
             }
             else if (joy_y<=DOWN){      //User pushes left joystick DOWN
                 menu_ref_2++;
                 //Circular selection
-                if(menu_ref_2>=5){
+                if(menu_ref_2>=7){
                   menu_ref_2=1;
                 }
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(250);
+                
 
             }
             else if (joy_x<=LEFT){      //User pushes right joystick left
                 //decval(menu_ref_2);
                 
-                values[menu_ref_2]-=5; 
+                if(values[menu_ref_2]>0){
+                    values[menu_ref_2]=values[menu_ref_2]-5;          //decrement value by 5%
+                }
                 
                 LCD_disp(menu_ref_1, menu_ref_2);
-                delayms(100);
+                delayms(255);
+                delayms(200);
 
             }
             else if (joy_x>=RIGHT){     //User pushes right joystick right
-                values[menu_ref_2]+=5; 
+                
+                if(values[menu_ref_2]<100){
+                    values[menu_ref_2]=values[menu_ref_2]+5;          //decrement value by 5%
+                }
+                
                 LCD_disp(menu_ref_1, menu_ref_2);
-                delayms(100);
+                delayms(255);
+                delayms(200);
 
             }            
         }  
@@ -272,7 +304,7 @@ void main(void){
  */  
 void LCD_disp(int title_item, int value_item)
 {
-    int values[7] = { max_speed, pid_gain, max_yaw, ir_samp_e, ir_samp_r, ir_raw, ir_avg};     
+    
     char  string[LCDL];
     Lcd_Clear();
     Lcd_Set_Cursor(1,1);
@@ -312,7 +344,7 @@ void welcome(void){
     Lcd_Write_String(w0);
     Lcd_Set_Cursor(2,1);
     Lcd_Write_String(w1);
-    delays(5);
+    delays(3);
 }
 
 
