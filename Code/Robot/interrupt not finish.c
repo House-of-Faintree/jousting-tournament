@@ -27,6 +27,7 @@ void ISR_CCP1_Setup(){
 }
 
 void Config_CCP_Timer1(){
+    
     T1CONbits.RD16 = 1;
     T1CONbits.T1CKPS1 = 1;
     T1CONbits.TICKPS0 = 1;
@@ -37,15 +38,18 @@ void Config_CCP_Timer1(){
     
     PORTB = 0;
     TRISC = 0;
-    CCPR1H = 
-    
+    CCPR1H = 0x04;      // value is 1250
+    CCPR1L = 0xE2;  
     
     
 }
+# pragma
 
 
 void main(void){
     
+    ISR_CCP1_Setup();
+    Config_CCP_Timer1();
     while(1);
 }
 
