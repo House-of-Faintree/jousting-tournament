@@ -1,4 +1,4 @@
-Enter file contents here#include <p18cxxx.h>
+#include <p18cxxx.h>
 #include "AD.h"
 
 void ADC_setup(void);
