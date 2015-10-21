@@ -45,7 +45,8 @@ R = 1;
 L = 1;
 mt = 1;
 mc = 1;
-
+alpha = Iw*mt*L^2+It*mt*R^2+It*Iw;
+beta = It*R^4*mt+4*Iw^2*L^2+2*Iw*L^2*R^2*mt+2*It*Iw*R^2;
 %syms theta mt mc L R It Iw c thetad xd yd Tr Tl Rphid Lphid Rphi Lphi
 
 % M = [mt,   0,  -mc*c*sin(theta),   0,  0;...
@@ -76,9 +77,50 @@ T = @(U) [0,0,0,U(1),U(2)]';
 %lambda = @(X) -inv(C*inv(M)*transpose(C))*(C*inv(M)*T +Cdqd);
 
 lambda_s =@(X,U) [mt*X(8)*(X(6)*cos(X(3))+X(7)*sin(X(3)));...% simplified sin^2+cos^2 = 1;
-            ((Iw*(X(8)*(X(7)*cos(X(3))-X(6)*sin(X(3)))) - R*U(2)/Iw * (It-L^2*mt)) - Iw*(X(8)*(X(7)*cos(X(3))-X(6)*sin(X(3))) - R*U(1)/Iw * (Iw*mt*L^2+It*mt*R^2+It*Iw)))/(It*R^4*mt+4*Iw^2*L^2+2*Iw*L^2*R^2*mt+2*It*Iw*R^2);...
-            ((Iw*(X(8)*(X(7)*cos(X(3))-X(6)*sin(X(3)))) - R*U(1)/Iw * (It-L^2*mt)) - Iw*(X(8)*(X(7)*cos(X(3))-X(6)*sin(X(3))) - R*U(2)/Iw * (Iw*mt*L^2+It*mt*R^2+It*Iw)))/(It*R^4*mt+4*Iw^2*L^2+2*Iw*L^2*R^2*mt+2*It*Iw*R^2)];
-    
+            ((Iw^2*(X(8)*(X(7)*cos(X(3))-X(6)*sin(X(3)))) - R*U(2)/Iw * (It-L^2*mt)) - Iw*(X(8)*(X(7)*cos(X(3))-X(6)*sin(X(3))) - R*U(1)/Iw * (Iw*mt*L^2+It*mt*R^2+It*Iw)))/(It*R^4*mt+4*Iw^2*L^2+2*Iw*L^2*R^2*mt+2*It*Iw*R^2);...
+            ((Iw^2*(X(8)*(X(7)*cos(X(3))-X(6)*sin(X(3)))) - R*U(1)/Iw * (It-L^2*mt)) - Iw*(X(8)*(X(7)*cos(X(3))-X(6)*sin(X(3))) - R*U(2)/Iw * (Iw*mt*L^2+It*mt*R^2+It*Iw)))/(It*R^4*mt+4*Iw^2*L^2+2*Iw*L^2*R^2*mt+2*It*Iw*R^2)];
+
+dXd1_dtheta =@(X,U) 2*X(8)*(Iw-Iw^2)*(X(7)*sin(2*X(3))+X(6)*cos(2*X(3)))/beta - sin(X(3))*R*(U(1)+U(2))*(alpha+gamma/Iw)/beta - mt*X(8)*(X(6)*cos(2*X(3))+X(7)*sin(2*X(3)));
+
+dXd1_dxd =@(X,U) -X(8)*cos(X(3))*sin(X(3))*(2*(Iw^2-Iw)/beta +mt);
+
+dXd1_dyd =@(X,U) 2*X(8)*cos(X(3))^2/beta - mt*X(8)*sin(X(3))^2;
+
+dXd1_dthetad =@(X,U) 2*(Iw^2-Iw)*(X(7)*cos(X(3))^2-X(6)*cos(X(3))*sin(X(3)))/beta - mt*(X(7)*sin(X(3))^2 + X(6)*cos(X(3))*sin(X(3)));
+
+dXd2_dtheta =@(X,U) 2*X(8)*(Iw^2-Iw)*(X(7)*cos(2*X(3))-X(6)*sin(2*X(3)))/beta + cos(X(3))*R*(U(1)+U(2))*(alpha+gamma/Iw)/beta + mt*X(8)*(-X(6)*sin(2*X(3))+X(7)*cos(2*X(3)));
+
+dXd2_dxd =@(X,U) -2*X(8)*(Iw^2-Iw)/beta*sin(X(3))^2 + mt*X(8)*cos(X(3))^2;
+
+dXd2_dyd =@(X,U) 2*X(8)*(Iw^2-Iw)*cos(X(3))*sin(X(3))/beta + mt*X(8)*cos(X(3))*sin(X(3));
+
+dXd2_dthetad =@(X,U) 2*(Iw^2-Iw)/beta*(X(7)*cos(X(3))*sin(X(3))-X(6)*sin(X(3))^2) + mt*(X(6)*cos(X(3))^2+X(7)*cos(X(3))*sin(X(3)));
+
+dXd4_dtheta =@(X,U) -R*X(8)*(Iw-Iw^2)*(X(7)*sin(X(3))+X(6)*cos(X(3)))/beta;
+
+dXd4_dxd =@(X,U) -R*X(8)*sin(X(3))*(Iw-Iw^2)/beta;
+
+dXd4_dyd =@(X,U) R*X(8)*cos(X(3))*(Iw-Iw^2)/beta;
+
+dXd4_dthetad =@(X,U) R*(X(7)*cos(X(3))-X(6)*sin(X(3)))*(Iw-Iw^2)/beta;
+
+% horizontal = constant differential variable, vertical = equation
+LdXd_dX =@(X,U) [0,0,0,0,0;...
+            0,0,0,0,0;...
+            dXd1_dtheta(X,U),dXd2_dtheta(X,U),0,dXd4_dtheta(X,U),dXd4_dtheta(X,U);...
+            0,0,0,0,0;...
+            0,0,0,0,0;...
+            dXd1_dxd(X,U),dXd2_dxd(X,U),0,dXd4_dxd(X,U),dXd4_dxd(X,U);...
+            dXd1_dyd(X,U),dXd2_dyd(X,U),0,dXd4_dyd(X,U),dXd4_dyd(X,U);...
+            dXd1_dthetad(X,U),dXd2_dthetad(X,U),0,dXd4_dthetad(X,U),dXd4_dthetad(X,U);...
+            0,0,0,0,0;...
+            0,0,0,0,0];
+        
+HdXd_dX = [eye(5);zeros(5)]    ;
+
+dXd_dX =@(X,U) [HdXd_dX,inv(M)*LdXd_dX(X,U)]        
+        
+        
 %lagrange =@(X) inv(M)*transpose(C)*lambda_s;
 %subs(lagrange, [mt,mc,It,Iw,R,L],[vmt,vmc,vIt,vIw,vR,vL])
 
@@ -162,7 +204,7 @@ end
             spread = spread-frac*0.1;
    end
    
-   if spread < 0.01 && Cost_new < 100
+   if spread < 0.01 && Cost_new < 600
        STOP = 1;
    elseif spread <= 0.01
        spread = 0.01;

@@ -1,7 +1,8 @@
 %% Model Predictive Control for Jousting Robot- Take 2
 % by Lydia Drabsch
 % 18/10/15
-% other functions required: ControlInputs.m path.m
+% other functions required: ControlInputs.m path.m rk4step_sattes.m
+% rk4step_lambda.m
 
 % Edit 19/10: better integration over sub timesteps, included acceleration
 % in displacement variables. Fixed reference vector. Included control in
@@ -73,7 +74,7 @@ Cdqd = @(X) [-X(8)*(X(6)*cos(X(3))+X(7)*sin(X(3)));...
         -X(8)*(X(6)*sin(X(3))-X(7)*cos(X(3)));...
         -X(8)*(X(6)*sin(X(3))-X(7)*cos(X(3)))];
 
-T = @(U) [0,0,0,U(1),U(2)]';
+Tau = @(U) [0,0,0,U(1),U(2)]';
 
 %lambda = @(X) -inv(C*inv(M)*transpose(C))*(C*inv(M)*T +Cdqd);
 
@@ -121,7 +122,33 @@ HdXd_dX = [eye(5);zeros(5)]    ;
 
 dXd_dX =@(X,U) [HdXd_dX,LdXd_dX(X,U)]        
         
-        
+dXd1_dTr =@(X) cos(X(3))*R*(alpha - gamma/Iw)/(beta*mt );
+
+dXd1_dTl =@(X) cos(X(3))*R*(alpha - gamma/Iw)/(mt*beta);
+
+dXd2_dTr =@(X) sin(X(3))*R*(alpha-gamma/Iw)/(mt*beta);
+
+dXd2_dTl =@(X) sin(X(3))*R*(alpha-gamma/Iw)/(mt*beta);
+
+dXd3_dTr = L*R/(beta*It)*(gamma/It+alpha);
+
+dXd3_dTl = -L*R/(beta*It)*(gamma/It+alpha);
+
+dXd4_dTr = - R^2*alpha/(Iw*beta);
+
+dXd4_dTl = R^2*gamma/(Iw^2*beta);
+
+dXd5_dTr = R^2*gamma/(Iw^2*beta);
+
+dXd5_dTl = - R^2*alpha/(Iw*beta);
+
+dXd_dU = @(X)[zeros(5,2);...
+        dXd1_dTr(X),dXd1_dTl(X);...
+        dXd2_dTr(X),dXd2_dTl(X);...
+        dXd3_dTr,dXd3_dTl;...
+        dXd4_dTr,dXd4_dTl;...
+        dXd5_dTr,dXd5_dTl];
+
 %lagrange =@(X) inv(M)*transpose(C)*lambda_s;
 %subs(lagrange, [mt,mc,It,Iw,R,L],[vmt,vmc,vIt,vIw,vR,vL])
 
@@ -130,7 +157,7 @@ dXd_dX =@(X,U) [HdXd_dX,LdXd_dX(X,U)]
 %% Dynamics
 % X = x,y,theta,Rphi,Lphi,xd,yd,thetad,Rphid,Lphid     u = Tr,Tl
 
-qdd =@(X,U) inv(M)*transpose(C(X))*lambda_s(X,U)+inv(M)*T(U);
+qdd =@(X,U) inv(M)*transpose(C(X))*lambda_s(X,U)+inv(M)*Tau(U);
 %qdd =@(X) subs(qdd,[mt,mc,It,Iw,R,L],[vmt,vmc,vIt,vIw,vR,vL]);
 %qdd = subs(qdd,[theta,xd,yd,thetad],[@X(3),@X(6),@X(7),@X(8)])
 
@@ -140,7 +167,7 @@ X_init = zeros(10,1);
 X_init(3) = pi/2; % travelling in y direction start orientated
 
 
-dt = 1; % time step (seconds?)
+dt = 0.1; % time step (seconds?)
 subdt = dt/10;
 
 T = 5; % horizion
@@ -157,15 +184,15 @@ Q = [300;NaN;100;NaN;NaN;10;30;30;NaN;NaN];   % weighted cost
 R = [1;1];
 
 % cost gradient in state space
-Hx = Q.*2*(X-Ref)+V_final'*dXd_dX(X,U)
+%Hx = Q.*2*(X-Ref)+dV_dX'*dXd_dX(X,U)
+% Hy = R.*2.*U + dV_dU'*dXd_dU(X)+dV_dU'*[0;0;0;0;0;0;0;0;1/Iw;1/Iw];
 
-
-torques = linspace(-1.7,1.7,100);    % potential torque values
+torques = linspace(-1.7,1.7,101);    % potential torque values
 X(:,1) = X_init;
 
 % random control?
-U_init = randi(100,2,T);
-%U_init = 50*ones(2,T);
+% U_init = randi(round(200),2,T)-round(100)
+U_init = 70*ones(2,T);
 centre = U_init;
 STOP = 0;
 
@@ -173,24 +200,50 @@ while(STOP==0)       % or a while loop? until convergance?
     %Upot = ControlInputs(centre,spread,N,T);  % structure of controls
     Cost = zeros(1,N);
 for j = 1:1:N % over each control
-
-    eval(['Uc = Upot.i' num2str(j) ';'])
+    Uc = U_init;
+    %eval(['Uc = Upot.i' num2str(j) ';'])
     for i = 1:1:T      % over time for control inputs
-       for t = 1:1:10
+%        for t = 1:1:10
         % calculate cost using least squares
-        Cost(j) = Cost(j) + nansum(Q.*(X(:,(i-1)*10+t)-Ref).^2) + sum(abs(torques(Uc(:,i))));   % maybe weighted costs?    
+        Cost(j) = Cost(j) + nansum(Q.*(X(:,i)-Ref).^2) + sum((torques(Uc(:,i))).^2);   % maybe weighted costs?    
         % integrate over time step
-        Xd = Xdot(X(:,(i-1)*10+t),torques(Uc(:,i)));
-        X(:,(i-1)*10+t+1) = X(:,(i-1)*10+t) + subdt*Xd + 0.5*subdt.^2*[Xd(1:5);zeros(5,1)];
-    
-       end
+        
+        X(:,i+1)=rk4step_states(X(:,i),Uc(:,i),dt,Xdot,torques);
+%        end
     end
-    dV_dx = 2*(X(:,T*10)-Ref);  % final cost partial derivative wrt X
+    Xfinal = X(:,i+1);
+    
+    dV_dX = 2*(Xfinal-Ref);  % final cost partial derivative wrt X - replace Nans with 0's?
+    dV_dX(isnan(dV_dX)) = 0;
+    dlambdaf = -((Q.*2.*(Xfinal-Ref))'+dV_dX'*transpose(dXd_dX(Xfinal,Uc)))  % wrote the matrix wrong, must be transpose
+    dlambda = @(X,lambda,U)  -((Q.*2.*(X-Ref))'+lambda'*transpose(dXd_dX(X,U)))
+    
+%     Hy = R.*2.*U + dV_dU'*dXd_dU(X)+dV_dU'*[0;0;0;0;0;0;0;0;1/Iw;1/Iw];
+    Search = @(X,lambda,U) -((R.*2.*U)' + lambda'*dXd_dU(X)+lambda'*[0,0;0,0;0,0;0,0;0,0;0,0;0,0;0,0;1/Iw,0;0,1/Iw])
+    
+    % runge kutta not exactly time reversable? Leapfrog method instead?
+    % integrate dlambda backwards in time and store lambda for each
+    % timestep
+    lambda = zeros(10,T);
+    lambda(:,T) = Q.*(Xfinal-Ref).^2; % final cost
+    lambda = noNaN(lambda);
+    
+    for ib = T:-1:2
+        % search direction
+        s(:,ib) = Search(X(:,ib),lambda(:,ib),Uc(:,ib))
+        
+        lambda(:,ib-1) = rk4step_lambda(lambda(:,ib),-dt,dlambda,X(:,ib),Uc(:,ib))   % need to pass Ref,dXd_dX? are NAN's going to be a problem?
+       
+    end
+    s(:,1) = Search(X(:,1),lambda(:,1),Uc(:,1)) % final search
+%     dV_dU = 2.*R.*U;
+%     Hy = R.*2.*U + dV_dU'*dXd_dU(X)+dV_dU'*[0;0;0;0;0;0;0;0;1/Iw;1/Iw];
+    
        Cost(j) = Cost(j) + 10*nansum((X(:,T*10)-Ref).^2);  % add final cost NOTE: no cost on control
                                              % final cost is weighted??
    % integrate backwards in time
    %Hx = Q.*2*(X-Ref)+dV_dx'*dXd_dX(X,U)
-   dfinalcost = -(Q.*2*(X-Ref)+dV_dx'*dXd_dX(X,U))
+   
    
    
    
