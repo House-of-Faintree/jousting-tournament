@@ -27,6 +27,10 @@ be compatible for running on the MOBILE ROBOT side.
 #define LEFT 10
 #define RIGHT 240
 
+#define MANUAL 0
+#define FACTORY 1
+#define ASSIST  2
+#define AUTO    3
 
 # define MAXSPEED 0
 # define PIDGAINS 1        //PID Gains
@@ -51,7 +55,7 @@ int ir_raw;
 int ir_avg;
 //int values[] = { max_speed, pid_gain, max_yaw, ir_samp_e, ir_samp_r, ir_raw, ir_avg}; 
 
-
+int butt1=0;        //flag for button
 int values[8];
 
 
@@ -80,12 +84,23 @@ char *stringtab[7]={s0,s1,s2,s3,s4,s5,s6};
 int menu_ref_1;           //Change through ISR
 int menu_ref_2;  
 
+
+void high_interrupt(void);
+void highPriorityIsr(void);
+
+#pragma code highPriorityInterruptAddress=0x0008
+void high_interrupt(void)
+{
+    _asm GOTO highPriorityIsr _endasm
+}
+
 //Prototypes
 void welcome(void);
 void delay10us(int x);
 void delayms(int x);
 void delays(int x);
 void LCD_disp(int title_item, int value_item);
+void Button_Setup(void);
 
 
 void main(void){
@@ -94,7 +109,7 @@ void main(void){
 
   //Default
   TRISD = 0x00;         //set port D signals to output
-  menu_ref_1=1;
+  menu_ref_1=0;
   menu_ref_2=0;
   
   /*zone of disgust*/
@@ -113,6 +128,7 @@ void main(void){
   Lcd_Init();
   welcome();
   ADC_setup();
+  Button_Setup();
   LCD_disp(menu_ref_1, menu_ref_2);
   RUN=0;
   while(1){
@@ -120,21 +136,45 @@ void main(void){
   
 //NORMAL OPERATION  
     while(RUN==0){
+        
+        if (butt1==1){
+            
+            if (RUN==0){                //menu_ref_1 does not change while running
+               /*menu_ref_1++;
+               if (menu_ref_1==4){
+                   menu_ref_1=MANUAL;
+                }*/
+                if(menu_ref_1 == MANUAL) menu_ref_1 = FACTORY;
+                else if(menu_ref_1 == FACTORY) menu_ref_1 = ASSIST;
+                else if(menu_ref_1 == ASSIST) menu_ref_1 = AUTO;
+                else if(menu_ref_1 == AUTO) menu_ref_1 = MANUAL;
+                delayms(200);
+                butt1=0;
+                LCD_disp(menu_ref_1, menu_ref_2);
+
+            }
+        }
+        
+        delayms(200); 
         switchChannels(1);
         joy_x = doADC();
         switchChannels(2);
         joy_y = doADC();    //Get joystick values CHANGE THIS
+                         
       
-        if(menu_ref_1==0)   //IF IN MANUAL
+        if(menu_ref_1==MANUAL)   //IF IN MANUAL
         {
             menu_ref_2=0;         //Default menu ref, should only be SPEED
+            
+            
+            
             if(joy_x<=LEFT){      //User pushes right joystick left
                 if(values[menu_ref_2]>0){
                     values[menu_ref_2]=values[menu_ref_2]-5;          //decrement value by 5%
                 }
                 
                 LCD_disp(menu_ref_1, menu_ref_2);
-                delayms(255);     //Delay to prevent flickering, and also to prevent 100-0 increments
+                delayms(200);     //Delay to prevent flickering, and also to prevent 100-0 increments
 
             }
             else if (joy_x>=RIGHT){     //User pushes right joystick right
@@ -144,14 +184,14 @@ void main(void){
                 }
                 
                 LCD_disp(menu_ref_1, menu_ref_2);
-                delayms(255);
+                delayms(200);
 
-            }        
+            }   
 
 
         }  
 
-        else if(menu_ref_1==1){            //IF IN FACTORY MODE
+        else if(menu_ref_1==FACTORY){            //IF IN FACTORY MODE
 
             if (joy_y>=UP){            //User pushes left joystick UP
                 
@@ -205,16 +245,17 @@ void main(void){
         }  
         
         else{       //All other menu_ref_1's do not values displayed
-        Lcd_Clear();
-        Lcd_Set_Cursor(1,1);
-        Lcd_Write_String(menutitle[menu_ref_1]);
-        delayms(200);
+
+        
+        
         }
       }
       /*MOTOR ON MESSAGE*/
+    if (RUN==1){
       Lcd_Clear();
       Lcd_Set_Cursor(1,1);
       Lcd_Write_String(t4);
+    
       
       delays(2);
       Lcd_Clear();
@@ -224,6 +265,7 @@ void main(void){
       if (menu_ref_1=1){
           menu_ref_1=0;       //If motor is set on while on factory, defaults to manual mode
       }
+    }
       
       /*MOTOR ON BEHAVIOUR*/
       while(RUN==1){
@@ -247,6 +289,32 @@ void main(void){
   
 }
 
+void Button_Setup(void)
+{
+    TRISB = 0x00; 
+    PORTB = 0xFF;    
+    
+    //Interrupt setup
+    INTCONbits.GIEL = 0; //disable interrupts
+    INTCONbits.GIEH = 0;
+    INTCON2bits.RBPU = 0; //enable port B pull-up interrupts
+    
+    INTCONbits.INT0IE = 1;  //enable external interrupt 0 PortB bit 0
+    INTCON2bits.INTEDG0 = 0; //falling edge trigger, default high priority
+    
+    INTCON3bits.INT1IE = 1; //enable external interrupt 1 PortB bit 1
+    INTCON2bits.INTEDG1 = 0; //falling edge trigger 
+    INTCON3bits.INT1IP = 1; //set high priority
+     
+    INTCONbits.INT0IF = 0; //clear flags
+    INTCON3bits.INT1IF = 0;
+    PIR1 = 0x00;
+    PIR2 = 0x00;
+    INTCONbits.GIEL = 1; //enable Interrupts
+    INTCONbits.GIEH = 1; 
+
+}
+
 /* TODO : 
  * Move code to interrupts.c
  * 
@@ -260,39 +328,35 @@ void main(void){
      
         if (RUN==0)
         {
-            RUN==1;
+            RUN=1;
 
             //MOTOR ON FUNCTION GOES HERE
 
         }
         else
         {
-            RUN==0;
+            RUN=0;
 
             //MOTOR OFF FUNCTION GOES HERE
             delays(2);
         }
-        
+        INTCON1bits.INT0IF = 0; //clear flag
 
     }
 
     //Port B bit 1 external interrupt for menu button
     if(INTCON3bits.INT1IF == 1)         
     {
-        if (RUN==0){                //menu_ref_1 does not change while running
-           menu_ref_1++;
-           if (menu_ref_1==5){
-               menu_ref_1==0;
-            }
-
-        }
+        butt1=1;
+        INTCON3bits.INT1IF = 0; //clear flag
 
     }
     
     //Re-enable interrupts
-    INTCON3bits.INT1IF = 0; //clear flag
+    
     INTCONbits.GIE = 1; //re-enable interrupts
-    PORTBbits.RB1 = 0; //clear port B bit
+    PORTB = 0xFF; //clear port B bit
+
 }        
   
 //FUNCTIONS  
@@ -329,6 +393,7 @@ void LCD_disp(int title_item, int value_item)
         
     }
     
+    //To do: Semi auto should have a display of cm from tilt
 
 
     //#############################
