@@ -1,10 +1,11 @@
 
 /*
-Authored by ZIJI
-Dated 20/10/2015
+Authored by Ayush Sharma
+Dated 24th September 2015
 ********************************************************************************
-still working on this handshake function using tmr0 overflow interrupt
-based on the serial function
+This file proves external use of some functions related to the serial module.
+These functions were designed to be run on the COMMANDER side, however some may
+be compatible for running on the MOBILE ROBOT side.
 */
 
 
@@ -14,7 +15,6 @@ based on the serial function
 
 #include  "ConfigRegs18f4520.h"
 
-#define INIT_IPR1   0B00000000
 #define BUFFSIZE    50
 
 void setupSerial(void);
@@ -24,22 +24,27 @@ void sendString(char *byte);
 void sendNum(int result);
 
 char ByteTest = 0x78;
-int  NumTest = 5326;
+int  Hello = 178;
 char StrTest[] = "week12!";
 
 char GLOBAL_RXBUFFER[BUFFSIZE] = "0";
 char *rxptr = GLOBAL_RXBUFFER;
 void rx232Isr();
 void TMR0Isr ();
-#pragma code lowpriority = 0x18
-void low_priority_interrupt(){
+#pragma code highpriority = 0x08
+void high_priority_interrupt(){
 
     if(PIR1bits.RCIF == 1)
     {
         _asm goto rx232Isr 
         _endasm
     }
-    else if (INTCONbits.TMR0IF == 1)
+    
+}
+#pragma code lowpriority = 0x18
+void low_priority_interrupt(){
+
+    if (INTCONbits.TMR0IF == 1)
     {
         _asm goto TMR0Isr
         _endasm
@@ -68,6 +73,7 @@ int sendByte(char *byte){
     while(TXSTAbits.TRMT == 0);
     TXREG = *byte;
     return 1;
+    
     }
     return 0;    //we are finished, null terminator found
 }
@@ -107,17 +113,16 @@ but higher baud makes for smaller data packets. Needs to be experimented with.
 void TMR0Init(void)
 {
     T0CONbits.TMR0ON = 1;
-    T0CONbits.T08BIT = 1;
+    T0CONbits.T08BIT = 0;
     T0CONbits.PSA = 1;
+    T0CONbits.T0CS = 0;
     INTCON2bits.TMR0IP = 0;
     INTCONbits.TMR0IE = 1;
     INTCONbits.TMR0IF = 0;
 }
 
 void setupSerial(void){
-  INTCONbits.GIE = 1;
-  INTCONbits.PEIE = 1;
-  IPR1 = INIT_IPR1;
+  IPR1bits.RCIP = 1;
   RCONbits.IPEN = 1;
   TRISCbits.RC6 = 0;              //set rc6 as output
   TRISCbits.RC7 = 1;              //set rc7 as input
@@ -125,7 +130,7 @@ void setupSerial(void){
   TXSTAbits.BRGH = 1;             //Set baudrate generator to high
   TXSTAbits.TXEN = 1;
   //BAUDCONbits.BRG16 = 0;
-  SPBRG = 25;                     //Set baudrate to 9600 for 10Mhz
+  SPBRG = 64;                     //Set baudrate to 9600 for 10Mhz
   RCSTAbits.SPEN = 1;             //enable serial port
   RCSTAbits.CREN = 1;             //Enables receiver in continuous mode
   PIE1bits.RCIE = 1;
@@ -148,17 +153,31 @@ void main(void)
 void rx232Isr (){
     *rxptr = RCREG ;
     rxptr++;
-    if (rxptr == &GLOBAL_RXBUFFER[BUFFSIZE])
+    
+    if (RCREG == Hello)
+    {
+        sendString(GLOBAL_RXBUFFER);
+    }
+    
+    if (RCREG == '\r'||rxptr == &GLOBAL_RXBUFFER[BUFFSIZE])
     {
         rxptr = &GLOBAL_RXBUFFER[0];
     }
+    
 }
 
 #pragma interrupt TMR0Isr
 void TMR0Isr (){
+    
     INTCONbits.TMR0IE = 0;
-    sendNum(NumTest);
-    sendString(StrTest);
-    INTCONbits.TMR0IF = 0;
+    sendNum(1);
+    sendNum(2);
+    sendNum(3);
+    sendNum(4);
+    sendNum(5);
+    sendNum(Hello);
+    //sendString(StrTest);
     INTCONbits.TMR0IE = 1;
+    INTCONbits.TMR0IF = 0;
+    
 }
