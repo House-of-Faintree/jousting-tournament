@@ -8,6 +8,8 @@
 % in displacement variables. Fixed reference vector. Included control in
 % cost. Working much better but still not 'optimal' control, just best random values.
 
+% Edit: NO TORQUES VECTOR
+
 % NOTES: control selection random over all timesteps, is there a way to
 % make it more uniform? This random selection results in the cost being
 % massive. 
@@ -107,20 +109,20 @@ dXd4_dyd =@(X,U) R*X(8)*cos(X(3))*(1-Iw)/beta;
 dXd4_dthetad =@(X,U) R*(X(7)*cos(X(3))-X(6)*sin(X(3)))*(1-Iw)/beta;
 
 % horizontal = constant differential variable, vertical = equation
-LdXd_dX =@(X,U) [0,0,0,0,0;...
-            0,0,0,0,0;...
-            dXd1_dtheta(X,U),dXd2_dtheta(X,U),0,dXd4_dtheta(X,U),dXd4_dtheta(X,U);...
-            0,0,0,0,0;...
-            0,0,0,0,0;...
-            dXd1_dxd(X,U),dXd2_dxd(X,U),0,dXd4_dxd(X,U),dXd4_dxd(X,U);...
-            dXd1_dyd(X,U),dXd2_dyd(X,U),0,dXd4_dyd(X,U),dXd4_dyd(X,U);...
-            dXd1_dthetad(X,U),dXd2_dthetad(X,U),0,dXd4_dthetad(X,U),dXd4_dthetad(X,U);...
-            0,0,0,0,0;...
-            0,0,0,0,0];
+LdXd_dX =@(X,U) [0,0,0,0,0,0,0,0,0,0;...
+            0,0,0,0,0,0,0,0,0,0;...
+            0,0,0,0,0,dXd1_dtheta(X,U),dXd2_dtheta(X,U),0,dXd4_dtheta(X,U),dXd4_dtheta(X,U);...
+            0,0,0,0,0,0,0,0,0,0;...
+            0,0,0,0,0,0,0,0,0,0;...
+            1,0,0,0,0,dXd1_dxd(X,U),dXd2_dxd(X,U),0,dXd4_dxd(X,U),dXd4_dxd(X,U);...
+            0,1,0,0,0,dXd1_dyd(X,U),dXd2_dyd(X,U),0,dXd4_dyd(X,U),dXd4_dyd(X,U);...
+            0,0,1,0,0,dXd1_dthetad(X,U),dXd2_dthetad(X,U),0,dXd4_dthetad(X,U),dXd4_dthetad(X,U);...
+            0,0,0,1,0,0,0,0,0,0;...
+            0,0,0,0,1,0,0,0,0,0];
         
-HdXd_dX = [eye(5);zeros(5)]    ;
+% HdXd_dX = [eye(5);zeros(5)]    ;
 
-dXd_dX =@(X,U) [HdXd_dX,LdXd_dX(X,U)]        
+dXd_dX =@(X,U) [LdXd_dX(X,U)]        
         
 dXd1_dTr =@(X) cos(X(3))*R*(alpha - gamma/Iw)/(beta*mt );
 
@@ -165,23 +167,23 @@ Xdot =@(X,U) [X(6:10);qdd(X,U)]
 %  initial x at zero
 X_init = zeros(10,1);
 X_init(3) = pi/2; % travelling in y direction start orientated
+X_init(1) = 0.1;
+X_init(8) = 0.01;
 
-
-dt = 0.1; % time step (seconds?)
+dt = 0.5; % time step (seconds?)
 subdt = dt/10;
 
-T = 5; % horizion
-N = 10; % number of controls to try
+T = 10; % horizion
 spread = 1;
 spreadset = 1;  % 10^-spreadset decrement
-Cost_old = 100000; % infinite inital cost
+Cost_old = 1000; % infinite inital cost
 
 % Desired X
 % Ref = [0.05;NaN;0;NaN;NaN;0.4;0;NaN;NaN;NaN];    % travelling in x direction
-Ref = [0.2;NaN;pi/2;NaN;NaN;0;0.2;0;NaN;NaN];    % travelling in y direction, x displacement, theta=90
+Ref = [0.2;NaN;pi/2;NaN;NaN;0.001;0.2;0.001;NaN;NaN];    % travelling in y direction, x displacement, theta=90
 
-Q = [300;NaN;100;NaN;NaN;10;30;30;NaN;NaN];   % weighted cost
-R = [1;1];
+Q = [300;NaN;10;NaN;NaN;10;30;30;NaN;NaN];   % weighted cost
+R = [0.5;0.5];
 
 % cost gradient in state space
 %Hx = Q.*2*(X-Ref)+dV_dX'*dXd_dX(X,U)
@@ -192,31 +194,42 @@ X(:,1) = X_init;
 
 % random control?
 % U_init = randi(round(200),2,T)-round(100)
-U_init = 70*ones(2,T);
+U_init = [zeros(1,T);ones(1,T)];
 centre = U_init;
 STOP = 0;
-
-while(STOP==0)       % or a while loop? until convergance?
-    %Upot = ControlInputs(centre,spread,N,T);  % structure of controls
-    Cost = zeros(1,N);
-for j = 1:1:N % over each control
-    Uc = U_init;
+N = 50; % stop after 50 interations
+Uc = U_init;
+Cost = zeros(1,N);
+Cost(1) = 1000; % infinite initial cost
+j = 2;
+while j < N % over each control
+    
     %eval(['Uc = Upot.i' num2str(j) ';'])
     for i = 1:1:T      % over time for control inputs
 %        for t = 1:1:10
         % calculate cost using least squares
-        Cost(j) = Cost(j) + nansum(Q.*(X(:,i)-Ref).^2) + sum((torques(Uc(:,i))).^2);   % maybe weighted costs?    
+        Cost(j) = Cost(j) + nansum(Q.*(X(:,i)-Ref).^2) + sum(R.*(Uc(:,i)).^2);   % maybe weighted costs?    
         % integrate over time step
         
-        X(:,i+1)=rk4step_states(X(:,i),Uc(:,i),dt,Xdot,torques);
+        X(:,i+1)=rk4step_states(X(:,i),Uc(:,i),dt,Xdot);
 %        end
     end
+    Cost(j) = Cost(j) + 10*nansum((X(:,i+1)-Ref).^2)  % add final cost 
+    Xfinal = path(Uc,X_init,Ref,Xdot,dt,T);
+    pause(1)
+                                             % final cost is weighted??
+%     if abs(Cost(j)-Cost(j-1))<= 10^-2 % epsilon_J convergance reached 
+%         break;   % will it break out of all loops?
+%     end
+                                             
     Xfinal = X(:,i+1);
     
-    dV_dX = 2*(Xfinal-Ref);  % final cost partial derivative wrt X - replace Nans with 0's?
+    dV_dX = 2*abs(Xfinal-Ref);  % final cost partial derivative wrt X - replace Nans with 0's?
     dV_dX(isnan(dV_dX)) = 0;
-    dlambdaf = -((Q.*2.*(Xfinal-Ref))'+dV_dX'*transpose(dXd_dX(Xfinal,Uc)))  % wrote the matrix wrong, must be transpose
+    dlambdaf = -((Q.*2.*abs(Xfinal-Ref))'+dV_dX'*transpose(dXd_dX(Xfinal,Uc)))  % wrote the matrix wrong, must be transpose
     dlambda = @(X,lambda,U)  -((Q.*2.*(X-Ref))'+lambda'*transpose(dXd_dX(X,U)))
+%     dlambda = @(X,lambda,U)  -((Q.*2.*abs(X-Ref))'+lambda'*(dXd_dX(X,U)))
+
     
 %     Hy = R.*2.*U + dV_dU'*dXd_dU(X)+dV_dU'*[0;0;0;0;0;0;0;0;1/Iw;1/Iw];
     Search = @(X,lambda,U) -((R.*2.*U)' + lambda'*dXd_dU(X)+lambda'*[0,0;0,0;0,0;0,0;0,0;0,0;0,0;0,0;1/Iw,0;0,1/Iw])
@@ -225,57 +238,74 @@ for j = 1:1:N % over each control
     % integrate dlambda backwards in time and store lambda for each
     % timestep
     lambda = zeros(10,T);
-    lambda(:,T) = Q.*(Xfinal-Ref).^2; % final cost
+    lambda(:,T) = 10*Q.*abs(Xfinal-Ref).^2; % final cost
     lambda = noNaN(lambda);
     
-    for ib = T:-1:2
+    for ib = T:-1:2% integrate backwards in time
         % search direction
         s(:,ib) = Search(X(:,ib),lambda(:,ib),Uc(:,ib))
         
-        lambda(:,ib-1) = rk4step_lambda(lambda(:,ib),-dt,dlambda,X(:,ib),Uc(:,ib))   % need to pass Ref,dXd_dX? are NAN's going to be a problem?
+        lambda(:,ib-1) = rk4step_lambda(lambda(:,ib),-dt,dlambda,X(:,ib+1),Uc(:,ib))   % need to pass Ref,dXd_dX? are NAN's going to be a problem?
        
     end
     s(:,1) = Search(X(:,1),lambda(:,1),Uc(:,1)) % final search
 %     dV_dU = 2.*R.*U;
 %     Hy = R.*2.*U + dV_dU'*dXd_dU(X)+dV_dU'*[0;0;0;0;0;0;0;0;1/Iw;1/Iw];
     
-       Cost(j) = Cost(j) + 10*nansum((X(:,T*10)-Ref).^2);  % add final cost NOTE: no cost on control
-                                             % final cost is weighted??
-   % integrate backwards in time
+       
+   
    %Hx = Q.*2*(X-Ref)+dV_dx'*dXd_dX(X,U)
    
+   %% Line Search
+   epsilon_c = 10^-3;
+   epsilon_g = 10^-4;
+   alpha1 = 10^-5;
+   alpha3 = 10^-2;
+   alpha2 = (alpha1+alpha3)/2;
+   alpha = [alpha1,alpha2,alpha3];
+   %Utry = Uc + alpha1.*s;
+   Cost_try = zeros(1,3);
+   for k = 1:3
+       Utry = Uc + alpha(k).*s;
+       for i = 1:1:T      % over time for control inputs
+        % calculate cost using least squares
+        Cost_try(k) = Cost_try(k) + nansum(Q.*(X(:,i)-Ref).^2) + sum(R.*(Utry(:,i).^2));   % maybe weighted costs?    
+        % integrate over time step
+        X(:,i+1)=rk4step_states(X(:,i),Utry(:,i),dt,Xdot);
+       end
+        Cost_try(k) = Cost_try(k) + 10*nansum((X(:,i+1)-Ref).^2); % final cost
+        
+   end
    
+   % calc coefficents for polynomial
+   alphatest = -1/2*((alpha(2).^2-alpha(1).^2).*Cost_try(3)+(alpha(1).^2-alpha(3).^2).*Cost_try(2)+(alpha(3).^2-alpha(2).^2).*Cost_try(1))/((alpha(1)-alpha(2)).*Cost_try(3)+(alpha(2)-alpha(3)).*Cost_try(1)+(alpha(3)-alpha(1)).*Cost_try(2))
+   c2 = ((alpha(1)-alpha(2)).*Cost_try(3)+(alpha(2)-alpha(3)).*Cost_try(1)+(alpha(3)-alpha(1)).*Cost_try(2))/((alpha(1)-alpha(2)).*(alpha(1)-alpha(3)).*(alpha(2)-alpha(3)))
+   %alphanew = alphatest;
+   if c2>epsilon_c
+        if alphatest <alpha(1)
+            alphanew = alpha(1);
+        elseif alphatest>alpha3
+            alphanew = alpha3
+        else 
+            alphanew = alphatest;
+        end
+   else 
+       if (Cost_try(1)+epsilon_g) <= min(Cost_try(2:3))
+           alphanew = alpha1;
+       elseif (Cost_try(2)+epsilon_g) <= min(Cost_try(2:3))
+           alphanew = alpha(3);
+       else 
+           alphanew = alpha(2);
+       end
+   end
    
-   
+   %% New control
+   %alphanew = 0.0001;
+   Uc = Uc + alphanew.*s;
+   j=j+1; % next iteration
 end
 
- [Cost_new,index] = min(Cost);
-   
-   if Cost_new < Cost_old
-       Cost_old = Cost_new;
-        eval(['centre = Upot.i' num2str(index) ';'])
-        %spread = spread-10^(-spreadset);  % error if less than 0?
-        frac = 0.5;
-   else
-       frac = 0.2;
-       %spread = spread-0.5*10^(-spreadset);  % error if less than 0?
-       % try again? minimise spread?
-   end
+ 
 
-   if spread <= 0.15
-            spread = spread-frac*0.01;
-            %spreadset = 2;
-   elseif spread > 0.15
-            spread = spread-frac*0.1;
-   end
-   
-   if spread < 0.01 && Cost_new < 600
-       STOP = 1;
-   elseif spread <= 0.01
-       spread = 0.01;
-       
-   end
-   
-end
 
- Xfinal = path(centre,X_init,Ref,Xdot,dt,subdt,T)
+ Xfinal = path(Uc,X_init,Ref,Xdot,dt,T)

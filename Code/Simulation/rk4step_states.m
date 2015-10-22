@@ -1,4 +1,4 @@
-function Xout=rk4step_states(X,U,dt,Xdot,torques)
+function Xout=rk4step_states(X,U,dt,Xdot)
 
 % Perform one step of RK4 for the ODE dx/dt=f(x,t).  
 % Routine adapted from Garcia, Numerical Methods in Physics.
@@ -15,16 +15,22 @@ function Xout=rk4step_states(X,U,dt,Xdot,torques)
 
 htau=0.5*dt;
 
-f1= Xdot(X,torques(U));  % eval at t
+% f1= Xdot(X,torques(U));  % eval at t
+f1= Xdot(X,U);  % eval at t
+
 
 Xtemp=X+htau*f1;
-f2=Xdot(Xtemp,torques(U));  % eval at t+0.5tau
+% f2=Xdot(Xtemp,torques(U));  % eval at t+0.5tau
+f2=Xdot(Xtemp,U);  % eval at t+0.5tau
+
 
 Xtemp=X+htau*f2;
-f3=Xdot(Xtemp,torques(U));  % eval at t+0.5tau
+% f3=Xdot(Xtemp,torques(U));  % eval at t+0.5tau
+f3=Xdot(Xtemp,U);  % eval at t+0.5tau
 
 Xtemp=X+dt*f3;
-f4=Xdot(Xtemp,torques(U)); % eval at t+tau
+% f4=Xdot(Xtemp,torques(U)); % eval at t+tau
+f4=Xdot(Xtemp,U); % eval at t+tau
 
 Xout=X+dt*(f1+2*f2+2*f3+f4)/6;
 
