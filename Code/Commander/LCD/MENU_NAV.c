@@ -21,6 +21,8 @@ be compatible for running on the MOBILE ROBOT side.
 #include  "phrases.h"
 #include  "lcd.h"
 #include  "AD.h"
+#include  "SerialCommander.h"
+#include  "GlobalVaribles.h"
 
 #define UP 240
 #define DOWN 10
@@ -55,11 +57,12 @@ int ir_raw;
 int ir_avg;
 //int values[] = { max_speed, pid_gain, max_yaw, ir_samp_e, ir_samp_r, ir_raw, ir_avg}; 
 
-int butt1=0;        //flag for button
+int mode_button=0;        //flag for button to change between factory, manual mode etc
+int motor_button=0;       //flag for changing between RUNTIME code and MENU code
 int values[8];
 
 
-
+/*to do */
 
 
 /*
@@ -82,7 +85,8 @@ char *stringtab[7]={s0,s1,s2,s3,s4,s5,s6};
  * an array index in the array valueStrings[].
  */
 int menu_ref_1;           //Change through ISR
-int menu_ref_2;  
+int menu_ref_2;
+int *menu=&menu_ref_1;
 
 
 void high_interrupt(void);
@@ -101,7 +105,8 @@ void delayms(int x);
 void delays(int x);
 void LCD_disp(int title_item, int value_item);
 void Button_Setup(void);
-
+void on_setup(void);
+void checkMode(int *menu);
 
 void main(void){
   
@@ -111,6 +116,7 @@ void main(void){
   TRISD = 0x00;         //set port D signals to output
   menu_ref_1=0;
   menu_ref_2=0;
+  
   
   /*zone of disgust*/
   
@@ -124,53 +130,45 @@ void main(void){
   
   /*****************/
   
-
+  setupSerial();
   Lcd_Init();
-  welcome();
   ADC_setup();
   Button_Setup();
+  welcome();
   LCD_disp(menu_ref_1, menu_ref_2);
+
   RUN=0;
   while(1){
 
   
 //NORMAL OPERATION  
     while(RUN==0){
-        
-        if (butt1==1){
-            
-            if (RUN==0){                //menu_ref_1 does not change while running
-               /*menu_ref_1++;
-               if (menu_ref_1==4){
-                   menu_ref_1=MANUAL;
-                }*/
-                if(menu_ref_1 == MANUAL) menu_ref_1 = FACTORY;
-                else if(menu_ref_1 == FACTORY) menu_ref_1 = ASSIST;
-                else if(menu_ref_1 == ASSIST) menu_ref_1 = AUTO;
-                else if(menu_ref_1 == AUTO) menu_ref_1 = MANUAL;
+               
+        if (mode_button==1){                  //Mode change sequence
+                checkMode(menu);
+                menu_ref_2=0;         //Default menu ref, should only be SPEED
                 delayms(200);
-                butt1=0;
+                mode_button=0;
                 LCD_disp(menu_ref_1, menu_ref_2);
-
-            }
         }
-        
-        delayms(200); 
+
+        delayms(200);       //Used to prevent double tapping
+        //possibly new function
         switchChannels(1);
         joy_x = doADC();
         switchChannels(2);
-        joy_y = doADC();    //Get joystick values CHANGE THIS
+        joy_y = doADC();   
                          
       
         if(menu_ref_1==MANUAL)   //IF IN MANUAL
         {
-            menu_ref_2=0;         //Default menu ref, should only be SPEED
             
-            
-            
+           
             if(joy_x<=LEFT){      //User pushes right joystick left
                 if(values[menu_ref_2]>0){
                     values[menu_ref_2]=values[menu_ref_2]-5;          //decrement value by 5%
+                    GLOBAL_MAX_SPEED = values[menu_ref_2];
+                    sendMaxSpeed();
                 }
                 
                 LCD_disp(menu_ref_1, menu_ref_2);
@@ -180,7 +178,9 @@ void main(void){
             else if (joy_x>=RIGHT){     //User pushes right joystick right
                 if(values[menu_ref_2]<100){
                 
-                values[menu_ref_2]=values[menu_ref_2]+5;          //increment value by 5%
+                    values[menu_ref_2]=values[menu_ref_2]+5;          //increment value by 5%
+                    GLOBAL_MAX_SPEED = values[menu_ref_2];
+                    sendMaxSpeed();
                 }
                 
                 LCD_disp(menu_ref_1, menu_ref_2);
@@ -220,7 +220,6 @@ void main(void){
 
             }
             else if (joy_x<=LEFT){      //User pushes right joystick left
-                //decval(menu_ref_2);
                 
                 if(values[menu_ref_2]>0){
                     values[menu_ref_2]=values[menu_ref_2]-5;          //decrement value by 5%
@@ -244,62 +243,64 @@ void main(void){
             }            
         }  
         
-        else{       //All other menu_ref_1's do not values displayed
-
+        //All other menu_ref_1's do not have values displayed       
         
-        
+        if (motor_button==1){
+            motor_button=0;
+            RUN=1;
+            
         }
-      }
-      /*MOTOR ON MESSAGE*/
-    if (RUN==1){
-      Lcd_Clear();
-      Lcd_Set_Cursor(1,1);
-      Lcd_Write_String(t4);
+        //send here
+    }
     
-      
-      delays(2);
-      Lcd_Clear();
-      Lcd_Set_Cursor(1,1);
-      Lcd_Write_String(t6);     //Display run-time message
-      
-      if (menu_ref_1=1){
-          menu_ref_1=0;       //If motor is set on while on factory, defaults to manual mode
-      }
+    /*Menu on setup*/
+    if (RUN==1){
+        on_setup();
+        //MOTOR ON GOES AFTER
+        motor_button=0;
     }
       
       /*MOTOR ON BEHAVIOUR*/
-      while(RUN==1){
-        
+    while(RUN==1){
+        if (motor_button==1){      //At interrupt, stop motor and return to menu
+            motor_button=0;
+            RUN=0;
+            delay10us(50);
+        }
         switchChannels(0);
         joy_x = doADC();
         switchChannels(1);
         joy_y = doADC();    //Get joystick values
-        
-      }
+        //send command here
+    }
       
-      /*MOTOR OFF MESSAGE*/  
-      Lcd_Clear();
-      Lcd_Set_Cursor(1,1);
-      Lcd_Write_String(t5);
-      delays(1);
-      LCD_disp(menu_ref_1, menu_ref_2); //Return to normal display
+      /*MOTOR OFF MESSAGE*/ 
+    RUN=0;
+      //MOTOR OFF FUNCTION GOES BEFORE MESSAGE
+    LCD_title(t5);         //"Whoa!"
+      
+    delays(2);    //safety delay    
+
+    LCD_disp(menu_ref_1, menu_ref_2); //Return to normal display
+      
       
   }
+  
   
   
 }
 
 void Button_Setup(void)
 {
-    TRISB = 0x00; 
-    PORTB = 0xFF;    
+    TRISB = 0x00;   //whyyyy
+    PORTB = 0xFF;    //why
     
     //Interrupt setup
     INTCONbits.GIEL = 0; //disable interrupts
     INTCONbits.GIEH = 0;
     INTCON2bits.RBPU = 0; //enable port B pull-up interrupts
     
-    INTCONbits.INT0IE = 1;  //enable external interrupt 0 PortB bit 0
+    INTCONbits.INT0IE = 1;  //enable external interrupt 0 PortB bit 0 
     INTCON2bits.INTEDG0 = 0; //falling edge trigger, default high priority
     
     INTCON3bits.INT1IE = 1; //enable external interrupt 1 PortB bit 1
@@ -323,23 +324,18 @@ void Button_Setup(void)
 {    
     INTCONbits.GIE = 0;
     //PORT B bit 0 external interrupt for motors on/off button
+    //motor control always takes priority
     if(INTCONbits.INT0IF == 1)
     {
      
-        if (RUN==0)
+        if (motor_button==0)
         {
-            RUN=1;
+            motor_button=1;
 
-            //MOTOR ON FUNCTION GOES HERE
+            sendString(t5);
 
         }
-        else
-        {
-            RUN=0;
 
-            //MOTOR OFF FUNCTION GOES HERE
-            delays(2);
-        }
         INTCON1bits.INT0IF = 0; //clear flag
 
     }
@@ -347,8 +343,10 @@ void Button_Setup(void)
     //Port B bit 1 external interrupt for menu button
     if(INTCON3bits.INT1IF == 1)         
     {
-        butt1=1;
-        INTCON3bits.INT1IF = 0; //clear flag
+        if (RUN==0){
+            mode_button=1;
+            INTCON3bits.INT1IF = 0; //clear flag
+        }
 
     }
     
@@ -409,9 +407,8 @@ void welcome(void){
     Lcd_Write_String(w0);
     Lcd_Set_Cursor(2,1);
     Lcd_Write_String(w1);
-    delays(3);
+    delays(2);
 }
-
 
 void delays(int x){
     if (MNML){
@@ -452,14 +449,44 @@ void delay10us(int x){
         Delay10TCYx(x);      
     }    
 }
+/*Function creates an initiation sequence when motor turns on*/
+void on_setup(void){
+      /*MOTOR ON MESSAGE*/  
+      LCD_title(t4);     //Giddy up   
+      delays(1);
+      //Display run-time message
+      LCD_title(t6);     //"Running"
+      
+      //If motor is set on while on factory, defaults to manual mode
+      if (menu_ref_1=1){
+          menu_ref_1=0;       
+      }
+}
 
-/*void decval(int x){
-//    values[x]=-5;
-    
-//}
 
-//void incval(int x){
-//    values[x]=+5;
- * }
-    
-*/
+void checkMode(int *menu){
+    if(*menu == MANUAL) 
+                {   
+                    *menu = FACTORY;
+                    GLOBAL_MODE = FACTORY;
+                    sendMode();
+                }
+                else if(*menu == FACTORY) 
+                {
+                    *menu = ASSIST;
+                    GLOBAL_MODE = ASSIST;
+                    sendMode();
+                }
+                else if(*menu == ASSIST) 
+                {
+                    *menu = AUTO;
+                    GLOBAL_MODE = AUTO;
+                    sendMode();
+                }
+                else if(*menu == AUTO) {
+                    *menu = MANUAL;
+                    GLOBAL_MODE = MANUAL;
+                    sendMode();
+
+                }
+}
