@@ -1,33 +1,36 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <p18f452.h>
-#include "ConfigRegs.h"
 #include <timers.h>
+
+#include "ConfigRegs.h"
 
 int count,sample;
 int loop;
 
-void lowPriorityIsr(void);
-#pragma code lowPriorityInterruptAddress = 0x0018
+void Timer1ISR(void);
+#pragma code lowInterrupt = 0x0018
 void low_interrupt(void){ 
    if(PIR1bits.TMR1IF == 1)
-     _asm goto lowPriorityIsr _endasm                    
+     _asm goto Timer1ISR _endasm                    
 }
 #pragma code
 
 void valueInitial(){
     count = 0;                  //set the counting value to 0
-    sample = 8;                 //user input sample rate  
-    PORTB = 0x00;               
-    TRISB = 0x00;
-    loop = (int)15/sample;
+    sample = 25;                //user input sample rate      
+    loop = (int)15/sample;      //determine how many times of overflow require
     if(loop <= 1)
         loop = 1;
+}
+void LEDsetup(){
+    PORTB = 0x00;               
+    TRISB = 0x00;
 }
 
 void Timer1Setup(){    
     T1CONbits.RD16 = 1;         // 16 bit operation
-    T1CONbits.T1CKPS1 = 0;      //1:1 pre-scale
+    T1CONbits.T1CKPS1 = 0;      // 1:1 pre-scale
     T1CONbits.T1CKPS0 = 0;
     T1CONbits.TMR1ON = 1;       //enable timer1
     
@@ -46,7 +49,7 @@ void main(void){
     valueInitial();
     Timer1Setup();
     ConfigTimer1ISR();
-   
+    LEDsetup();
     while(1){   
         if(count == loop){
             count = 0;
@@ -55,9 +58,8 @@ void main(void){
     } 
 }
 
-# pragma interruptlow lowPriorityIsr
-void lowPriorityIsr(void){       
-           
+# pragma interruptlow Timer1ISR
+void Timer1ISR(void){                 
     PIR1bits.TMR1IF = 0;            //clear TMR1 register overflowed bit   
-    count++;    
+    count++;                        //increase the count
 }
