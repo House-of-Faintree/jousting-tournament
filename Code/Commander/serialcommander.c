@@ -115,6 +115,42 @@ void setupSerial(void){
   
 }
 
+void sendHello(void)
+{
+    sendNum(Hello);
+    sendNum(HelloEnd);
+}
+void sendMaxSpeed(void)
+{
+    sendNum(MaxSpeed);
+    sendNum(GLOBAL_MAX_SPEED);
+    sendNum(MaxSpeedEnd);
+}
+void sendMaxYaw(void)
+{
+    sendNum(MaxYaw);
+    sendNum(GLOBAL_MAX_YAW);
+    sendNum(MaxYawEnd);
+}
+void sendIRsampleE(void)
+{
+    sendNum(IRsampleE);
+    sendNum(GLOBAL_IR_SAMPLE_E);
+    sendNum(IRsampleEEnd);
+}
+void sendIRsampleR(void)
+{
+    sendNum(IRsampleR);
+    sendNum(GLOBAL_IR_SAMPLE_R);
+    sendNum(IRsampleREnd);
+}
+void sendMode(void)
+{
+    sendNum(Mode);
+    sendNum(GLOBAL_MODE);
+    sendNum(ModeEnd);
+}
+
 //rx interrupt
 #pragma interrupt rx232Isr
 void rx232Isr (){
