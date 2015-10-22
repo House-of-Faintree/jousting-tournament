@@ -139,3 +139,10 @@ void Lcd_Shift_Left()
 	Lcd_Cmd(0x01);
 	Lcd_Cmd(0x08);
 }
+
+void LCD_title(char *string){
+      Lcd_Clear();
+      Lcd_Set_Cursor(1,1);
+      Lcd_Write_String(string);
+    
+}
