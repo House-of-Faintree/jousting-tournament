@@ -20,7 +20,10 @@
  *
  * Dependancies:
  *  ADC must first be set up
- *  Uses global variables IR_SAMPLE_R, IR_SAMPLE_E
+ *  Uses global variables:
+ *  IR_SAMPLE_R = sample rate as percent 0 - 100% in increments of 10 
+ *  IR_SAMPLE_E = number of samples to use to get an average distance int 0 - 10
+ *  Wont function if either IR_SAMPLE_R or IR_SAMPLE_E = 0 
  *  Uses the high priority interrupt with timer0
  * 
  *..............................................................................
@@ -120,7 +123,7 @@ void IR_Setup(void)
 void IR_Interrupt(void)
 {
     IR_Sample_count++;
-    if(IR_Sample_count == (GLOBAL_IR_SAMPLE_R/10)) 
+    if(IR_Sample_count == (1+ (100 -GLOBAL_IR_SAMPLE_R)/10)) //100% sample rate = go on sample count 1, 10% sample rate = go after 10 interrupts, 0% sample rate = wont go
     {
         IR_Sample_count = 0;
         switchChannels(FRONT_IR);
@@ -133,7 +136,7 @@ void IR_Interrupt(void)
 
         IR_count++;
 
-        if(IR_count ==  (GLOBAL_IR_SAMPLE_E/10))
+        if(IR_count ==  (GLOBAL_IR_SAMPLE_E))
         {
             F_IR = &Front_IR_Buff[0];
             B_IR = &Back_IR_Buff[0];
@@ -142,7 +145,11 @@ void IR_Interrupt(void)
             IR_Readings();                    
         }
         
-    }    
+    }
+    else if(IR_Sample_count == IR_BUFFSIZE)
+    {
+        IR_Sample_count = 0;
+    }
         
 }
 

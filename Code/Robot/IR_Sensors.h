@@ -20,7 +20,10 @@
  *
  * Dependancies:
  *  ADC must first be set up
- *  Uses global variables IR_SAMPLE_R, IR_SAMPLE_E
+ *  Uses global variables:
+ *  IR_SAMPLE_R = sample rate as percent 0 - 100% in increments of 10 
+ *  IR_SAMPLE_E = number of samples to use to get an average distance int 0 - 10
+ *  Wont function if either IR_SAMPLE_R or IR_SAMPLE_E = 0 
  *  Uses the high priority interrupt with timer0
  * 
  *..............................................................................
@@ -50,7 +53,7 @@
 
 char Get_IR_state(); //returns char 0-3 inclusive matching with above defines IR_ERROR, etc
 float Get_Current_distance(); //gives the average value between the two IR sensors in cm
-void IR_Setup(void); //setups IR including setting up ADC and timer0 overflow interrupt
+void Infrared__Interrupt_Setup(void); //setups IR including setting up ADC and timer0 overflow interrupt
 
 #endif	/* IR_SENSORS_H */
 
