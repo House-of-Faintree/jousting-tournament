@@ -1,16 +1,47 @@
-/*
- * File:   IR_Sensors.c
- * Author: Bevan
+/*******************************************************************************
+ * MODULE:  IR_Sensors
+ *..............................................................................
+ *  Created By:         BEVAN
+ *  Created Date:       21.10.2015
+ *..............................................................................
+ *  Last Edit Date:     23.10.2015
+ *  Last Edit By:       BEVAN
+ *  Last Edit Details:  cleaned up not tested yet
+ *..............................................................................
+ * File/Function Property/Usage:
+ *  See description below.
  *
- * Created on 21 October 2015, 10:22 AM
- */
+ *..............................................................................
+ * Description:
+ *  Controls the setup and use of IR Sensors
+ *  To be used for the robot
+ *  Outputs the current distance from the tilt (robot has to be parallel to be accurate)
+ *  As well as the state of the 2 IR_Sensors - ERROR,FRONT_IR_CLOSEST,PARALLEL,BACK_IR_CLOSEST (0-3) 
+ *
+ * Dependancies:
+ *  ADC must first be set up
+ *  Uses global variables IR_SAMPLE_R, IR_SAMPLE_E
+ *  Uses the high priority interrupt with timer0
+ * 
+ *..............................................................................
+ * Current Issues:
+ *  not yet tested
+ *  
+*******************************************************************************/
 
 
-#include <p18f452.h>
-#include "configReg452.h"
+#include <p18cxxx.h>
 #include "AD.h"
-#inlcude "IR_Sensors.h"
+#include "IR_Sensors.h"
+#include "globals.h"
 
+float F_IR_cm = 0;
+float B_IR_cm = 0;
+char F_IR_inrange = 0; //0 not in range, 1 in range
+char B_IR_inrange = 0;
+char IR_state = 0; //uses above defines IR_ERROR, BACK_IR_CLOSEST, IR_PARALLEl, FRONT_IR_CLOSEST
+
+int IR_Sample_count = 0;
 unsigned int Front_IR_Buff[IR_BUFFSIZE];
 unsigned int Back_IR_Buff[IR_BUFFSIZE];
 unsigned int *F_IR;
@@ -22,6 +53,10 @@ unsigned int avg_B_IR = 0;
 float m = 0.095;
 float b = 0.021;
 
+
+
+char Get_IR_state();
+float Get_Current_distance();
 void IR_Setup(void);
 void IR_Interrupt(void);
 void IR_Readings(void);
@@ -30,9 +65,38 @@ char check_in_IR_range(unsigned int avg_value);
 float convert_IR_to_cm( unsigned int IR_value);
 char determine_IR_parallel(float F_IR, float B_IR);
 
+void high_interrupt(void);
+void highPriorityIsr(void);
+
+#pragma code highPriorityInterruptAddress=0x0008
+void high_interrupt(void)
+{
+    _asm GOTO highPriorityIsr _endasm
+
+}
+
+void highPriorityIsr(void)
+{  
+    if(INTCON1bits.TMR0IF == 1)
+    {
+        IR_Interrupt();    
+        INTCON1bits.TMR0IF = 0;
+        INTCONbits.GIEH = 1;
+    }    
+}
+
+char Get_IR_state()
+{
+    return IR_state;
+}
+
+float Get_Current_distance()
+{
+    return (F_IR_cm + B_IR_cm)/2;
+}
+
 void IR_Setup(void)
 {
-    ADC_setup();
     F_IR = &Front_IR_Buff[0];
     B_IR = &Back_IR_Buff[0];    
     
@@ -50,26 +114,36 @@ void IR_Setup(void)
     INTCONbits.GIEH = 1; 
 }
 
+
+
+
 void IR_Interrupt(void)
 {
-    switchChannels(FRONT_IR);
-    *F_IR = doADC();
-    F_IR++;
-    
-    switchChannels(BACK_IR);
-    *B_IR = doADC();
-    B_IR++;
-    
-    IR_count++;
-    
-    if(IR_count == IR_BUFFSIZE)
+    IR_Sample_count++;
+    if(IR_Sample_count == (GLOBAL_IR_SAMPLE_R/10)) 
     {
-        F_IR = &Front_IR_Buff[0];
-        B_IR = &Back_IR_Buff[0];
-        IR_count = 0;
+        IR_Sample_count = 0;
+        switchChannels(FRONT_IR);
+        *F_IR = doADC();
+        F_IR++;
+
+        switchChannels(BACK_IR);
+        *B_IR = doADC();
+        B_IR++;
+
+        IR_count++;
+
+        if(IR_count ==  (GLOBAL_IR_SAMPLE_E/10))
+        {
+            F_IR = &Front_IR_Buff[0];
+            B_IR = &Back_IR_Buff[0];
+            IR_count = 0;
+
+            IR_Readings();                    
+        }
         
-        IR_readings();                    
     }    
+        
 }
 
 void IR_Readings(void)
