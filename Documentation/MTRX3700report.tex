@@ -15,7 +15,7 @@
 \counterwithin{table}{section}
 \usepackage{multirow}
 \setcounter{tocdepth}{5}
-
+\usepackage{subfiles}
 
 \renewcommand\epigraphflush{flushright}
 \renewcommand\epigraphsize{\normalsize}
@@ -135,7 +135,7 @@
 \label{fig:Plag}
 \end{figure*}
 
-%\setcounter{section}{-1}
+\setcounter{section}{0}
 \section*{Group Certification}
 We certify that the design, implementation, and documentation presented by our Group are, unless otherwise acknowledged, the work of our group members only, and that the individuals named below were responsible for completing the following percentages of the modules named.    
 
@@ -169,158 +169,40 @@ We certify that the design, implementation, and documentation presented by our G
 
 
 \section{Introduction}
-\subsection{Document Identification}
-This document describes the design of something. This document is prepared by Group ZULU for assessment in MTRX2700 in 2010.
-\subsection{System Overview}
-A brief statement of the purpose of the system or subsystem to which this document applies.
-\subsection{Document Overview}
-A short “road map” of the document, to provide an orientation for the reader. Summarise the purpose and contents of this document.
-\subsection{Reference Documents}
-The present document is prepared on the basis of the following reference documents, and should be read in conjunction with them.\\
-—.  “CAN Specification 2.0”.  Robert Bosch GmbH, Stuttgart, September 1991.\\
-—.  “OMG Unified Modeling Language Specification”, vers.1.3, June 1999.
+\subfile{Introduction}
 
-\subsubsection{Acronyms and Abbreviations}
-Table \ref{Acro} lists the acronyms and abbreviations used in this document.
-\begin{table}[h]
-\centering
-\caption{Acronyms and Abbreviations}
-\label{Acro}
-\begin{tabular}{|l|l|}
-\hline Acronym & Meaning \\
-\hline MPC & Model Predictive Control \\
-\hline & \\
-\hline
-\end{tabular}
-\end{table}
 
 \section{System Description}
-This section is intended to give a general overview of the basis for the something system design, of its division into hardware and software modules, and of its development and implementation.  
-\subsection{Introduction}
-Give a technical description of the function of the whole system, in terms of its constituent parts, here termed modules. Generally, a module will have hardware and software parts.
-\subsection{Operational Scenarios}
-Describe how the system is to be used. There may be several different ways that it can be used, perhaps involving different users, or classes of user. Present use case diagrams here if you are using them. Each operational scenario is a part through a use case diagram – a way of using the system, with different outcomes or methods of use. \\
-You should also consider the various failures that may occur, and the consequences of these failures.
-
-\subsection{System Requirements}
-The operational scenarios considered place certain requirements on the whole something system, and on the modules that comprise it.\\
-Statement of requirements that affect the system as a whole, and are not restricted to only a subset of its modules.
-
-\subsection{Module Design}
-Describe the breakdown of the design into functional modules. Each module probably contains both software and hardware.\\
-Then include a section like the following (2.5) for each module. Not all of the sub-headings may be relevant for each module.
+\subfile{System_Description}
 
 
+% subsections
+
+\subfile{Menu_Nav} % leo
+
+\subfile{LCD} % leo
+
+\subfile{Communications}  % ziji
+
+\subfile{IRsensors}   % vic
+
+\subfile{Manual_Mode}		      % Lydia
+
+\subfile{Semiauto_Mode}           % Lydia
 
 
-\subsection{Module Requirements: Module X}
-The operational scenarios considered place certain requirements on the something system, and on the modules that comprise it.
-\subsubsection{Functional Requirements}
-This section describes the functional requirements of Module X – those requirements that must be met if the module (and system) is to function correctly.  
-
-\paragraph{Inputs}
-Describe each external input, including signal encoding and timing, message encoding and timing, protocols, file formats, protection against input errors, etc, as relevant.
-\paragraph{Process}
-Describe the internal signal transformations and/or computer processing functionality required within the module, required performance limits, and error tolerances as appropriate.
-\paragraph{Outputs}
-Describe outputs that must be produced for the module to function correctly, including timing, frequency, protocols, etc as relevant.
-\paragraph{Timing}
-Any required timing or latency specifications that must be met.
-\paragraph{Failure Modes}
-Required functionality (if any) in the event of failure of various nominated components.
-
-\subsubsection{Non-Function (Quality of Service) Requirements}
-Non-functional requirements do not need to be met for the device to have basic function, but are required to provide specific levels of performance or engineering quality.
-\paragraph{Performance}
-Requirements such as computational loop time, accuracy, etc.
-\paragraph{Interfaces}
-Requirements such as computational loop time, accuracy, etc.
-\paragraph{Design Constraints}
-Practical or commercial considerations, such as programming languages, processor or other hardware, etc.
-\subsection{Conceptual Design: Software Module X}
-Now, for each module, give the outline of how it will work. In this section it is appropriate to present \\
-•	The rationale for the design decisions that were made – why things were designed the way they were\\
-•	block diagrams,\\
-•	mathematical models and algorithms,\\
-•	data flow diagrams\\
-•	state-transition diagrams\\
-•	listings of input and output formats\\
-•	listings of message and data formats\\
-•	responses to identifiable error conditions\\
-•	responses to identifiable failure conditions\\
-as appropriate for each module.
-
-\subsubsection{Assumptions Made}
-State any assumptions made.
-\subsubsection{Constraints on Module X Performance}
-State any constraints that may prevent the design from satisfying its requirements.
-
+% sections
 \section{User Interface Design}
-Give a detailed description of the design of the user interface. This will give the reader a good view of how the system functions from the user’s perspective.
-\subsection{Classes of User}
-If there are different user interfaces presented to different classes of users, define these user classes, and how access by the various user classes is enabled or disabled.
-\subsection{Interface Design: User Class Y}
-\subsubsection{User Inputs and Outputs}
-Description of how the user presents inputs to the system, and how the system responds to those inputs. Include a description of how the user knows the state of the system.
-\subsubsection{Input Validation and Error Trapping}
-Describe how the system validates user input, and how operator errors are trapped and can be recovered from.
+\subfile{User_Interface_Design}   % Leo
 
 \section{Hardware Design}
-Give a detailed description of the design of hardware. The description should include mechanical drawings, location diagrams, electrical circuit schematics, circuit simulation or test results, PCB overlays, wiring diagrams, connector pinout lists, pneumatic/hydraulic circuit diagrams
-
-\subsection{Scope of the Something System Hardware}
-Statement of what is, and what is not, being designed and described here.
-\subsection{Hardware Design}
-\subsubsection{Power Supply}
-Power supply method and rating, fusing, distribution, grounding and protective earth as appropriate.
-\subsubsection{Computer Design}
-Description of computer hardware, including all interface circuitry to sensors, actuators, and I/O hardware.
-\subsubsection{Sensor Hardware}
-\subsubsection{Actuator Hardware}
-\subsubsection{Operator Input Hardware}
-\subsubsection{Operator Output Hardware}
-\subsubsection{Hardware Quality Assurance}
-Describe any measures that were taken to control (improve) hardware quality and reliability – Heartbeats, brownout conditioning/resets, reset conditions, testing and validation, etc.
-
-\subsection{Hardware Validation}
-Details of any systematic testing to ensure that the hardware actually functions as intended.
-\subsection{Hardware Calibration Procedures}
-Procedures for calibration required in the factory, or in the field.
-\subsection{Hardware Maintenance and Adjustment}
-Routine adjustment and maintenance procedures.
+\subfile{Hardware_Design}		  % Dpak
 
 \section{Software Design}
-The software requirements and overview have been dealt with elsewhere in this document. The present section addresses the design and implementation of the software that forms the X system.
-\subsection{Software Design Process}
-How you went about designing the software – top down, bottom up, OOD, functional view, etc.
-\subsubsection{Software Development Environment}
-The tools that were used, both software (compilers, assemblers, etc) and hardware (development boards, etc.).
-\subsubsection{Software Implementation Stages and Test Plans}
-Describe the way you went about implementing the software - staged implementation, pseudocode (PDL), unit testing procedures, integration testing, etc. Identify dependencies – e.g this had to be done before that, etc.
-\subsection{Software Quality Assurance}
-Describe any measures that were taken to control (improve) the software quality – code or documentation standards, code walkthroughs, testing and validation, etc.
+\subfile{Software_Design}
 
-\subsection{Software Design Description}
-\subsubsection{Architecture}
-Describe the high-level architecture of the software – that is, the top-level flow of control, and how the various functional modules communicate.\\
-In this section, you can put state transition diagrams, sequence diagrams, etc.
-\subsubsection{Software Interface}
-Describe the public interface of each software module.
-\subsubsection{Software Components}
-This is a detailed view of the internal workings of each of the software modules.
-
-\subsection{Preconditions for Software}
-\subsubsection{Preconditions for System Startup}
-Describe any preconditions that must be satisfied before the system can be started.
-\subsubsection{Preconditions for System Shutdown}
-Describe any preconditions that must be satisfied before the system can be stopped.
 \section{System Performance}
-\subsubsection{Performance Testing}
-Give the results of testing conducted to determine the characteristics and performance of the system - memory usage, loop time, system accuracy, repeatability, ease of use, etc.
-\subsubsection{State of the System as Delivered}
-A statement of your group’s opinion of the conformance of the system with the specification.
-\subsubsection{Future Improvements}
-Present a prioritised list of improvements to be made in future releases, giving reasons for the improvement and priority rank.
+\subfile{System_Performance}
 
 \section{Safety Implications}
 By law (NSW Occupational Health and Safety Act 2000; NSW Occupational Health and Safety
