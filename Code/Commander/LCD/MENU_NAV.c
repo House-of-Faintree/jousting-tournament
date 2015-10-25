@@ -331,7 +331,7 @@ void Button_Setup(void)
         if (motor_button==0)
         {
             motor_button=1;
-
+            //Should be replaceable by a 20ms delay
             sendString(t5);
 
         }
