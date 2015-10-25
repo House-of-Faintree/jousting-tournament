@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   AD.h
  * Author: asha6047
  *
@@ -11,6 +11,6 @@
 void ADC_setup(void);
 void switchChannels(int channel);
 int doADC(void);
+void changeSampleRate(int rate);
 
 #endif	/* AD_H */
-
