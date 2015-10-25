@@ -1,0 +1,24 @@
+Created October 25th and correct as of 12PM 25/10/2015.
+Update this as things get finished
+
+
+Currently finished:
+- Menu_navigation skeleton; ready to be further manipulated to suit final operation
+- Able to change variables (such as max speed) across radio link through menu-nav
+- Motor control is finished (for manual) but not integrated
+
+
+To be tested:
+- Handshaking sequence is written but needs to be tested with other components, timer 0 has some issues. -LEO+ZIJI
+- Remote control of manual mode from joysticks using the menu_nav loop -To be done today ZIJI
+- IR tracking; independent of integration
+- IR integration with feedback loop of control system
+- Move menu-nav and LCD to MNML     - To be done today LEO
+
+
+
+To be written:
+- Further menu_nav behaviour based on other modes; things like more user date while operating and also IR stats
+
+Others:
+- Commander needs to be soldered and built
