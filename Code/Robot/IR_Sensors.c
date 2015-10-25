@@ -68,16 +68,7 @@ char check_in_IR_range(unsigned int avg_value);
 float convert_IR_to_cm( unsigned int IR_value);
 char determine_IR_parallel(float F_IR, float B_IR);
 
-void high_interrupt(void);
-void highPriorityIsr(void);
-
-#pragma code highPriorityInterruptAddress=0x0008
-void high_interrupt(void)
-{
-    _asm GOTO highPriorityIsr _endasm
-
-}
-
+/*
 void highPriorityIsr(void)
 {  
     if(INTCON1bits.TMR0IF == 1)
@@ -87,6 +78,8 @@ void highPriorityIsr(void)
         INTCONbits.GIEH = 1;
     }    
 }
+
+ **/
 
 char Get_IR_state()
 {

@@ -54,6 +54,7 @@
 char Get_IR_state(); //returns char 0-3 inclusive matching with above defines IR_ERROR, etc
 float Get_Current_distance(); //gives the average value between the two IR sensors in cm
 void Infrared__Interrupt_Setup(void); //setups IR including setting up ADC and timer0 overflow interrupt
+void IR_Interrupt(void); // add into high priority interrupt in another file, need to check and clear interrupt bits elsewhere
 
 #endif	/* IR_SENSORS_H */
 
