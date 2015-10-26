@@ -4,7 +4,7 @@
  *
  * Created on 29 September 2015, 8:08 PM
  * Edit 18 Oct: Reverse capabilities
- * Edit 21 Oct: Turn at full speed (250-255) have 5% omega
+ * Edit 21 Oct: Turn at full speed (250-255) have 5% localOmega
  * 
  * Location: Robot
  * Resources: Timer2, CCP1 - PORTC<2>, CCP2 - PORTC<1>, 
@@ -42,15 +42,27 @@ unsigned int bit_2A = 4;
 unsigned int bit_2B = 5;
 
 
-void PWM_motor_setup(void){
-    PR2 = 0xFF;         // set period (FF = 610Hz with timer prescaler 16)
-    T2CON = 0x07;  // Sets bit 2 to enable timer 2(TMR2), prescaler 16
-    CCPR2L = 0;   // select duty cycle - start at zero
-    CCPR1L = 0;   // select duty cycle - start at zero
-    TRISC =0; // output for CCP1-RC<2> and CCP2-RC<1>
-    CCP2CON = 0x0C; // Configures CCP2 for PWM mode (CCP2M2 and CCP2M3)
-    CCP1CON = 0X0C;     
-}
+void PWM_motor_setup(void){ 
+    PR2 = 0xFF;         // set period (FF = 610Hz with timer prescaler 16) 
+    //T2CON = 0x07;  // Sets bit 2 to enable timer 2(TMR2), prescaler 16 
+    T2CONbits.TMR2ON = 1; 
+    T2CONbits.T2OUTPS = 0; 
+    //T2CONbits.T2CKPS = 3; 
+    T2CONbits.T2CKPS1 = 1; 
+    CCPR2L = 0;   // select duty cycle - start at zero 
+    CCPR1L = 0;   // select duty cycle - start at zero 
+    TRISC = 0; // output for CCP1-RC<2> and CCP2-RC<1> 
+    //CCP2CON = 0x0C; // Configures CCP2 for PWM mode (CCP2M2 and CCP2M3) 
+    CCP2CONbits.DC2B = 0; // LSBits duty cycle 
+    // CCP2CONbits.CCP2M = 15; // PWM mode 
+    CCP2CONbits.CCP2M3 = 1; 
+    CCP2CONbits.CCP2M2 = 1; 
+    CCP1CONbits.DC1B = 0; // duty cycle 
+    //CCP1CONbits.CCP1M = 15; // PWM mode 
+    CCP1CONbits.CCP1M3 = 1; 
+    CCP1CONbits.CCP1M2 = 1; 
+} 
+
 
 void Inputs_motor_setup(void){
     TRISB &=~bit(bit_enable);
@@ -82,14 +94,16 @@ void turn(void){
         
     unsigned int L_dir;     // 1 is fwd, 0 is back
     unsigned int R_dir;     // 1 is fwd, 0 is back
-    unsigned int max_Dvx;   // maximum turn achievable at the current velocity
+    unsigned int max_Dvx;   // maximum turn achievable at the current localVelocity
     unsigned int duty;      // mean duty cycle 0-FF
-    unsigned int L_PWM;     // duty cycle of left wheel 0-FF
-    unsigned int R_PWM;     // duty cycle of right wheel 0-FF    unsigned int vel = (unsigned int) GLOBAL_VELOCITY;
-    //unsigned int omega = (unsigned int) GLOBAL_OMEGA;
-//    unsigned int omega = 0;
-//    vel =(unsigned int) GLOBAL_VELOCITY;
-//    omega = (unsigned int) GLOBAL_OMEGA;
+    unsigned float L_PWM;     // duty cycle of left wheel 0-FF
+    unsigned float R_PWM;     // duty cycle of right wheel 0-FF    unsigned int localVel = (unsigned int) GLOBAL_VELOCITY;
+    unsigned int localVel;
+    unsigned int localOmega;
+    //unsigned int localOmega = (unsigned int) GLOBAL_OMEGA;
+//    unsigned int localOmega = 0;
+//    localVel =(unsigned int) GLOBAL_VELOCITY;
+//    localOmega = (unsigned int) GLOBAL_OMEGA;
     
     if (GLOBAL_RUN == 0)
     {
@@ -102,50 +116,152 @@ void turn(void){
         PORTDbits.RD2 = 1;
     }
     
-    if (GLOBAL_VELOCITY<120){      // reverse
-        max_Dvx = GLOBAL_VELOCITY;   
-        duty = (120-GLOBAL_VELOCITY)*2;
-        L_dir = 0;
-        R_dir = 0;
-    }else if (GLOBAL_VELOCITY >= 135){  // forwards
-        max_Dvx = 255-GLOBAL_VELOCITY;
-        duty = (GLOBAL_VELOCITY-135)*2;
-        L_dir = 1;
-        R_dir = 1;
+    localVel = GLOBAL_VELOCITY;
+    localOmega = GLOBAL_OMEGA;
+    
+    if(localVel == 238){
+        localVel = 255;
+    }
+    else if (localVel < 17){
+        localVel = 0;
+    }
+    if(localOmega >= 238){
+        localOmega = 255;
+    }
+    else if(localOmega < 17){
+        localOmega = 0;
     }
     
-    else{
-        duty = 0;
-        L_dir = 1;
-        R_dir = 1;
-        max_Dvx = 0;
+    
+//    if (localVel<120){      // reverse
+//        max_Dvx = localVel;   
+//        duty = (128-localVel)*2;
+//        L_dir = 0;
+//        R_dir = 0;
+//    }else if (localVel >= 135){  // forwards
+//        max_Dvx = 255-localVel;
+//        duty = (localVel-128)*2;
+//        L_dir = 1;
+//        R_dir = 1;
+//    }
+//    
+//    else{
+//        duty = 0;
+//        L_dir = 1;
+//        R_dir = 1;
+//        max_Dvx = 0;
+//    }
+//   
+//    
+//    if ((localVel>250)||(localVel<5)){  // turn at full speed both directions
+//        max_Dvx = 30;            // note: will not actually be at the correct localVelocity  
+//    } 
+//    if (localOmega>=135 && max_Dvx == 30){   // in reverse/forward turning right near full speed
+//        L_PWM = 255; // run at max
+//        R_PWM = 255-(localOmega-128)*max_Dvx/128;
+//    } else if(localOmega<120 && max_Dvx == 30){ // in reverse/forward turning left near full speed
+//        R_PWM = 255; // run at max
+//        L_PWM = 255-(localOmega-128)*max_Dvx/128;
+//    }
+//    
+//    else if (( localOmega >=135)&&(duty > 0)) {            // right turn
+//        L_PWM = duty + (( localOmega-128)*max_Dvx)/128; //Use bitshift instead
+//        R_PWM = 2*duty-L_PWM;
+//    }else if(( localOmega <= 120) &&(duty > 0)){                               // left turn
+//        L_PWM = duty - ((128- localOmega)*max_Dvx)/128; // Use Bitshift instead
+//        R_PWM = 2*duty-L_PWM;
+//    }
+//    else{
+//        L_PWM = duty;
+//        R_PWM = duty;
+//    }
+    
+    if ((localVel > 135) && (localOmega < 254)){
+        R_PWM = 255;
+        L_PWM = 255;
         
-    }
-   
-    
-    //if (vel>250||vel<5){  // turn at full speed both directions
-    //    max_Dvx = 5;            // note: will not actually be at the correct velocity  
-    //} 
-   
-    //if (omega>=128 && max_Dvx == 5){   // in reverse/forward turning right near full speed
-    //    L_PWM = 255; // run at max
-    //    R_PWM = 255-(omega-128)*max_Dvx/128;
-    //} else if(omega<128 && max_Dvx == 5){ // in reverse/forward turning left near full speed
-    //    R_PWM = 255; // run at max
-     //   L_PWM = 255-(omega-128)*max_Dvx/128;
-     if (GLOBAL_OMEGA >= 135) {            // right turn
-        L_PWM = duty + ((GLOBAL_OMEGA-128)*max_Dvx)/128; //Use bitshift instead
-        R_PWM = 2*duty-L_PWM;
-    }else if (GLOBAL_OMEGA <= 120){                               // left turn
-        L_PWM = duty - ((128-GLOBAL_OMEGA)*max_Dvx)/128; // Use Bitshift instead
-        R_PWM = 2*duty-L_PWM;
+        L_dir = 1;
+        R_dir = 1;   
     }
     
+    else if (localVel < 121){
+        R_PWM = 255;
+        L_PWM = 255;
+        
+        L_dir = 0;
+        R_dir = 0;   
+    }
     
-    CCPR1L = R_PWM;
-    CCPR2L = L_PWM;    //  some sort of error check?
-//    CCPR1L = duty;
-//    CCPR2L = duty; 
+    else if (localOmega > 135){
+        R_PWM = 255;
+        L_PWM = 128;
+        
+        L_dir = 1;
+        R_dir = 1;   
+    }
+    
+    else if (localOmega < 121){
+        R_PWM = 128;
+        L_PWM = 255;
+        
+        L_dir = 1;
+        R_dir = 1;   
+    }
+    
+    else
+    {
+        R_PWM = 0;
+        L_PWM = 0;
+                
+    }
+    
+    
+    CCPR1L = (char) R_PWM;
+    CCPR2L = (char) L_PWM;    //  some sort of error check?
+
     direction(L_dir,R_dir);            // update direction of wheels
 }
 
+
+
+/*
+//void moveForward(int y){
+//    if (y > 135){
+//        R_PWM = 255;
+//        L_PWM = 255;
+//        
+//        L_dir = 1;
+//        R_dir = 1;   
+//    }
+//}
+//
+//void moveBackward(int y){
+//    if (y < 121){
+//        R_PWM = 255;
+//        L_PWM = 255;
+//        
+//        L_dir = 0;
+//        R_dir = 0;   
+//    }
+//}
+//
+//void moveLeft(int x){
+//    if (x > 135){
+//        R_PWM = 255;
+//        L_PWM = 128;
+//        
+//        L_dir = 1;
+//        R_dir = 1;   
+//    }
+//}
+//
+//void moveRight(int x){
+//    if (x < 121){
+//        R_PWM = 255;
+//        L_PWM = 255;
+//        
+//        L_dir = 1;
+//        R_dir = 1;   
+//    }
+//}
+*/
