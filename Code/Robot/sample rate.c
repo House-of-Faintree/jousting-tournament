@@ -2,11 +2,18 @@
 #include <stdlib.h>
 #include <p18f452.h>
 #include <timers.h>
-
+#include "AD.h"
+#include "IR_Sensors.h"
 #include "ConfigRegs.h"
+#include <adc.h>
+#include "globals.h"
 
 int count,sample;
 int loop;
+unsigned int averageDigital;
+
+int IRbuffer[IR_BUFFSIZE], *IRptr;
+float cm;
 
 void Timer1ISR(void);
 #pragma code lowInterrupt = 0x0018
@@ -17,8 +24,11 @@ void low_interrupt(void){
 #pragma code
 
 void valueInitial(){
+    IRptr = IRbuffer;
+    cm = 0;
+    averageDigital = 0;                //initial the average value to 0
     count = 0;                  //set the counting value to 0
-    sample = 25;                //user input sample rate      
+    sample = 1;                //user input sample rate      
     loop = (int)15/sample;      //determine how many times of overflow require
     if(loop <= 1)
         loop = 1;
@@ -46,14 +56,30 @@ void ConfigTimer1ISR(){
 }
 
 void main(void){
-    valueInitial();
+    //IR_Setup();
+    ADC_setup();
+    switchChannels(2);
+    valueInitial();         // some value use for initialization
     Timer1Setup();
     ConfigTimer1ISR();
-    LEDsetup();
-    while(1){   
+    LEDsetup();             // use for debug and test
+    
+    while(1){        
+
+        *IRptr = doADC();        
+        IRptr++;        
+        
+         if(IRptr == &IRbuffer[IR_BUFFSIZE]){           
+             IRptr = &IRbuffer[IR_BUFFSIZE];
+         }
+        
         if(count == loop){
-            count = 0;
-            PORTB = !PORTB;
+            count = 0;            
+            averageDigital = getAverage(IRbuffer,IR_BUFFSIZE);
+            // trigger the sending message signal
+            cm = convert_IR_to_cm( averageDigital);
+            
+            
         }
     } 
 }
