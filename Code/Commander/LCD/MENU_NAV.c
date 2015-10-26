@@ -17,12 +17,16 @@ be compatible for running on the MOBILE ROBOT side.
 #include  <p18cxxx.h>
 #include  <delays.h>
 #include  <string.h>
-#include  "ConfigRegs.h"
+#include  "ConfigRegs18f4520.h"
 #include  "phrases.h"
 #include  "lcd.h"
 #include  "AD.h"
-#include  "SerialCommander.h"
-#include  "GlobalVaribles.h"
+#include  "GlobalVariblesCommander.h"
+#include  "Interrupt_Defination_Commander.h"
+#include  "serialcommander.h"
+
+
+
 
 #define UP 240
 #define DOWN 10
@@ -43,7 +47,7 @@ be compatible for running on the MOBILE ROBOT side.
 # define IRAVG 6
 
 //ATTENTION
-int MNML=0;             //CHANGE DEPENDING ON WHAT BOARD IS USED, 1 FOR MNML
+int MNML=1;             //CHANGE DEPENDING ON WHAT BOARD IS USED, 1 FOR MNML
 
 int  RUN;
 int joy_x;
@@ -88,15 +92,13 @@ int menu_ref_1;           //Change through ISR
 int menu_ref_2;
 int *menu=&menu_ref_1;
 
+//void ButtonIsr(void);
 
-void high_interrupt(void);
-void highPriorityIsr(void);
 
-#pragma code highPriorityInterruptAddress=0x0008
-void high_interrupt(void)
-{
-    _asm GOTO highPriorityIsr _endasm
-}
+//void high_interrupt(void);
+//void highPriorityIsr(void);
+
+
 
 //Prototypes
 void welcome(void);
@@ -108,13 +110,21 @@ void Button_Setup(void);
 void on_setup(void);
 void checkMode(int *menu);
 
+
+//#pragma code highPriorityInterruptAddress=0x0008
+//void high_interrupt(void)
+//{
+//    _asm GOTO highPriorityIsr _endasm
+//}
+//
+//#pragma code
 void main(void){
   
 
 
   //Default
   TRISD = 0x00;         //set port D signals to output
-  menu_ref_1=0;
+  menu_ref_1=1;
   menu_ref_2=0;
   
   
@@ -123,7 +133,7 @@ void main(void){
   values[MAXSPEED]=100;        //Max speed
   values[PIDGAINS]=100;        //PID Gains
   values[MAXYAW]=100;        //Max Yaw
-  values[IRSAMPE]=50;         //ir_samp_e;
+  values[IRSAMPE]=10;         //ir_samp_e;
   values[IRSAMPR]=20;         //ir_samp_r;
   values[IRRAW]=60;         //ir_raw
   values[IRAVG]=10;         //ir_avg;
@@ -143,7 +153,21 @@ void main(void){
   
 //NORMAL OPERATION  
     while(RUN==0){
-               
+        
+        
+        if(PORTDbits.RD0 == 0)
+        {
+            mode_button = 1;
+        }
+        
+        if(PORTDbits.RD1 == 0)
+        {
+            motor_button = 1;
+        }
+        
+        
+
+
         if (mode_button==1){                  //Mode change sequence
                 checkMode(menu);
                 menu_ref_2=0;         //Default menu ref, should only be SPEED
@@ -154,9 +178,9 @@ void main(void){
 
         delayms(200);       //Used to prevent double tapping
         //possibly new function
-        switchChannels(1);
+        switchChannels(0);
         joy_x = doADC();
-        switchChannels(2);
+        switchChannels(1);
         joy_y = doADC();   
                          
       
@@ -185,18 +209,12 @@ void main(void){
                 
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(200);
-
             }   
-
-
         }  
 
         else if(menu_ref_1==FACTORY){            //IF IN FACTORY MODE
-
-            if (joy_y>=UP){            //User pushes left joystick UP
-                
+            if (joy_y>=UP){            //User pushes left joystick UP  
                 //Circular selection
-
                 if(menu_ref_2==0){
                   menu_ref_2=4;
                 }
@@ -205,8 +223,6 @@ void main(void){
                 }
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(250);               //Arbitrary delay of 250 milliseconds
-
-
             }
             else if (joy_y<=DOWN){      //User pushes left joystick DOWN
                 menu_ref_2++;
@@ -256,21 +272,37 @@ void main(void){
     /*Menu on setup*/
     if (RUN==1){
         on_setup();
+        GLOBAL_RUN = RUN;
+        sendRun();
         //MOTOR ON GOES AFTER
         motor_button=0;
     }
       
       /*MOTOR ON BEHAVIOUR*/
     while(RUN==1){
+        if(PORTDbits.RD1 == 0)
+        {
+            motor_button = 1;
+        }
         if (motor_button==1){      //At interrupt, stop motor and return to menu
             motor_button=0;
             RUN=0;
-            delay10us(50);
+            GLOBAL_RUN = RUN;
+            sendRun();
+            
         }
         switchChannels(0);
-        joy_x = doADC();
+        //GLOBAL_VELOCITY = doADC();    GLOBAL_VELOCITY = doADC() //Get joystick values
+        joy_y = doADC();
+        GLOBAL_VELOCITY = joy_y;
+        
         switchChannels(1);
-        joy_y = doADC();    //Get joystick values
+        joy_x = doADC();
+        GLOBAL_OMEGA = joy_x;
+        
+        sendVelocity();
+        sendOmega();
+        
         //send command here
     }
       
@@ -292,71 +324,13 @@ void main(void){
 
 void Button_Setup(void)
 {
-    TRISB = 0x00;   //whyyyy
-    PORTB = 0xFF;    //why
-    
-    //Interrupt setup
-    INTCONbits.GIEL = 0; //disable interrupts
-    INTCONbits.GIEH = 0;
-    INTCON2bits.RBPU = 0; //enable port B pull-up interrupts
-    
-    INTCONbits.INT0IE = 1;  //enable external interrupt 0 PortB bit 0 
-    INTCON2bits.INTEDG0 = 0; //falling edge trigger, default high priority
-    
-    INTCON3bits.INT1IE = 1; //enable external interrupt 1 PortB bit 1
-    INTCON2bits.INTEDG1 = 0; //falling edge trigger 
-    INTCON3bits.INT1IP = 1; //set high priority
-     
-    INTCONbits.INT0IF = 0; //clear flags
-    INTCON3bits.INT1IF = 0;
-    PIR1 = 0x00;
-    PIR2 = 0x00;
-    INTCONbits.GIEL = 1; //enable Interrupts
-    INTCONbits.GIEH = 1; 
+
+    TRISDbits.RD0 = 1;
+    TRISDbits.RD1 = 1;
 
 }
 
-/* TODO : 
- * Move code to interrupts.c
- * 
- */
-  void highPriorityIsr(void)
-{    
-    INTCONbits.GIE = 0;
-    //PORT B bit 0 external interrupt for motors on/off button
-    //motor control always takes priority
-    if(INTCONbits.INT0IF == 1)
-    {
-     
-        if (motor_button==0)
-        {
-            motor_button=1;
-            //Should be replaceable by a 20ms delay
-            sendString(t5);
 
-        }
-
-        INTCON1bits.INT0IF = 0; //clear flag
-
-    }
-
-    //Port B bit 1 external interrupt for menu button
-    if(INTCON3bits.INT1IF == 1)         
-    {
-        if (RUN==0){
-            mode_button=1;
-            INTCON3bits.INT1IF = 0; //clear flag
-        }
-
-    }
-    
-    //Re-enable interrupts
-    
-    INTCONbits.GIE = 1; //re-enable interrupts
-    PORTB = 0xFF; //clear port B bit
-
-}        
-  
 //FUNCTIONS  
   
 /*This function takes in 2 arguments, corresponding to what should be displayed on
@@ -383,11 +357,29 @@ void LCD_disp(int title_item, int value_item)
             sprintf(string, "%s%d%", stringtab[value_item],values[value_item]);
             Lcd_Write_String(string);
         }
+        //Statistics
+        //Average: takes the mean of values stored in the IR array
+        else if(menu_ref_2==7){
+//            unsigned char i;
+//            int total;
+//            int average;
+//            for (i=values[IRSAMPE];i>0;i--){
+//                total=+IR_samps[i];         //IR_samps defines the array not yet present
+//            }
+//            values[IRAVG]=total/values[IRSAMPE];
+//            sprintf(string,"%s%d", stringtab[IRAVG], values[IRAVG]);
+//            Lcd_Write_String(string);
+            
+        }
+        
         else {
             Lcd_Set_Cursor(2,1);    
             sprintf(string, "%s%d", stringtab[value_item],values[value_item]);//no % symbol
             Lcd_Write_String(string);
         }
+        
+        
+        
         
     }
     
