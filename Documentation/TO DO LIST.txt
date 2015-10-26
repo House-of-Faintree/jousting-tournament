@@ -1,4 +1,4 @@
-Created October 25th and correct as of 12PM 25/10/2015.
+Created October 25th and correct as of 14PM 26/10/2015.
 Update this as things get finished
 
 
@@ -9,12 +9,16 @@ Currently finished:
 
 
 To be tested:
-- Handshaking sequence is written but needs to be tested with other components, timer 0 has some issues. -LEO+ZIJI
-- Remote control of manual mode from joysticks using the menu_nav loop -To be done today ZIJI
+- Handshaking sequence is written but needs to be tested with other components, timer 0 has some issues. -LEO+ZIJI	
+	-TMR0 and TMR1 still not working properly as the overflow interrupt does not clear, put it at the end of a while loop.
+- Remote control of manual mode from joysticks using the menu_nav loop - To be done today ZIJI
+	-done, type conversion need to be careful
 - IR tracking; independent of integration
-- IR integration with feedback loop of control system
-- Move menu-nav and LCD to MNML     - To be done today LEO
 
+- IR integration with feedback loop of control system
+	
+- Move menu-nav and LCD to MNML     - To be done today LEO 
+	-already done
 
 
 To be written:
