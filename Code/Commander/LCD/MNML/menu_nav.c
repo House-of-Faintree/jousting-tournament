@@ -95,11 +95,7 @@ void ButtonIsr(void);
 void high_interrupt(void);
 void highPriorityIsr(void);
 
-#pragma code highPriorityInterruptAddress=0x0008
-void high_interrupt(void)
-{
-    _asm GOTO highPriorityIsr _endasm
-}
+
 
 //Prototypes
 void welcome(void);
@@ -111,6 +107,14 @@ void Button_Setup(void);
 void on_setup(void);
 void checkMode(int *menu);
 
+
+#pragma code highPriorityInterruptAddress=0x0008
+void high_interrupt(void)
+{
+    _asm GOTO highPriorityIsr _endasm
+}
+
+#pragma code
 void main(void){
   
 
@@ -126,7 +130,7 @@ void main(void){
   values[MAXSPEED]=100;        //Max speed
   values[PIDGAINS]=100;        //PID Gains
   values[MAXYAW]=100;        //Max Yaw
-  values[IRSAMPE]=50;         //ir_samp_e;
+  values[IRSAMPE]=10;         //ir_samp_e;
   values[IRSAMPR]=20;         //ir_samp_r;
   values[IRRAW]=60;         //ir_raw
   values[IRAVG]=10;         //ir_avg;
@@ -146,7 +150,21 @@ void main(void){
   
 //NORMAL OPERATION  
     while(RUN==0){
-               
+        
+        
+        if(PORTDbits.RD0 == 0)
+        {
+            mode_button = 1;
+        }
+        
+        if(PORTDbits.RD1 == 0)
+        {
+            motor_button = 1;
+        }
+        
+        
+
+
         if (mode_button==1){                  //Mode change sequence
                 checkMode(menu);
                 menu_ref_2=0;         //Default menu ref, should only be SPEED
@@ -265,6 +283,10 @@ void main(void){
       
       /*MOTOR ON BEHAVIOUR*/
     while(RUN==1){
+        if(PORTDbits.RD1 == 0)
+        {
+            motor_button = 1;
+        }
         if (motor_button==1){      //At interrupt, stop motor and return to menu
             motor_button=0;
             RUN=0;
@@ -295,72 +317,13 @@ void main(void){
 
 void Button_Setup(void)
 {
-    TRISB = 0x00;   //whyyyy
-    PORTB = 0xFF;    //why
-    
-    //Interrupt setup
-    INTCONbits.GIEL = 0; //disable interrupts
-    INTCONbits.GIEH = 0;
-    INTCON2bits.RBPU = 0; //enable port B pull-up interrupts
-    
-    INTCONbits.INT0IE = 1;  //enable external interrupt 0 PortB bit 0 
-    INTCON2bits.INTEDG0 = 0; //falling edge trigger, default high priority
-    
-    INTCON3bits.INT1IE = 1; //enable external interrupt 1 PortB bit 1
-    INTCON2bits.INTEDG1 = 0; //falling edge trigger 
-    INTCON3bits.INT1IP = 1; //set high priority
-     
-    INTCONbits.INT0IF = 0; //clear flags
-    INTCON3bits.INT1IF = 0;
-    PIR1 = 0x00;
-    PIR2 = 0x00;
-    INTCONbits.GIEL = 1; //enable Interrupts
-    INTCONbits.GIEH = 1; 
 
+    TRISDbits.RD0 = 1;
+    TRISDbits.RD1 = 1;
 
 }
 
-/* TODO : 
- * Move code to interrupts.c
- * 
- */
-  void highPriorityIsr(void)
-{    
-    INTCONbits.GIE = 0;
-    //PORT B bit 0 external interrupt for motors on/off button
-    //motor control always takes priority
-    if(INTCONbits.INT0IF == 1)
-    {
-     
-        if (motor_button==0)
-        {
-            motor_button=1;
-            //Should be replaceable by a 20ms delay
-            sendString(t5);
 
-        }
-
-        INTCONbits.INT0IF = 0; //clear flag
-
-    }
-
-    //Port B bit 1 external interrupt for menu button
-    if(INTCON3bits.INT1IF == 1)         
-    {
-        if (RUN==0){
-            mode_button=1;
-            INTCON3bits.INT1IF = 0; //clear flag
-        }
-
-    }
-    
-    //Re-enable interrupts
-    
-    INTCONbits.GIE = 1; //re-enable interrupts
-    PORTB = 0xFF; //clear port B bit
-
-}         
-  
 //FUNCTIONS  
   
 /*This function takes in 2 arguments, corresponding to what should be displayed on
@@ -387,11 +350,29 @@ void LCD_disp(int title_item, int value_item)
             sprintf(string, "%s%d%", stringtab[value_item],values[value_item]);
             Lcd_Write_String(string);
         }
+        //Statistics
+        //Average: takes the mean of values stored in the IR array
+        else if(menu_ref_2==7){
+//            unsigned char i;
+//            int total;
+//            int average;
+//            for (i=values[IRSAMPE];i>0;i--){
+//                total=+IR_samps[i];         //IR_samps defines the array not yet present
+//            }
+//            values[IRAVG]=total/values[IRSAMPE];
+//            sprintf(string,"%s%d", stringtab[IRAVG], values[IRAVG]);
+//            Lcd_Write_String(string);
+            
+        }
+        
         else {
             Lcd_Set_Cursor(2,1);    
             sprintf(string, "%s%d", stringtab[value_item],values[value_item]);//no % symbol
             Lcd_Write_String(string);
         }
+        
+        
+        
         
     }
     
@@ -494,3 +475,15 @@ void checkMode(int *menu){
 
                 }
 }
+
+#pragma interrupt highPriorityIsr
+
+/* TODO : 
+ * Move code to interrupts.c
+ * 
+ */
+  void highPriorityIsr(void)
+{    
+
+}         
+  
