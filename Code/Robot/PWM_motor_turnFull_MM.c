@@ -116,6 +116,9 @@ void turn(void){
     
     else{
         duty = 0;
+        L_dir = 1;
+        R_dir = 1;
+        max_Dvx = 0;
         
     }
    
@@ -130,11 +133,11 @@ void turn(void){
     //} else if(omega<128 && max_Dvx == 5){ // in reverse/forward turning left near full speed
     //    R_PWM = 255; // run at max
      //   L_PWM = 255-(omega-128)*max_Dvx/128;
-     if (GLOBAL_OMEGA >=120) {            // right turn
-        L_PWM = duty - ((GLOBAL_OMEGA-128)*max_Dvx)/128; //Use bitshift instead
+     if (GLOBAL_OMEGA >= 135) {            // right turn
+        L_PWM = duty + ((GLOBAL_OMEGA-128)*max_Dvx)/128; //Use bitshift instead
         R_PWM = 2*duty-L_PWM;
-    }else{                               // left turn
-        L_PWM = duty + ((128-GLOBAL_OMEGA)*max_Dvx)/128; // Use Bitshift instead
+    }else if (GLOBAL_OMEGA <= 120){                               // left turn
+        L_PWM = duty - ((128-GLOBAL_OMEGA)*max_Dvx)/128; // Use Bitshift instead
         R_PWM = 2*duty-L_PWM;
     }
     
