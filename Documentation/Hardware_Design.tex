@@ -1,40 +1,92 @@
-\documentclass[MTRX3700report.tex]{subfiles}
+%\documentclass[MTRX3700report.tex]{subfiles}
+\documentclass[11pt,a4paper]{article}
 % Dpak
 % HARDWARE DESIGN
-\begin{document}
+\usepackage{color}
+\usepackage{floatrow}
+\usepackage{graphics}
+% Table float box with bottom caption, box width adjusted to content
+\newfloatcommand{capbtabbox}{table}[][\FBwidth]
 
+\begin{document}
+  \textcolor{red}
+  {
   \textit{Give a detailed description of the design of hardware. The description should include mechanical drawings, location diagrams, electrical circuit schematics, circuit simulation or test results, PCB overlays, wiring diagrams, connector pinout lists, pneumatic/hydraulic circuit diagrams}
-  The project includes a wide array of hardware types, each with specific requirements to be interfaced with in software and with other the other hardware components. This section will seek to outline the requirements of the individual components used, as well as the scheme with which they were interfaced with each other.
+  }
+  \\The project includes a wide array of hardware types, each with specific requirements to be interfaced with in software and with other the other hardware components. This section will seek to outline the requirements of the individual components used, as well as the scheme with which they were interfaced with each other.
 
   \subsection{Scope of the Jousting Robot's System Hardware}
-  The jousting robot, being composed of 2 interacting systems, namely the Commander and Mobile Robot, has a hardware requirement that was also split into two.
-  The Commander hardware and Mobile Robot hardware will be here discussed separately to highlight the differences.
-  \subsection{Commander Hardware Design}
-    \subsubsection{Power Supply}
-    Unlike the Mobile Robot, the power requirements of the Commander could be fulfilled from a single 9v battery plugged into the PIC, and all power for peripheral components supplied by the PIC. Due to the many components connected to the power lines, a power rerouting circuit needed to be constructed. This circuit is shown in the next section as it involved interfacing with the PIC.
-    \subsubsection{Computer Design}
-    Description of computer hardware, including all interface circuitry to sensors, actuators, and I/O hardware.
-    \subsubsection{Sensor Hardware}
-    \subsubsection{Actuator Hardware}
-    \subsubsection{Operator Input Hardware}
-    Input hardware consisted of a 2 axis joystick, which is 2 potentiometers at mounted right angles to each other. This joystick also contains a button that can be used by depressing the joystick. A second, separate button was used on the commander for starting and stopping the mobile robot. The commander also included a master power switch.
-    \subsubsection{Operator Output Hardware}
-    The main output hardware consisted of an LCD screen which displayed the state of the system, as well as basic information about the Mobile Robot to to the operator. 3 LEDs were also in the original design, a power indicator, a radio link integrity indicator, and an LED to indicate the Mobile Robot was in Autonomous mode, however these LED indicators were not implemented in the final product.
-    \subsubsection{Hardware Quality Assurance}
-    The main hardware quality assurance policy was implemented on the PIC, with a brownout detector enabled by default on the microcontroller.
+    The jousting robot, being composed of 2 interacting systems, namely the Commander and Mobile Robot, has a hardware requirement that was also split into two.
+    The Commander hardware and Mobile Robot hardware will be here discussed separately to highlight the differences.
 
   \subsection{Mobile Robot Hardware Design}
     \subsubsection{Power Supply}
-    Power supply method and rating, fusing, distribution, grounding and protective earth as appropriate.
+      The Mobile Robot was powered by a Zippy Flightmax 4.2 Ahr Lithium Iron Phosphate (LiFePO4) battery. It consists of 4 series connected cells together producting a typical voltage of 12.8V. The battery is rated for a continuous discharge rate of 126A and a charge rate of 8.4A. The battery is connected to a power supply circuit that has several functions:
+      \begin{enumerate}
+        \item It provides a connection point for the 12.8V battery.
+        \item It provides a connection point for external power supplies if the battery is removed.
+        \item It provides 5V DC power at 1.5A to other hardware on the Mobile Robot.
+        \item It provides a switch for turning power to the Mobile Robot off or on.
+        \item It carries the Pololu 707 Dual VNH3SP30 Motor Driver board and provides power to it.
+        \item It provides connection points for motor driver signals, motor leads and encoder signals.
+      \end{enumerate}
+      \textcolor{red}
+      {
+      \textit{\textbf{INSERT SCHEMATIC HERE}}
+      }
     \subsubsection{Computer Design}
     Description of computer hardware, including all interface circuitry to sensors, actuators, and I/O hardware.
     \subsubsection{Sensor Hardware}
+      \begin{itemize}
+        \item IR sensors
+        \item encoder
+        \item Xbee (functions more like a sensor in robot)
+      \end{itemize}
     \subsubsection{Actuator Hardware}
+      The primary actuators on the Mobile Robot were the two motors connected to the wheels. The two motors could be controlled independently allowing for turning functionality. The motor output shafts were connected to multistage planetary gearboxes having reduction ratios of 131.25:1.
+      Table \ref{gearmotor} lists the acronyms and abbreviations used in this document.
+      \begin{figure}[h]
+        \begin{minipage}[b]{0.50\linewidth}
+          \raggedleft
+          \includegraphics{gearmotor.png}
+        \end{minipage}
+        \begin{minipage}[b]{0.30\linewidth}
+
+          \begin{tabular}[b]{|l|l|}
+
+            \hline \textbf{Parameter} & \textbf{Value} \\
+            \hline Part number & Pololu 1447\\
+            \hline No-load speed @ 12 V & 80 RPM\\
+            \hline No-load current @ 12 V & 300 mA\\
+            \hline Stall current @ 12 V & 5 A\\
+            \hline Stall torque @ 12 V & 1.765 Nm\\
+            \hline Positive terminal lead & Red\\
+            \hline Negative terminal lead & Black\\
+            \hline
+          \end{tabular}
+        \end{minipage}
+        \caption{DC gearmotor and specifications specifications}
+        \label{gearmotor}
+      \end{figure}
+      The output shaft from the gearbox was connected to the 90mm wheel via 2 M3 screws that bore down on the shaft flat face.
     \subsubsection{Operator Input Hardware}
     \subsubsection{Operator Output Hardware}
     \subsubsection{Hardware Quality Assurance}
     Describe any measures that were taken to control (improve) hardware quality and reliability – Heartbeats, brownout conditioning/resets, reset conditions, testing and validation, etc.
-
+  \subsection{Commander Hardware Design}
+    \subsubsection{Power Supply}
+      Unlike the Mobile Robot, the power requirements of the Commander could be fulfilled from a single 9v battery plugged into the PIC, and all power for peripheral components supplied by the PIC. Due to the many components connected to the power lines, a power rerouting circuit needed to be constructed. This circuit is shown in the next section as it involved interfacing with the PIC.
+    \subsubsection{Computer Design}
+      Description of computer hardware, including all interface circuitry to sensors, actuators, and I/O hardware.
+    \subsubsection{Sensor Hardware}
+    \subsubsection{Actuator Hardware}
+      There was no actuating hardware present on the Commander, however, the Xbee hardware served as a means of communication between Commander and Mobile Robot.
+    \subsubsection{Operator Input Hardware}
+      Input hardware consisted of a 2 axis joystick, which is 2 potentiometers at mounted right angles to each other. This joystick also contains a button that can be used by depressing the joystick. A second, separate button was used on the commander for starting and stopping the mobile robot. The commander also included a master power switch.
+    \subsubsection{Operator Output Hardware}
+      The main output hardware consisted of an LCD screen which displayed the state of the system, as well as basic information about the Mobile Robot to to the operator. 3 LEDs were also in the original design, a power indicator, a radio link integrity indicator, and an LED to indicate the Mobile Robot was in Autonomous mode, however these LED indicators were not implemented in the final product.
+    \subsubsection{Hardware Quality Assurance}
+      The main hardware quality assurance policy was implemented on the PIC, with a brownout detector enabled by default on the microcontroller.
 
   \subsection{Hardware Validation}
     \subsubsection{Commander}
@@ -42,12 +94,12 @@
   Details of any systematic testing to ensure that the hardware actually functions as intended.
 
   \subsection{Hardware Calibration Procedures}
-  Procedures for calibration required in the factory, or in the field.
+    Procedures for calibration required in the factory, or in the field.
     \subsubsection{Commander}
     \subsubsection{Mobile Robot}
 
   \subsection{Hardware Maintenance and Adjustment}
-  Routine adjustment and maintenance procedures.
+    Routine adjustment and maintenance procedures.
     \subsubsection{Commander}
     \subsubsection{Mobile Robot}
 
