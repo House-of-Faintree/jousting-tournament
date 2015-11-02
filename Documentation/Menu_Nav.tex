@@ -93,13 +93,17 @@
 	•	responses to identifiable failure conditions\\
 	as appropriate for each module.}
 	
+	\subsubsection{Using Menu Navigation - an outline}
+	When User powers on the commander, they are greeted with a welcome screen 'Bow for I am Charlemagne'. They by default enter the Menu mode in Manual mode and the LCD will display after the welcome 'MANUAL' in the first line and 'Max speed: 100' in the second. If they move the joystick left and right, they will increment and decrement the value of Max Speed from 0-100. If the joystick button (Button 1) is pressed, the commander will switch to Factory mode. Here the user may also move the joystick up and down to scroll through the submenus and thus choose what value they wish to change (Max Speed, Yaw rate, etc.). If the joystick button is pressed again, they will enter Assisted mode where no value changes can be made, likewise if they press it again to enter Auto mode. If the button is pressed once more they return to Manual mode.\\
+	
+	If at any point the Motor Button is pressed (button 2) then the Robot will be switched on to the run time mode the commander was in. Upon pressing this button, a start up delay and message is shown ('Giddy up') after which motors are activated and motor on run-time behaviour commences, during which the phrase 'Taste my lance!' is shown. If the motor button is pressed any time after the initial press, motors are turned off and an end delay and message ('Whoa!') is initiated during which user forcibly has no control. While motors are on, user cannot make any changes to Factory mode variables nor change Run-time modes. By default if motors are turned on in Factory mode, Robot enters motor on run time in Manual.
 	
 	
 	\subsubsection{Design Rationale}
 	\paragraph{General Design}
 	The focus of the design was intuitive user control; we wanted to minimise the number of possible inputs, bringing it down to only three main sources of user inputs (four with the power switch) which are the analogue joystick inputs (x-y), joystick push button, and separate push button. We thought about how the user held the commander and which inputs had room for error. From this we established that the act of changing variables and changing submenus had the most room for error, changing of run-time modes to have the second, and turning the motors on and off (switching between Motor On Mode and Menu Mode) to have the least room for error. Thus analogue joystick inputs were assigned to the changing of variables and submenus, the joystick button (controlled by the same (left) hand) were assigned to Run-time mode changes, and finally the motor switching was assigned to the separate push-button which was controlled by the right hand.\\
 	
-	The use of buttons allow for simplified interaction, but limits the depth of the user input. Buttons can only represent a single action and for this design asks the commander to 'go to the next menu/mode'. This created some limitation in meeting the specification of being able to go to any run-time mode from any other run-time mode as our design acts as a mono-directional scrolling interface going from Manual-Factory-Assist-Auto-Manual. However we determined that due to the low number of run-time modes available, this would not be perceived by the end user as an inconvenience. The use of a separate motor button (Button 2) allows for the decoupling of tuning and movement from the most significant mode change of the system, that is to put the system into and out of a movement state. It minimises confusion for the user and prioritises safety above all else.
+	The use of buttons allow for simplified interaction, but limits the depth of the user input. Buttons can only represent a single action and for this design asks the commander to 'go to the next menu/mode'. This created some limitation in meeting the specification of being able to go to any run-time mode from any other run-time mode as our design acts as a mono-directional scrolling interface going from Manual-Factory-Assist-Auto-Manual. However we determined that due to the low number of run-time modes available, this would not be perceived by the end user as an inconvenience. The use of a separate motor button (Button 2) allows for the decoupling of tuning and movement from the most significant mode change of the system, that is to put the system into and out of a movement state. It minimises confusion for the user, performing in a robust manner no matter how unorthodox user input is, and prioritises safety above all else.
 	
 	\begin{figure}[h]
 	\includegraphics[scale=0.45]{ControllerDesign.png}
@@ -113,6 +117,30 @@
 	We also believed that due to the nature of Assisted mode, there needed to be more information given to the user in regards to the robot's parallel distance from tilt, especially if the user wishes to operate the robot without the robot in sight. As a result, when in Assisted robot will send back IR data to be displayed on the LCD.
 	
 	\subsubsection{Function}
+	\paragraph{Variables} The structure of the module is a large while loop that runs as long as the commander is powered with smaller while loops representing the separate modes that the commander runs in. These smaller while loops keep running contingent upon three main variables:
+	\begin{itemize}
+		\item RUN - Determines status of Motors (on/off) and the respective behaviour
+		\item menu\textunderscore ref\textunderscore 1 - Integer determines Run-time Mode (0-3)
+		\item menu\textunderscore ref\textunderscore 2 - Integer that determines submenu and submenu variable to be operated on (0-7)
+	\end{itemize}
+	
+	Both menu\textunderscore ref values work in a circular manner, if they are decremented/incremented beyond a minimum/maximum value, they will become the maximum/minimum value.\\
+	Important submenu values and their corresponding string (e.g. "Max Speed:") are stored in arrays 'values[ ]' and 'stringtab[ ]' respectively, with each position of each array corresponding to a certain variable. For example, user adjusts speed by adjusting values[0], and then prints it with a combination of values[0] and stringtab[0]. Within the code, the exact variable to be operated on is determined by menu\textunderscore ref\textunderscore 2 which dictates which value of each array is being accessed.\\
+	
+	e.g.\\
+	\texttt{menu\textunderscore ref\textunderscore 2=0;\\values[menu\textunderscore ref\textunderscore 2]=50;\\//MAX SPEED = 50}
+	
+	Using this form of referencing simplifies the code and naturally allows for the incremental and decremental style of our code.
+	
+	\paragraph{Pseudocode}
+		The program continuously polls current status, anticipates the user input expected for each status, and executes the necessary response. Function \texttt{LCD\textunderscore disp(i,j)} is explored in more detail in \underline{LCD}, but generally, it takes in two inputs, normally menu\textunderscore ref\textunderscore 1 and menu\textunderscore ref\textunderscore 2 as i and j, and writes to the LCD the run time mode on the first line and the submenu and submenu value on second\\\\
+		
+			\begin{figure}[h]
+				\includegraphics[scale=0.45]{menu_navFlowChart.png}
+				\centering
+				\caption{Menu Navigation Flow Chart}
+			\end{figure}
+	
 	
 	
 	\subsubsection{Constraints on Module X Performance}

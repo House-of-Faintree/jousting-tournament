@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/W32TeX) (preloaded format=pdflatex 2015.9.20)  2 NOV 2015 16:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/W32TeX) (preloaded format=pdflatex 2015.9.20)  2 NOV 2015 19:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -196,39 +196,75 @@ Missing character: There is no â in font cmti10!
 Missing character: There is no € in font cmti10!
 Missing character: There is no ¢ in font cmti10!
 [3]
-Underfull \hbox (badness 10000) in paragraph at lines 100--101
+Underfull \hbox (badness 10000) in paragraph at lines 97--98
 
  []
 
-<ControllerDesign.png, id=17, 657.2053pt x 417.05812pt>
+
+Underfull \hbox (badness 10000) in paragraph at lines 104--105
+
+ []
+
+[4] <ControllerDesign.png, id=20, 657.2053pt x 417.05812pt>
 File: ControllerDesign.png Graphic file (type png)
 
 <use ControllerDesign.png>
-Package pdftex.def Info: ControllerDesign.png used on input line 105.
+Package pdftex.def Info: ControllerDesign.png used on input line 109.
 (pdftex.def)             Requested size: 295.73965pt x 187.67441pt.
+ [5 <./ControllerDesign.png>]
+Overfull \hbox (35.35062pt too wide) in paragraph at lines 127--129
+[]\OT1/cmr/m/n/10 Both menu[]ref val-ues work in a cir-cu-lar man-ner, if they 
+are decre-mented/incremented
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 127--129
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 136--137
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 136--137
+
+ []
+
+<menu_navFlowChart.png, id=26, 821.0675pt x 773.89125pt>
+File: menu_navFlowChart.png Graphic file (type png)
+
+<use menu_navFlowChart.png>
+Package pdftex.def Info: menu_navFlowChart.png used on input line 139.
+(pdftex.def)             Requested size: 369.47696pt x 348.24785pt.
+
+Overfull \hbox (24.47696pt too wide) in paragraph at lines 139--141
+ [][] 
+ []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[4] [5 <./ControllerDesign.png>] (./Menu_Nav.aux) ) 
+[6] [7 <./menu_navFlowChart.png>] (./Menu_Nav.aux) ) 
 Here is how much of TeX's memory you used:
- 1491 strings out of 494963
- 21245 string characters out of 6180511
+ 1498 strings out of 494963
+ 21390 string characters out of 6180511
  77568 words of memory out of 5000000
- 4747 multiletter control sequences out of 15000+600000
- 4899 words of font info for 18 fonts, out of 8000000 for 9000
+ 4752 multiletter control sequences out of 15000+600000
+ 5067 words of font info for 19 fonts, out of 8000000 for 9000
  36 hyphenation exceptions out of 8191
  37i,6n,23p,979b,211s stack positions out of 5000i,500n,10000p,200000b,80000s
-<b:/texlive/2015/texmf-dist/
-fonts/type1/public/amsfonts/cm/cmbx10.pfb><b:/texlive/2015/texmf-dist/fonts/typ
-e1/public/amsfonts/cm/cmbx12.pfb><b:/texlive/2015/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmr10.pfb><b:/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmsy10.pfb><b:/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10
-.pfb>
-Output written on Menu_Nav.pdf (5 pages, 97128 bytes).
+<b:/texlive/2015/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmbx10.pfb><b:/texlive/2015/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmbx12.pfb><b:/texlive/2015/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmr10.pfb><b:/texlive/2015/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmsy10.pfb><b:/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti1
+0.pfb><b:/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
+Output written on Menu_Nav.pdf (7 pages, 168677 bytes).
 PDF statistics:
- 43 PDF objects out of 1000 (max. 8388607)
- 28 compressed objects within 1 object stream
+ 57 PDF objects out of 1000 (max. 8388607)
+ 37 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 6 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 11 words of extra memory for PDF output out of 10000 (max. 10000000)
 
