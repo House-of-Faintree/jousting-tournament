@@ -2,21 +2,102 @@
 
 
 \begin{document}
-%\section{System Description}
-This section is intended to give a general overview of the basis for the something system design, of its division into hardware and software modules, and of its development and implementation.  
+\section{System Description}
+This section is intended to give a general overview of the robotic system and the controller module, of its division into hardware and software modules, and of its development and implementation.
 \subsection{Introduction}
-Give a technical description of the function of the whole system, in terms of its constituent parts, here termed modules. Generally, a module will have hardware and software parts.
+The robotic expect has 3 basic modes of operation. First is the user manual mode, which is direct controlled of a user who uses a robot commander to transmit motion executives to the mobile robot. The second mode is the user assist mode, base on the user manual mode. the mobile robot can return data to the commander (To tell the user the distance of the mobile robot from the obstacle). It will improve the mobile robot motion and notify the user motion control set points. The third mode of the operation completely is automatic, the mobile robot can control the movement by itself. In addition, a "factory mode" should be included so that a group member can use it for testing and calibration. When starting the program, the user is able to set the maximum speed of the motor, and the user can switch the robot operation mode at any time.
+\subsubsection{Hardware components introduction:}
+There are 10 hardware components, the power board, Pololu 707 Dual motor driver board, Xbee, battery, sharp infrared sensor, LCD display, joystick, button, PIC18F4520 minimal board, power board and dual PWM motors. The power board provides a connection point for the mobile robot battery and carry the Pololu motor driver board. The pololu motor driver board is a PWM motor controller. Xbee is use for sending data and executives from the commander to the mobile robot, and feedback signal/data can send back from the mobile robot to the commander via Xbee as well. Infrared sensors are using for measuring the distance of the mobile robot from the obstacles, and they are the tools for adjusting the motion when the robot is in automatic mode. LCD display is the user interface. It will display the welcome message and current status / mode of the robot, and feedback data from robot will be displayed on the LCD. User control the robot by using joystick. The joystick has 2 control channels, x axis and y axis motion control, hence it has 2 output and both output are analog. PIC18F4520 connect with the Xbee and motor driver board.
+PWM motors provide the motion of the robot, its speed is base on different duty cycle.
+\subsubsection{Software components:}
+Software contains: ADC module, LCD display module, timer system, Xbee serial ISR, IR sensor module, PID controller and PWM motor algorism. ADC will convert the analog signal from the joystick to digital signal to PIC18F board. LCD display indicates the status of the robot, and provide user input, for setting the maximum speed and yaw rate of the mobile robot, as well as the operation mode switching. Xbee serial transmission interrupt is a software component that transmit the commander executive to the robot, such as current speed input, joystick value (convert to digital value via ADC module). Feedback signal, such as the IR sensor reading will be transmitted from robot to commander via Xbee. IR sensor module will read the analog voltage from the IR sensor, then convert it to digital value. In user assist mode, the value will be sent to the commander LCD to assist the user. In full auto mode, the motion of the robot will depends on the reading of the IR sensors.
+
 \subsection{Operational Scenarios}
-Describe how the system is to be used. There may be several different ways that it can be used, perhaps involving different users, or classes of user. Present use case diagrams here if you are using them. Each operational scenario is a part through a use case diagram – a way of using the system, with different outcomes or methods of use. \\
-You should also consider the various failures that may occur, and the consequences of these failures.
+The mobile robot should have all motions, including forward, backward and turning.  In manual mode, the user can control the motions of the robot at anytime.
+The Robotic System shall be capable of carrying a Knight seated on a Saddle, and of accurately and rapidly manoeuvring when carrying the Knight such that the Knight is able to contest a jousting match of several passes against similar Robotic Systems.\\
+In auto mode, the mobile robot should move around the Tilt2 without hitting it. The Tilt2 will be 4.0 metres long and 100 mm high. Failure to measure the distance from the Tilt2 will allow the robot to hit it. 
+
 
 \subsection{System Requirements}
-The operational scenarios considered place certain requirements on the whole something system, and on the modules that comprise it.\\
-Statement of requirements that affect the system as a whole, and are not restricted to only a subset of its modules.
+The operational scenarios considered place certain requirements on the whole robot jousting system, including both commander and the mobile robot system, and on the modules that comprise it.\\
+\textbf{Requirement 1 }\\
+The visual interface shall be implemented using a 16 character by 2 line liquid crystal display module.\\
+\textbf{Requirement 2 }\\
+In user manual mode, the user can set, motor on/ off, maximum speed, factory mode and goto user assist mode.\\
+\textbf{Requirement 3 }\\
+In user assist mode, the user can go to either manual mode or auto mode.\\
+\textbf{Requirement 4 }\\
+In user auto mode, the user can select either manual mode and user assist mode, and an execute to start the mobile robot motion.\\
+\textbf{Requirement 5 }\\
+Factory mode should not be triggered in accident. A protection of the command 'SET MODE FACTORY ' should be added.\\
+\textbf{Requirement 6 }\\
+In factory mode, technical data can be accessed and modify, such as raw data reading, IR sample per estimate, sample rate, maximum speed and statistics.\\
+\textbf{Requirement 7 }\\
+An audio feedback device, such as the buzzer may be added.\\
 
 \subsection{Module Design}
-Describe the breakdown of the design into functional modules. Each module probably contains both software and hardware.\\
-Then include a section like the following (2.5) for each module. Not all of the sub-headings may be relevant for each module.
+\textbf{Xbee module:}\\
+The xbee use to transmit the command to the mobile robot, and send the feedback data to the commander. From the perspective of hardware, there are 2 Xbee modules, one of the install on the mobile robot and one is installing on the commander, and both connect to the minimal board, pin RC6 and RC7. In software module, the Xbee transmit function, both receive and transmit should be triggered by interrupt. If transmit is required, trigger the ISR. The ISR should only be trigger if there are messages need to be sent and the register RCREG and TXREG are empty.\\
+
+\textbf{IR sensor module:}\\
+In software module, store the value in an IR buffer array. In a variable sample rate (sample rate input by the user). The IR sensor function will take the data from the array and get the average value in that array, and convert it from digital value to centimetre value corresponding to the IR sensor data sheet. Finally, send the value via Xbee to the commander.\\
+
+\textbf{Software calibration and  setup module:}\\
+Takes user input through the select buttons to change settings and select the mode, as well as configure the movement controls.\\
+
+
+
+\textbf{ADC module:}\\
+ADC function convert the analog voltage to digital value, including convert the analog voltage from joystick and the analog voltage from IR sensor. In addition, an extra function for the ADC module is that it can switch the channel of the analog input.\\
+\textbf{Joystick and motor button module:}\\
+Joystick use for setting the maximum speed, switching the mode and driving the robot. Push the stick down allow the user the change the mode. Moving the joystick in x axis direction can change the maximum speed (for setup procedure). In manual control mode, joystick x axis direction control the robot turning while y axis control the forward and backward movement. The motor button is a start button. It can turn 2 PWM motor ON/OFF.\\
+
+\textbf{LCD module:}\\
+
+\textbf{PWM motor module:}\\
+
+
+
+
+\subsection{Module Requirements}
+The operational scenarios considered place certain requirements on the robot jousting system, and on the modules that comprise it.
+
+\subsubsection{Functional Requirements}
+This section describes the functional requirements – those requirements that must be met if the module (and system) is to function correctly. 
+
+\subsubsection{Inputs}
+
+Joystick x and y axis input: Analog input, encode the signal to digital to the commander minimal board.  \\
+Tactile switch input: Digital input 0 -1. \\
+IR sensors: input is the distance from the obstacle. \\
+Button input: digital, 0 or 1.\\
+Xbee : take input of type CHAR (8 bits).\\
+
+\subsubsection{Process}
+Joystick’s analog input are 2 pins, and it need to be converted to digital by ADC module, by setting up the register ADCON0 and ADCON1. \\
+IR distance sensor analog input to power board to PIN RA2 and it convert it by the ADC module. A relative large error tolerances due to the sensitive of the IR sensor, input analog signal is vary so that the digital value that converted by ADC module is unstable. In addition, the Analog voltage - distance to reflective object graph is non linear. Therefore, convert the digital to distance unit cause tolerances.\\
+Xbee transmit the digital signal between 2 MNML•PIC•18 v2 board ( wireless). The digital is in 8 bit format and the transmission is bidirectional. Sending a byte (8 bits) to TXREG and RCREG register can complete a signal transformations between two Xbee. A sightly delay may occur because for transmission, it need to wait the TRMT flag to be cleared.\\
+The variable type of ADC module should be in INT, not CHAR, since CHAR is a 8 bits variable but INT is 16 bits variable. 8 bits variable can not be used since the AD converter is 10 bits. Hence it can only use 10 bits for the variable of INT. \\
+
+\subsubsection{Ouputs}
+Joystick outputs: digital values with 10bits resolution with prescale value in timer0 as 256, 0-1024 in decimal \\
+Xbee serial communication output: 8 bits value. The timing (frequency) of the communication is based on the the TXIF and RXIF flag.\\
+IR sensor output: analog signal 0 - 3.3V bases on different distance.\\
+Commander minimal board output: Output a 8 bits value to xbee. Outputs CHAR type of format to the Alphanumeric LCD.\\
+Robot minimal board output: digital signal to power board.\\
+Power board outputs: Connector P2 provide encoder 1A/B output to PWM motor.	\\
+
+\subsubsection{Timing}
+The user can stop the PWM motor for running at any time.
+
+\subsubsection{Design Constraints}
+Only use C programming languages and assembly languages that can fit the MCU pic18f4520 and the minimal board. Use joystick as the user input and the final output is 2 PWM motor. 
+
+\subsection{Conceptual Design:}
+
+
+
+
 
 
 \end{document}
