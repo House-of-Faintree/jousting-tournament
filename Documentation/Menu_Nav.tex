@@ -1,52 +1,124 @@
-\documentclass[MTRX3700report.tex]{subfiles}
+%\documentclass[MTRX3700report.tex]{subfiles}
 % Lydia
-
+\documentclass{article}
+\usepackage{graphicx}
 \begin{document}
+	
+	\subsection{Module Requirements: Menu Navigation}
+		The Menu Navigation module aims to allow end user to easily interface with the system in both the set-up of run time behaviour as well as the entering and exiting of run time sequences. As per specification, the Menu Navigation module interacts with user through the use of an LCD output and user inputs to:
+	\begin{enumerate}
+		\item Switch between run-time modes Manual, Assisted, and Full Auto
+		\item Change important global variables such as 'Max Speed' and 'IR Sample Rate' where it is appropriate to do so
+		\item Enter and exit a 'Motor On' phase safely
+	\end{enumerate}
+	To clarify the use of terms in this section:
+	\begin{itemize}
+		\item \textbf{Motor On Mode} refers to mode in which motor is turned on and user input will affect the real time movement of the robot
+		\item \textbf{Menu Mode} or \textbf{Motor Off Mode} refers to the mode the system takes when motors are off and menu variables can be changed
+		\item \textbf{Run-time mode} refers to modes Manual, Assisted, Full Auto, and Factory which dictate behaviour when motors are both on and off. This is referred to in code as \textbf{menu\textunderscore ref\textunderscore 1}. On the LCD this is displayed on the top line
+		\item \textbf{Submenu} refers to the variables that can be altered in Manual and Factory Mode and are displayed on the bottom line of the LCD. These variables include Max Speed, Yaw Rate, IR sample rate, etc. This is referred to in code through \textbf{menu\textunderscore ref\textunderscore 2}
+	\end{itemize}
+	
+	
+	\subsubsection{Functional Requirements}
+	%This section describes the functional requirements of Module X – those requirements that must be met if the module (and system) is to function correctly.  	
+	\paragraph{Inputs}
+	%Describe each external input, including signal encoding and timing, message encoding and timing, protocols, file formats, protection against input errors, etc, as relevant.	
+	Inputs mainly come in the form of user inputs through analogue signals from joysticks and falling edge triggers from buttons.\\
+	 
+	Analogue signals are received through the PORT A bits 1 and 2, representing the y and x axes respectively. They are converted from analogue to digital and then parsed through the module.
+	
+	The buttons control the more significant status changes of the system and in being push buttons need to be more deliberate inputs than the joystick (which may easily be accidentally altered). Trigger signals are created when a button is pressed which creates a falling edge by shorting to ground and generating a low value in PORTB bits 0 or 1. Originally, this used a hardware interrupt on PORT B, but due to integration difficulties was reimplemented within the wider loops.
+	
+	An additional receive input (relevant to this module, though others are also present, \underline{see Communications}) takes the IR raw data periodically and displays this signal to the LCD while in Assisted or Full Auto mode and while motors are on. This gives the user additional feedback while operating in these modes that would not have been relevant for Manual Mode. 
+	
+	
+	\paragraph{Process}
+	%Describe the internal signal transformations and/or computer processing functionality required within the module, required performance limits, and error tolerances as appropriate.
+		
+	The module consists of while loops that continue to loop contingent upon the statuses of certain set flags, namely RUN and Menu\textunderscore ref\textunderscore 1, to be discussed later. These loops though programmed for different states, all perform a similar process of:
+	\begin{itemize}
+		\item Read ADC values
+		\item Dependent on values, perform an action
+		\item Update Commander display and Robot if a change has occurred
+	\end{itemize}
+	
+	In the interest of only making large changes when it is safe to do so (e.g. changing motor status, changing run type), the system uses an indirect or two-step command system. When one of the buttons are pressed a flag unique to each button is raised. This flag will cause the program to change the status when it is safe to do so (i.e. outside of long process such as LCD writing and radio transmission). This is opposed to a method in which an interrupt immediately causes a status change which may cause errors in timing, LCD output, and transmission while also allowing artificial delays to override user input (\underline{see Interfaces}). Much like joystick signal processing, when a change is found to have occurred, LCD and robot are updated.\\
+	
+	A detailed description of state changes and function is given in the \underline{Conceptual Design} section.
+	
+	
+	\paragraph{Outputs}
+	%Describe outputs that must be produced for the module to function correctly, including timing, frequency, protocols, etc as relevant.
+	
+	The module generates two outputs, the LCD user display and the transmitted signal. Both are covered in more detail in their respective sections.
 
-\subsection{Module Requirements: Menu Navigation}
-The operational scenarios considered place certain requirements on the something system, and on the modules that comprise it.
-\subsubsection{Functional Requirements}
-This section describes the functional requirements of Module X – those requirements that must be met if the module (and system) is to function correctly.  
+	
+	\subsubsection{Non-Function (Quality of Service) Requirements}
 
-\paragraph{Inputs}
-Describe each external input, including signal encoding and timing, message encoding and timing, protocols, file formats, protection against input errors, etc, as relevant.
-\paragraph{Process}
-Describe the internal signal transformations and/or computer processing functionality required within the module, required performance limits, and error tolerances as appropriate.
-\paragraph{Outputs}
-Describe outputs that must be produced for the module to function correctly, including timing, frequency, protocols, etc as relevant.
-\paragraph{Timing}
-Any required timing or latency specifications that must be met.
-\paragraph{Failure Modes}
-Required functionality (if any) in the event of failure of various nominated components.
+	\paragraph{Performance}
+	
+	The Menu Navigation runs in a way where its performance (and speed) is high enough as to have a negligible impact on the rest of the system, especially when there are more fragile modules (such as radio communication and PWM generation) that would be affected adversely by mistiming and interruptions at play. The primary operation of the menu navigation is independent of the rest the system (especially due to the indirect command sequence outlined later) and runs sufficiently fast due to the low levels of computational requirements. It uses primarily 'if' statements to parse inputs accordingly, which while extending code length, has very low computational time. Large quantities of memory is accessed indirectly through pointers and pointers-to-pointers that result in more efficiently compiled machine code and simpler code readability.
+	
+	When the time does come for a command of any form to be transmitted, and thus break independence from the system, the module makes sure to only do it at a safe time, and to only do it when absolutely necessary (See Communications and LCD).
 
-\subsubsection{Non-Function (Quality of Service) Requirements}
-Non-functional requirements do not need to be met for the device to have basic function, but are required to provide specific levels of performance or engineering quality.
-\paragraph{Performance}
-Requirements such as computational loop time, accuracy, etc.
-\paragraph{Interfaces}
-Requirements such as computational loop time, accuracy, etc.
-\paragraph{Design Constraints}
-Practical or commercial considerations, such as programming languages, processor or other hardware, etc.
+	\paragraph{Interfaces}
+	
+	The software design is one which prevents human error resulting in erroneous hardware behaviour. Users are given ample time and warning of system changes and can safely break from undesired modes of behaviour.\\
+	
+	Upon powering on, a welcome message is displayed. During this time necessary initialisation delays are covered and prevents premature user activity; as a design choice, the use \textit{should not} be able to make changes of any kind immediately after the system is powered on.
+	
+	Part of creating intuitive interfacing between user and product is to respond to human response time and the need for tolerance in human error and imprecision. As a result, delays were implemented for three reasons: prevention of overly rapid menu, debouncing, and safety. They were implemented as follows:
+	\begin{itemize}
+		\item A delay occurred with each increment or decrement of a global variable (such as 'Max. speed') and sub-menu change (\underline{see Menu\textunderscore ref\textunderscore 2})to prevent these values from changing too rapidly for the user to respond or accurately select desired value
+		\item A delay was implemented with each button press or joystick move while in menu (in menu, joystick functions more like button than variable voltage source) to ignore any additional signals that may be produced
+		\item Whenever the system entered a 'Motor On' mode, an initial delay with respective start-up message 'Giddy up' is initialised to prevent movement for 2 seconds. This allows user time to ready themselves. When motors are turned off and the system is asked to return to its Menu state, motors are turned off \textit{before} a 2 second delay with message 'Whoa!' is initiated to prevent user accidentally turning motors back on, which may happen if user for example panics. 
+	\end{itemize}
+	Furthermore, by design the user is restricted from changing run-time modes while the robot can also move. Two separate modes were created, a Motor On mode, in which user input only influences real time movement (as well as both starting and stopping), and Menu Mode, in which user can select run time mode and change submenu variables.
+	
 
-\subsection{Conceptual Design: Software Module Menu Navigation}
-Now, for each module, give the outline of how it will work. In this section it is appropriate to present \\
-•	The rationale for the design decisions that were made – why things were designed the way they were\\
-•	block diagrams,\\
-•	mathematical models and algorithms,\\
-•	data flow diagrams\\
-•	state-transition diagrams\\
-•	listings of input and output formats\\
-•	listings of message and data formats\\
-•	responses to identifiable error conditions\\
-•	responses to identifiable failure conditions\\
-as appropriate for each module.
-
-\subsubsection{Assumptions Made}
-State any assumptions made.
-\subsubsection{Constraints on Module X Performance}
-State any constraints that may prevent the design from satisfying its requirements.
-
-
-
-
+	%\paragraph{Design Constraints}
+	%Practical or commercial considerations, such as programming languages, processor or other hardware, etc.
+	
+	\subsection{Conceptual Design: Software Module Menu Navigation}
+\textit{	Now, for each module, give the outline of how it will work. In this section it is appropriate to present \\
+	•	The rationale for the design decisions that were made – why things were designed the way they were\\
+	•	block diagrams,\\
+	•	mathematical models and algorithms,\\
+	•	data flow diagrams\\
+	•	state-transition diagrams\\
+	•	listings of input and output formats\\
+	•	listings of message and data formats\\
+	•	responses to identifiable error conditions\\
+	•	responses to identifiable failure conditions\\
+	as appropriate for each module.}
+	
+	
+	
+	\subsubsection{Design Rationale}
+	\paragraph{General Design}
+	The focus of the design was intuitive user control; we wanted to minimise the number of possible inputs, bringing it down to only three main sources of user inputs (four with the power switch) which are the analogue joystick inputs (x-y), joystick push button, and separate push button. We thought about how the user held the commander and which inputs had room for error. From this we established that the act of changing variables and changing submenus had the most room for error, changing of run-time modes to have the second, and turning the motors on and off (switching between Motor On Mode and Menu Mode) to have the least room for error. Thus analogue joystick inputs were assigned to the changing of variables and submenus, the joystick button (controlled by the same (left) hand) were assigned to Run-time mode changes, and finally the motor switching was assigned to the separate push-button which was controlled by the right hand.\\
+	
+	The use of buttons allow for simplified interaction, but limits the depth of the user input. Buttons can only represent a single action and for this design asks the commander to 'go to the next menu/mode'. This created some limitation in meeting the specification of being able to go to any run-time mode from any other run-time mode as our design acts as a mono-directional scrolling interface going from Manual-Factory-Assist-Auto-Manual. However we determined that due to the low number of run-time modes available, this would not be perceived by the end user as an inconvenience. The use of a separate motor button (Button 2) allows for the decoupling of tuning and movement from the most significant mode change of the system, that is to put the system into and out of a movement state. It minimises confusion for the user and prioritises safety above all else.
+	
+	\begin{figure}[h]
+	\includegraphics[scale=0.45]{ControllerDesign.png}
+	\centering
+	\caption{Controller Design}
+	\end{figure}
+	
+	\paragraph{Display of Information}
+	The similar mentality of keeping things simple and intuitive was used in displaying the information. While in Menu mode, the only three things that would need to be displayed to the user are current run-time mode, submenu, and submenu value. This was also influenced by limited LCD space. When in a Motor On mode, the LCD is used to inform the user when the motors are turning on, when they are on and when they are turning off to give the user indication of status without visual feedback from the robot. Further information is given in \underline{LCD}.
+	
+	We also believed that due to the nature of Assisted mode, there needed to be more information given to the user in regards to the robot's parallel distance from tilt, especially if the user wishes to operate the robot without the robot in sight. As a result, when in Assisted robot will send back IR data to be displayed on the LCD.
+	
+	\subsubsection{Function}
+	
+	
+	\subsubsection{Constraints on Module X Performance}
+	State any constraints that may prevent the design from satisfying its requirements.
+	
+	
+	
+	
 \end{document}
