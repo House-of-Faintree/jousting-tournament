@@ -11,15 +11,17 @@
   The Commander hardware and Mobile Robot hardware will be here discussed separately to highlight the differences.
   \subsection{Commander Hardware Design}
     \subsubsection{Power Supply}
-    Power supply method and rating, fusing, distribution, grounding and protective earth as appropriate.
+    Unlike the Mobile Robot, the power requirements of the Commander could be fulfilled from a single 9v battery plugged into the PIC, and all power for peripheral components supplied by the PIC. Due to the many components connected to the power lines, a power rerouting circuit needed to be constructed. This circuit is shown in the next section as it involved interfacing with the PIC.
     \subsubsection{Computer Design}
     Description of computer hardware, including all interface circuitry to sensors, actuators, and I/O hardware.
     \subsubsection{Sensor Hardware}
     \subsubsection{Actuator Hardware}
     \subsubsection{Operator Input Hardware}
+    Input hardware consisted of a 2 axis joystick, which is 2 potentiometers at mounted right angles to each other. This joystick also contains a button that can be used by depressing the joystick. A second, separate button was used on the commander for starting and stopping the mobile robot. The commander also included a master power switch.
     \subsubsection{Operator Output Hardware}
+    The main output hardware consisted of an LCD screen which displayed the state of the system, as well as basic information about the Mobile Robot to to the operator. 3 LEDs were also in the original design, a power indicator, a radio link integrity indicator, and an LED to indicate the Mobile Robot was in Autonomous mode, however these LED indicators were not implemented in the final product.
     \subsubsection{Hardware Quality Assurance}
-    Describe any measures that were taken to control (improve) hardware quality and reliability – Heartbeats, brownout conditioning/resets, reset conditions, testing and validation, etc.
+    The main hardware quality assurance policy was implemented on the PIC, with a brownout detector enabled by default on the microcontroller.
 
   \subsection{Mobile Robot Hardware Design}
     \subsubsection{Power Supply}
