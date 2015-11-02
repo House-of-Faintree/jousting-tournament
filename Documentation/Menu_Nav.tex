@@ -2,6 +2,8 @@
 % Lydia
 \documentclass{article}
 \usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
 \begin{document}
 	
 	\subsection{Module Requirements: Menu Navigation}
@@ -77,21 +79,12 @@
 	Furthermore, by design the user is restricted from changing run-time modes while the robot can also move. Two separate modes were created, a Motor On mode, in which user input only influences real time movement (as well as both starting and stopping), and Menu Mode, in which user can select run time mode and change submenu variables.
 	
 
-	%\paragraph{Design Constraints}
+	\paragraph{Design Constraints}
 	%Practical or commercial considerations, such as programming languages, processor or other hardware, etc.
+	Ideally the module makes extensive use of hardware interrupts for buttons to reduce computational time in loops created from the constant polling of button status and this was the original implementation, however it was found that in migrating from the PIC18F452 to the PIC18F4520 that hardware interrupts simply would not function during integration. This certainly creates a minor constraint on ideal functionality and future work should look into resolving this.
 	
 	\subsection{Conceptual Design: Software Module Menu Navigation}
-\textit{	Now, for each module, give the outline of how it will work. In this section it is appropriate to present \\
-	•	The rationale for the design decisions that were made – why things were designed the way they were\\
-	•	block diagrams,\\
-	•	mathematical models and algorithms,\\
-	•	data flow diagrams\\
-	•	state-transition diagrams\\
-	•	listings of input and output formats\\
-	•	listings of message and data formats\\
-	•	responses to identifiable error conditions\\
-	•	responses to identifiable failure conditions\\
-	as appropriate for each module.}
+
 	
 	\subsubsection{Using Menu Navigation - an outline}
 	When User powers on the commander, they are greeted with a welcome screen 'Bow for I am Charlemagne'. They by default enter the Menu mode in Manual mode and the LCD will display after the welcome 'MANUAL' in the first line and 'Max speed: 100' in the second. If they move the joystick left and right, they will increment and decrement the value of Max Speed from 0-100. If the joystick button (Button 1) is pressed, the commander will switch to Factory mode. Here the user may also move the joystick up and down to scroll through the submenus and thus choose what value they wish to change (Max Speed, Yaw rate, etc.). If the joystick button is pressed again, they will enter Assisted mode where no value changes can be made, likewise if they press it again to enter Auto mode. If the button is pressed once more they return to Manual mode.\\
@@ -133,7 +126,9 @@
 	Using this form of referencing simplifies the code and naturally allows for the incremental and decremental style of our code.
 	
 	\paragraph{Pseudocode}
-		The program continuously polls current status, anticipates the user input expected for each status, and executes the necessary response. Function \texttt{LCD\textunderscore disp(i,j)} is explored in more detail in \underline{LCD}, but generally, it takes in two inputs, normally menu\textunderscore ref\textunderscore 1 and menu\textunderscore ref\textunderscore 2 as i and j, and writes to the LCD the run time mode on the first line and the submenu and submenu value on second\\\\
+		The program continuously polls current status, anticipates the user input expected for each status, and executes the necessary response. Function \texttt{LCD\textunderscore disp(i,j)} is explored in more detail in \underline{LCD}, but generally, it takes in two arguments, normally menu\textunderscore ref\textunderscore 1 and menu\textunderscore ref\textunderscore 2 as i and j, and writes to the LCD the run time mode on the first line and the submenu and submenu value on second\\
+		
+		\lstinputlisting[language=C]{menu_nav_pseudo.c}
 		
 			\begin{figure}[h]
 				\includegraphics[scale=0.45]{menu_navFlowChart.png}
