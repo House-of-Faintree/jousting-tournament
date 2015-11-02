@@ -2,6 +2,7 @@
 
 
 \begin{document}
+<<<<<<< HEAD
 %\section{Introduction}
 \subsection{Document Identification}
   This document describes the design of a remote controlled robot system, that took part in a jousting tournament for the subject MTRX3700 - Mechatronics 3, at the University of Sydney. The tournament took place in October 2015, and this document describes the system implemented by the House of Faintree.
@@ -44,6 +45,58 @@
   \hline
   \end{tabular}
   \end{table}
+=======
+\section{Introduction}
+This section is intended to give a general overview of the basis for the Robotic System design, and introduce each module in hardware and software.
+\subsection{Document Identification}
+This document describes the design of Robotic System for Jousting. This document is prepared by Group Leo Lou for assessment in MTRX3700 in 2015.
+\subsection{System Overview}
+The Robotic System is a system that can be controlled by the user or it can run in a fully automatic mode. Through the Xbee, the motor driver board (Pololu 707), power board, the PWM motor, encoder and joysticks that controlled by the user. The robotic system (which is a mobile robot) can be operated in manual mode, auto assist mode and automatic mode. In addition, the status of the robotic can be displayed on a LCD screen
+
+\subsection{Document Overview}  
+
+Part 1 of this document is an introduction of the report.\\
+Part 2 part of the report demonstrate the system overview and its expect performance. What its interface will be look like and show the design procedure.\\
+Part 3 of the document describe the user interface design and show how the system will be handle the error input.\\
+Part 4 describe the hardware components, the actuators, sensors and controller. It also point out how they can be integrated together.\\
+Part 5 describe the software components of the robotic and controller system. The flow chart and data blocked will be explained. The robot motion algorism, serial communication (Xbee).\\ controller algorism and robot mode will be shown. Other parts such as LCD user interface will be explained.\\
+Part 6 describe the testing procedure. It will explain how individual component will be test and demo it to the group member.\\
+
+
+\subsection{Reference Documents}
+The present document is prepared on the basis of the following reference documents, and should be read in conjunction with them.\\
+\begin {itemize}
+	\item  MICROCHIP PIC18FXX2 Data Sheet
+	\item  PIC18F452 to PIC18F4520 Migration Guide
+	\item Xbee manual.
+	\item Manual and circuit schematic for MNML*PIC*18 v2
+	\item STVHN3SP30 Infrared sensor Data Sheet
+	\item Power Board Design Notes and Manual.
+
+\end{itemize}
+
+\subsubsection{ Acronyms and Abbreviations}
+Table   1-1 lists the acronyms and abbreviations used in this document.\\
+Acronyms and Abbreviations.
+\begin{center}
+	\begin{tabular}{| l | l | }
+	\hline
+	Acronyms & Abbreviations		\\ \hline
+	PWM	& Pulse Width Modulation	\\ \hline	
+	ISR    & Interrupt service routine \\ \hline
+	ADC  & Analog Digital Converter   \\ \hline
+	Xbee & Radio communication	\\ 
+	\hline
+	\end{tabular}
+\end{center}
+	
+
+
+		
+	
+
+
+>>>>>>> origin/master
 
 
 \end{document}
