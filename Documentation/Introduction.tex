@@ -2,31 +2,48 @@
 
 
 \begin{document}
-%\section{Introduction} 
+%\section{Introduction}
 \subsection{Document Identification}
-This document describes the design of something. This document is prepared by Group ZULU for assessment in MTRX2700 in 2010.
+  This document describes the design of a remote controlled robot system, that took part in a jousting tournament for the subject MTRX3700 - Mechatronics 3, at the University of Sydney. The tournament took place in October 2015, and this document describes the system implemented by the House of Faintree.
 \subsection{System Overview}
-A brief statement of the purpose of the system or subsystem to which this document applies.
+  The robotic system was designed to take part in a jousting tournament and as such consisted of wireless communication between 2 modules allowing for remote control of the robotic system. The controller in the hands of the end-user is referred to in this document as the Commander, and it provides control over the Mobile Robot system. The Mobile Robot also has a limited intelligence to allow it to function autonomously in the tournament without direct instructions from the Commander when allowed to do so.
 \subsection{Document Overview}
-A short “road map” of the document, to provide an orientation for the reader. Summarise the purpose and contents of this document.
+  \textit{A short “road map” of the document, to provide an orientation for the reader. Summarise the purpose and contents of this document.}
+  \begin{description}
+    \item[Section 2:]
+      This document will begin in Section 2 by giving a description of the system from a high level perspective, including design choices that were made due to the operational scenarios the robot was meant to be in. This section will give an overview of the individual modules from a design perspective.
+    \item[Section 3:]
+      will guide the reader through the user interface design - what inputs and outputs are available to the end-user, how those interfaces were arrived at, and how they have changed over the course of the project.
+    \item[Section 4:]
+      relates to the low level Hardware design choices made in the project, with explanations on how individual hardware components function, what calibration if any was required, and generally will provide the means to reconstruct the project if needed, without any explanation of software interfaces to the hardware.
+    \item[Section 5:]
+      will guide the reader through the Software Design process that took place to meet the requirements of the project and will include the high level software architecture, internal workings of software components and the public interfaces made available for other components to utilize.
+    \item[Section 6:]
+      expands on the performance testing done on the robotic system to evaluate characteristics such as reliability, accuracy and adherence to he project outlines introduced in the design process. The final state of the product as delivered is stated, with future improvements that could be made outlined that were arrived at during the process of design, construction, and implementation.
+    \item[Section 7:]
+      since the robotic system constructed for the project is mobile and fairly heavy, there is a significant risk factor associated with the operation of the system, compounded by the fact that the Mobile Robot was given some agency to decide its own movements in autonomous mode. This section seeks to outline some of the health hazards presented by this system, and also some solutions to minimize risks.
+    \item[Section 8:]
+      this document will end on some concluding remarks such as lessons learned and possible extensions or applications of the project into other applications.
+    \end{description}
+
 \subsection{Reference Documents}
-The present document is prepared on the basis of the following reference documents, and should be read in conjunction with them.\\
-—.  “CAN Specification 2.0”.  Robert Bosch GmbH, Stuttgart, September 1991.\\
-—.  “OMG Unified Modeling Language Specification”, vers.1.3, June 1999.
+  The present document is prepared on the basis of the following reference documents, and should be read in conjunction with them.\\
+  —.  “CAN Specification 2.0”.  Robert Bosch GmbH, Stuttgart, September 1991.\\
+  —.  “OMG Unified Modeling Language Specification”, vers.1.3, June 1999.
 
 \subsubsection{Acronyms and Abbreviations}
-Table \ref{Acro} lists the acronyms and abbreviations used in this document.
-\begin{table}[h]
-\centering
-\caption{Acronyms and Abbreviations}
-\label{Acro}
-\begin{tabular}{|l|l|}
-\hline Acronym & Meaning \\
-\hline MPC & Model Predictive Control \\
-\hline & \\
-\hline
-\end{tabular}
-\end{table}
+  Table \ref{Acro} lists the acronyms and abbreviations used in this document.
+  \begin{table}[h]
+  \centering
+  \caption{Acronyms and Abbreviations}
+  \label{Acro}
+  \begin{tabular}{|l|l|}
+  \hline Acronym & Meaning \\
+  \hline MPC & Model Predictive Control \\
+  \hline & \\
+  \hline
+  \end{tabular}
+  \end{table}
 
 
 \end{document}
