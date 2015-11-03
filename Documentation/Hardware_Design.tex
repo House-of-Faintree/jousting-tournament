@@ -109,7 +109,7 @@ robot.
     \subsubsection{Hardware Quality Assurance}
     The IR sensor is sensitive and it might cause error and unstable value if the system only take 1 IR sensor output value. In order to stablize the IR output data, we store the IR value into an array, and the IR output data is store into the array and it keep overwrite it. In software module, taking the average value in the array and send it to the commander via Xbee will improve the quality of the IR data. The array size is 10 so it have enough buffer to smooth the raw IR data.\\
 
-    Describe any measures that were taken to control (improve) hardware quality and reliability – Heartbeats, brownout conditioning/resets, reset conditions, testing and validation, etc.
+   
   \subsection{Commander Hardware Design}
     \subsubsection{Power Supply}
       Unlike the Mobile Robot, the power requirements of the Commander could be fulfilled from a single 9v battery plugged into the PIC, and all power for peripheral components supplied by the PIC. Due to the many components connected to the power lines, a power rerouting circuit needed to be constructed. This circuit is shown in the next section as it involved interfacing with the PIC.
@@ -137,8 +137,9 @@ robot.
   \subsection{Hardware Calibration Procedures}
     Procedures for calibration required in the factory, or in the field.
     \subsubsection{Commander}
+    Recover the position of the joystick to (0,0) position is the hardware calibration for the commander. All other calibration for the commander through software module.
     \subsubsection{Mobile Robot}
-    Calibration of Xbee module are more like 'enable / disable the function 'of Xbee. They need to be disable after the data transmission are finish. 
+    Calibration of Xbee module are more like 'enable / disable the function 'of Xbee. They need to be disable after the data transmission are finish. All others calibration of the PWM motor and PID control through the commandersoftware module.
 
   \subsection{Hardware Maintenance and Adjustment}
     Routine adjustment and maintenance procedures.
