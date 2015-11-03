@@ -37,10 +37,10 @@
     \subsubsection{Computer Design}
     Description of computer hardware, including all interface circuitry to sensors, actuators, and I/O hardware.
     \subsubsection{Sensor Hardware}
-      Sharp GP2Y0A41SK0F Infrared Sensors use to measure the distance from effective range 4-40cm, corrospond to the        output voltage 3.1 to 0.4 volt. Exceed 40cm Infrared sensors output is saturated. There are 3 connector signal        for the IR sensor, one is supply voltage, it need to be connected to the 5V, one is ground connection and the         last one is output analog voltage.  Output of the IR sensor is analog, in order for the minimal board to              process it, it need to be converted to the digital value.
+
       \begin{itemize}
-        \item IR sensors
-        \item encoder
+        \item IR sensors:{ 3 Sharp GP2Y0A41SK0F Infrared Sensors were used to measure distance, with an effective range of 4-40cm, which corresponds to an output voltage of 0.4 to 3.1V. Exceeding 40cm, IR sensor output is saturated. There are 3 connections for the IR sensor,Vcc(nominally 5V), Gnd, and an analog output.}
+        \item encoder:{ }
         \item Xbee (functions more like a sensor in robot)
       \end{itemize}
     \subsubsection{Actuator Hardware}
@@ -72,13 +72,13 @@
       The output shaft from the gearbox was connected to the 90mm wheel via 2 M3 screws that bore down on the shaft flat face.
     \subsubsection{Operator Input Hardware}
     Mobile Robot Hardware Design
-    The operator input hardware in the mobil robot is the Xbee and IR sensor. Xbee receive excutives from the commander,         hence it is the input hardware. IR sensor detect the distance from the obstacles and input analog signal to the mobile 
-    robot.  
+    The operator input hardware in the mobil robot is the Xbee and IR sensor. Xbee receive excutives from the commander,         hence it is the input hardware. IR sensor detect the distance from the obstacles and input analog signal to the mobile
+    robot.
     \subsubsection{Operator Output Hardware}
-    The output of the mobile robot are PWM motor and Xbee, PWM motor cause the movement of the robot. Xbee can also see as the output hardware since it transmit the robot status back to the commander. Hence it is both input and output hardware. 
+    The output of the mobile robot are PWM motor and Xbee, PWM motor cause the movement of the robot. Xbee can also see as the output hardware since it transmit the robot status back to the commander. Hence it is both input and output hardware.
     \subsubsection{Hardware Quality Assurance}
       The IR sensor is sensitive and it might cause error and unstable value if the system only take 1 IR sensor output value. In order to stablize the IR output data, we store the IR value into an array, and the IR output data is store into the array and it keep overwrite it. In software module, taking the average value in the array and send it to the commander via Xbee will improve the quality of the IR data. The array size is 10 so it have enough buffer to smooth the raw IR data.\\
-      
+
     Describe any measures that were taken to control (improve) hardware quality and reliability – Heartbeats, brownout conditioning/resets, reset conditions, testing and validation, etc.
   \subsection{Commander Hardware Design}
     \subsubsection{Power Supply}
