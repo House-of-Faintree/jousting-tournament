@@ -71,7 +71,7 @@
       \end{figure}
       The output shaft from the gearbox was connected to the 90mm wheel via 2 M3 screws that bore down on the shaft flat face.
     \subsubsection{Operator Input Hardware}
-    Mobile Robot Hardware Design
+    
     The operator input hardware in the mobil robot is the Xbee and IR sensor. Xbee receive excutives from the commander,         hence it is the input hardware. IR sensor detect the distance from the obstacles and input analog signal to the mobile 
     robot.  
     \subsubsection{Operator Output Hardware}
@@ -100,10 +100,10 @@
     \subsubsection{Commander}
     Testing the commander by using LCD display first to make sure the desired outputs are correct, then send the outputs via
     xbee to verify if the outputs are still correct. \\
-    
+    Joystick should systematic testing with the mobile robot first, then connect it to the commander\\
     \subsubsection{Mobile Robot}
     Before attaching the IR sensor into the minimal board, connect it to the demo board fist and test its output analog          voltage whether it match the desire output. Once it was done, combine the IR sensor module and Xbee module, send the IR      data via xbee and verify if the IR data are correct after it transmits via xbee.\\
-    In order to test the PWM motor if it actually functions as intended, attach the joystick direct to the robot minimal         board, it can isolate the serial module and test the PWM motor hardware only. \\
+    In order to test the PWM motor if it actually functions as intended, attach the joystick direct to the robot minimal board, it can isolate the serial module and test the PWM motor hardware only. \\
 
   \subsection{Hardware Calibration Procedures}
     Procedures for calibration required in the factory, or in the field.
