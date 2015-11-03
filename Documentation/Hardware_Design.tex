@@ -5,6 +5,8 @@
 \usepackage{color}
 \usepackage{floatrow}
 \usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{subfigure}
 % Table float box with bottom caption, box width adjusted to content
 \newfloatcommand{capbtabbox}{table}[][\FBwidth]
 
@@ -46,15 +48,37 @@
     \subsubsection{Actuator Hardware}
       The primary actuators on the Mobile Robot were the two motors connected to the wheels. The two motors could be  controlled independently allowing for turning functionality. The motor output shafts were connected to multistage planetary gearboxes having reduction ratios of 131.25:1.
       Table \ref{gearmotor} lists the acronyms and abbreviations used in this document.
-      \begin{figure}[h]
-        \begin{minipage}[b]{0.50\linewidth}
-          \raggedleft
-          \includegraphics{gearmotor.png}
-        \end{minipage}
-        \begin{minipage}[b]{0.30\linewidth}
+     
+     
+%      \begin{figure}[h]
+%        \begin{minipage}[b]{0.50\linewidth}
+%          \raggedleft
+%          \includegraphics{gearmotor.png}
+%        \end{minipage}
+%        \begin{minipage}[b]{0.30\linewidth}
+%          \begin{tabular}[b]{|l|l|}
+%            \hline \textbf{Parameter} & \textbf{Value} \\
+%            \hline Part number & Pololu 1447\\
+%            \hline No-load speed @ 12 V & 80 RPM\\
+%            \hline No-load current @ 12 V & 300 mA\\
+%            \hline Stall current @ 12 V & 5 A\\
+%            \hline Stall torque @ 12 V & 1.765 Nm\\
+%            \hline Positive terminal lead & Red\\
+%            \hline Negative terminal lead & Black\\
+%            \hline
+%          \end{tabular}
+%        \end{minipage}
+%        \caption{DC gearmotor and specifications specifications}
+%        \label{gearmotor}
+%      \end{figure}
 
+    \begin{figure}[h]
+        \subfigure[caption fig]{
+        \label{subfigla}
+          \includegraphics[width=0.3\linewidth]{gearmotor.png}}
+        \subfigure[caption for table]{
+        \label{subtable}
           \begin{tabular}[b]{|l|l|}
-
             \hline \textbf{Parameter} & \textbf{Value} \\
             \hline Part number & Pololu 1447\\
             \hline No-load speed @ 12 V & 80 RPM\\
@@ -65,11 +89,14 @@
             \hline Negative terminal lead & Black\\
             \hline
           \end{tabular}
-        \end{minipage}
+		}	
         \caption{DC gearmotor and specifications specifications}
         \label{gearmotor}
       \end{figure}
-      The output shaft from the gearbox was connected to the 90mm wheel via 2 M3 screws that bore down on the shaft flat face.
+     
+     
+     
+      The output shaft from the gearbox was connected to the 90mm wheel via 2 M3 screws that bore down on the shaft flat face. 
     \subsubsection{Operator Input Hardware}
 
     Mobile Robot Hardware Design
