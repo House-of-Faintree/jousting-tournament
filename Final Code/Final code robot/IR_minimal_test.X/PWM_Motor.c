@@ -82,14 +82,10 @@ void PWM_motor_setup(void){
 
 void direction(unsigned int L_dir, unsigned int R_dir){
     // Left wheel anticlockwise for fwds 01, Right wheel clockwise for fwds 10
-//    unsigned int L_inputB = (bit(0)^L_dir) ; // toggle bit
-//    unsigned int L_inputA = L_dir;
-//    unsigned int R_inputA = R_dir;
-//    unsigned int R_inputB = (bit(0)^R_dir) ;// toggle bit
-    unsigned int L_inputB = (bit(0)^L_dir) ; // toggle bit
-    unsigned int L_inputA = L_dir;
-    unsigned int R_inputA = (bit(0)^R_dir);// toggle bit;
-    unsigned int R_inputB = R_dir;
+    unsigned int L_inputA = (bit(0)^L_dir) ; // toggle bit
+    unsigned int L_inputB = L_dir;
+    unsigned int R_inputB = (bit(0)^R_dir);// toggle bit;
+    unsigned int R_inputA = R_dir;
     PORTC = (R_inputA<<bit_1A)|(R_inputB<<bit_1B)|(L_inputA<<bit_2A)|(L_inputB<<bit_2B); // set direction of wheels
 }
 // update PWM values
