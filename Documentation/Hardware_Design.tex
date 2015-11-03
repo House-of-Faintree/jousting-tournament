@@ -71,11 +71,12 @@
       \end{figure}
       The output shaft from the gearbox was connected to the 90mm wheel via 2 M3 screws that bore down on the shaft flat face.
     \subsubsection{Operator Input Hardware}
-   
+    Mobile Robot Hardware Design
+    The operator input hardware in the mobil robot is the Xbee and IR sensor. Xbee receive excutives from the commander,         hence it is the input hardware. IR sensor detect the distance from the obstacles and input analog signal to the mobile 
+    robot.  
     \subsubsection{Operator Output Hardware}
-    
+    The output of the mobile robot are PWM motor and Xbee, PWM motor cause the movement of the robot. Xbee can also see as the output hardware since it transmit the robot status back to the commander. Hence it is both input and output hardware. 
     \subsubsection{Hardware Quality Assurance}
-    
       The IR sensor is sensitive and it might cause error and unstable value if the system only take 1 IR sensor output value. In order to stablize the IR output data, we store the IR value into an array, and the IR output data is store into the array and it keep overwrite it. In software module, taking the average value in the array and send it to the commander via Xbee will improve the quality of the IR data. The array size is 10 so it have enough buffer to smooth the raw IR data.\\
       
     Describe any measures that were taken to control (improve) hardware quality and reliability – Heartbeats, brownout conditioning/resets, reset conditions, testing and validation, etc.
