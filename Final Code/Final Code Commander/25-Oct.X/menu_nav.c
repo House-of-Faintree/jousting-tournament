@@ -8,7 +8,7 @@ be compatible for running on the MOBILE ROBOT side.
 */
 
 //Code for menu navigation by Leo
-//TODO: 
+//TODO:
 //    - try and do navigation through function calls
 //    - move interrupt code to interrupts.c
 //    - different run time message for each runtime mode
@@ -40,7 +40,7 @@ be compatible for running on the MOBILE ROBOT side.
 
 # define MAXSPEED 0
 # define PIDGAINS 1        //PID Gains
-# define MAXYAW 2        //Max Yaw
+# define TIMEHOR 2        //Max Yaw
 # define IRSAMPE 3         //ir_samp_e;
 # define IRSAMPR 4         //ir_samp_r;
 # define IRRAW 5         //ir_raw
@@ -60,7 +60,7 @@ int ir_samp_r;
 int ir_raw;
 int ir_avg;
 
-//int values[] = { max_speed, pid_gain, max_yaw, ir_samp_e, ir_samp_r, ir_raw, ir_avg}; 
+//int values[] = { max_speed, pid_gain, max_yaw, ir_samp_e, ir_samp_r, ir_raw, ir_avg};
 
 int mode_button=0;        //flag for button to change between factory, manual mode etc
 int motor_button=0;       //flag for changing between RUNTIME code and MENU code
@@ -77,7 +77,7 @@ int values[8];
  * often and do not need to be modified. The strings can be found in
  * phrases.h
  */
-char *menutitle[4]={t0,t1,t2,t3}; 
+char *menutitle[4]={t0,t1,t2,t3};
 char *valueStrings[4]={s0,s1,s2,s3};
 char *stringtab[7]={s0,s1,s2,s3,s4,s5,s6};
 
@@ -93,13 +93,6 @@ int menu_ref_1;           //Change through ISR
 int menu_ref_2;
 int *menu=&menu_ref_1;
 
-//void ButtonIsr(void);
-
-
-//void high_interrupt(void);
-//void highPriorityIsr(void);
-
-
 
 //Prototypes
 void welcome(void);
@@ -112,34 +105,25 @@ void on_setup(void);
 void checkMode(int *menu);
 
 
-//#pragma code highPriorityInterruptAddress=0x0008
-//void high_interrupt(void)
-//{
-//    _asm GOTO highPriorityIsr _endasm
-//}
-//
-//#pragma code
 void main(void){
-  
-
 
   //Default
   TRISD = 0x00;         //set port D signals to output
   // By default, code starts in manual mode
   menu_ref_1=MANUAL;
   menu_ref_2=MAXSPEED;
-  
-  
+
+
   /*Values array stores important variables for factory mode*/
-  
+
   values[MAXSPEED]=100;        //Max speed
   values[PIDGAINS]=100;        //PID Gains
-  values[MAXYAW]=100;        //Max Yaw
+  values[TIMEHOR]=100;        //Time horizon
   values[IRSAMPE]=10;         //ir_samp_e;
   values[IRSAMPR]=20;         //ir_samp_r;
   values[IRRAW]=60;         //ir_raw
   values[IRAVG]=10;         //ir_avg;
-  
+
   /*****************/
   TMR0Init();
   setupSerial();
@@ -152,10 +136,10 @@ void main(void){
   RUN=0;
   while(1){
 
-  //HandShake();
-//NORMAL OPERATION  
+
+//NORMAL OPERATION
     while(RUN==0){
-        
+
         //Determine which button has been pressed
         if(PORTDbits.RD0 == 0)
         {
@@ -163,20 +147,20 @@ void main(void){
             //when safe to do so
             mode_button = 1;
         }
-        
+
         if(PORTDbits.RD1 == 0)
         {
             motor_button = 1;
         }
-        
-        
+
+
 
 
         if (mode_button==1){                  //Mode change sequence
                 //Checkmode syncs the modes between commander and robot
                 checkMode(menu);
                 menu_ref_2=0;         //Default menu ref, should only be SPEED
-                delayms(200);           
+                delayms(200);
                 mode_button=0;
                 LCD_disp(menu_ref_1, menu_ref_2);
         }
@@ -187,40 +171,40 @@ void main(void){
         switchChannels(2);
         joy_x = doADC();
         switchChannels(1);
-        joy_y = doADC();   
-                         
-      
+        joy_y = doADC();
+
+
         if(menu_ref_1==MANUAL)   //IF IN MANUAL
         {
-            
-           
+
+
             if(joy_x<=LEFT){      //User pushes right joystick left
-                
+
                 if(values[menu_ref_2]>0){
                     values[menu_ref_2]=values[menu_ref_2]-5;          //decrement value by 5%
                     GLOBAL_MAX_SPEED = values[menu_ref_2];
                     sendMaxSpeed();
                 }
-                
+
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(200);     //Delay to prevent flickering, and also to prevent 100-0 increments
 
             }
             else if (joy_x>=RIGHT){     //User pushes right joystick right
                 if(values[menu_ref_2]<100){
-                
+
                     values[menu_ref_2]=values[menu_ref_2]+5;          //increment value by 5%
                     GLOBAL_MAX_SPEED = values[menu_ref_2];
                     sendMaxSpeed();
                 }
-                
+
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(200);
-            }   
-        }  
+            }
+        }
 
         else if(menu_ref_1==FACTORY){            //IF IN FACTORY MODE
-            if (joy_y>=UP){            //User pushes left joystick UP  
+            if (joy_y>=UP){            //User pushes left joystick UP
                 //Circular selection
                 if(menu_ref_2==0){
                   menu_ref_2=6;
@@ -239,7 +223,7 @@ void main(void){
                 }
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(250);
-                
+
 
             }
             else if (joy_x<=LEFT){      //User pushes right joystick left
@@ -254,14 +238,14 @@ void main(void){
                         values[menu_ref_2]=values[menu_ref_2]-5;          //decrement value by 5%
                     }
                 }
-                
+
                 LCD_disp(menu_ref_1, menu_ref_2);
                 delayms(255);
                 delayms(200);
 
             }
             else if (joy_x>=RIGHT){     //User pushes right joystick right
-                
+
                 if (menu_ref_2<IRRAW){
 
                     if (menu_ref_2==3 && values[menu_ref_2]<10){
@@ -277,19 +261,19 @@ void main(void){
                 delayms(255);
                 delayms(200);
 
-            }            
-        }  
-        
-        //All other menu_ref_1's do not have values displayed       
-        
+            }
+        }
+
+        //All other menu_ref_1's do not have values displayed
+
         if (motor_button==1){
             motor_button=0;
             RUN=1;
-            
+
         }
         //send here
     }
-    
+
     /*Menu on setup*/
     if (RUN==1){
         on_setup();
@@ -298,7 +282,7 @@ void main(void){
         //MOTOR ON GOES AFTER
         motor_button=0;
     }
-      
+
       /*MOTOR ON BEHAVIOUR*/
     while(RUN==1 && menu_ref_1==MANUAL){
         if(PORTDbits.RD1 == 0)
@@ -310,21 +294,21 @@ void main(void){
             RUN=0;
             GLOBAL_RUN = RUN;
             sendRun();
-            
+
         }
         switchChannels(1);
         //GLOBAL_VELOCITY = doADC();    GLOBAL_VELOCITY = doADC() //Get joystick values
         joy_y = doADC();
         GLOBAL_VELOCITY = joy_y;
         sendVelocity();
-        
+
         switchChannels(2);
         joy_x = doADC();
         GLOBAL_OMEGA = joy_x;
-        
+
 
         sendOmega();
-        
+
         //send command here
     }
     //Auto mode
@@ -339,36 +323,35 @@ void main(void){
                 RUN=0;
                 GLOBAL_RUN = RUN;
                 sendRun();
-                
+
 
             }
-            
+
             //Display additional info
             Lcd_Set_Cursor(2,1);
             sprintf(cm_info, "IR: %d",GLOBAL_IRRAW);
             Lcd_Write_String(cm_info);
 
-        
-        //send command here
+
     }
-      
-      
-      /*MOTOR OFF MESSAGE*/ 
+
+
+      /*MOTOR OFF MESSAGE*/
     RUN=0;
       //MOTOR OFF FUNCTION GOES BEFORE MESSAGE
     LCD_title(t5);         //"Whoa!"
-      
-    delays(2);    //safety delay    
+
+    delays(2);    //safety delay
 
     LCD_disp(menu_ref_1, menu_ref_2); //Return to normal display
-      
-    
-      
+
+
+
   }
-  
-  
-  
-  
+
+
+
+
 }
 
 void Button_Setup(void)
@@ -380,26 +363,22 @@ void Button_Setup(void)
 }
 
 
-//FUNCTIONS  
-  
+//FUNCTIONS
+
 /*This function takes in 2 arguments, corresponding to what should be displayed on
- * the 1st and 2nd lines of the LCD screen. 
+ * the 1st and 2nd lines of the LCD screen.
  * title_item selects which string to display as the title to the menu position.
  * value_item selects which string to display while changing the submenu item value.
- */  
+ */
 void LCD_disp(int title_item, int value_item)
 {
-    
     char  string[LCDL];
     Lcd_Clear();
     Lcd_Set_Cursor(1,1);
     Lcd_Write_String(menutitle[title_item]);
-    
+
     //Checks if in Manual or Factory mode
-    if (menu_ref_1<=1){ //possibly need to change order of phrases to
-                        //include a check for user assist mode, in which case
-                        //we check if menu_ref_1 <= 2
-                        // Leo: we don't need to, it does it automatically
+    if (menu_ref_1<=1){ 
 
         if (menu_ref_2<=2){
             Lcd_Set_Cursor(2,1);
@@ -408,6 +387,7 @@ void LCD_disp(int title_item, int value_item)
         }
         //Statistics
         //Average: takes the mean of values stored in the IR array
+        //Not implemented into final code but kept as placeholder
         else if(menu_ref_2==7){
 //            unsigned char i;
 //            int total;
@@ -418,30 +398,20 @@ void LCD_disp(int title_item, int value_item)
 //            values[IRAVG]=total/values[IRSAMPE];
 //            sprintf(string,"%s%d", stringtab[IRAVG], values[IRAVG]);
 //            Lcd_Write_String(string);
-            
+
         }
-        
+
         else {
-            Lcd_Set_Cursor(2,1);    
+            Lcd_Set_Cursor(2,1);
             sprintf(string, "%s%d", stringtab[value_item],values[value_item]);//no % symbol
             Lcd_Write_String(string);
         }
-        
-        
-        
-        
     }
-    
-    //To do: Semi auto should have a display of cm from tilt
-
-
-    //#############################
-
 }
 
 /*
  * Simply a function that prints out a standard welcome message on startup.
- */   
+ */
 void welcome(void){
     Lcd_Clear();
     Lcd_Set_Cursor(1,1);
@@ -452,7 +422,7 @@ void welcome(void){
 }
 
 /*DELAY FUNCTIONS, SUITABLE FOR BOTH BOARDS*/
-//Delay for seconds indicated 
+//Delay for seconds indicated
 void delays(int x){
     if (MNML){
         for(x;x>0;x--){
@@ -477,7 +447,7 @@ void delayms(int x){
     }
     else{
         Delay1KTCYx(x);
-        
+
     }
 }
 
@@ -489,39 +459,39 @@ void delay10us(int x){
 
     }
     else{
-        Delay10TCYx(x);      
-    }    
+        Delay10TCYx(x);
+    }
 }
 /*Function creates an initiation sequence when motor turns on*/
 void on_setup(void){
-      /*MOTOR ON MESSAGE*/  
-      LCD_title(t4);     //Giddy up   
+      /*MOTOR ON MESSAGE*/
+      LCD_title(t4);     //Giddy up
       delays(1);
       //Display run-time message
       LCD_title(t6);     //"Running"
-      
+
       //If motor is set on while on factory, defaults to manual mode
       if (menu_ref_1==1){
-          menu_ref_1=0; 
+          menu_ref_1=0;
           checkMode(menu);
       }
 }
 
 
 void checkMode(int *menu){
-    if(*menu == MANUAL) 
-                {   
+    if(*menu == MANUAL)
+                {
                     *menu = FACTORY;
                     GLOBAL_MODE = FACTORY;
                     sendMode();
                 }
-                else if(*menu == FACTORY) 
+                else if(*menu == FACTORY)
                 {
                     *menu = ASSIST;
                     GLOBAL_MODE = ASSIST;
                     sendMode();
                 }
-                else if(*menu == ASSIST) 
+                else if(*menu == ASSIST)
                 {
                     *menu = AUTO;
                     GLOBAL_MODE = AUTO;
@@ -534,15 +504,3 @@ void checkMode(int *menu){
 
                 }
 }
-
-//#pragma interrupt highPriorityIsr
-//
-///* TODO : 
-// * Move code to interrupts.c
-// * 
-// */
-//  void highPriorityIsr(void)
-//{    
-//
-//}         
-  
