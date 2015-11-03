@@ -37,18 +37,14 @@
     \subsubsection{Computer Design}
     Description of computer hardware, including all interface circuitry to sensors, actuators, and I/O hardware.
     \subsubsection{Sensor Hardware}
-<<<<<<< HEAD
 
-=======
-    Sharp GP2Y0A41SK0F Infrared Sensors use to measure the distance from effective range 4-40cm, correspond to the               output voltage 3.1 to 0.4 volt. Exceed 40cm Infrared sensors output is saturated. There are 3 connector signal for the IR     sensor, one is supply voltage, it need to be connected to the 5V, one is ground connection and the last one is output        analog voltage. Output of the IR sensor is analog, in order for the minimal board to process it, it need to be converted     to the digital value.
->>>>>>> origin/master
       \begin{itemize}
         \item IR sensors:{ 3 Sharp GP2Y0A41SK0F Infrared Sensors were used to measure distance, with an effective range of 4-40cm, which corresponds to an output voltage of 0.4 to 3.1V. Exceeding 40cm, IR sensor output is saturated. There are 3 connections for the IR sensor,Vcc(nominally 5V), Gnd, and an analog output.}
         \item encoder:{ }
         \item Xbee (functions more like a sensor in robot)
       \end{itemize}
     \subsubsection{Actuator Hardware}
-      The primary actuators on the Mobile Robot were the two motors connected to the wheels. The two motors could be controlled independently allowing for turning functionality. The motor output shafts were connected to multistage planetary gearboxes having reduction ratios of 131.25:1.
+      The primary actuators on the Mobile Robot were the two motors connected to the wheels. The two motors could be  controlled independently allowing for turning functionality. The motor output shafts were connected to multistage planetary gearboxes having reduction ratios of 131.25:1.
       Table \ref{gearmotor} lists the acronyms and abbreviations used in this document.
       \begin{figure}[h]
         \begin{minipage}[b]{0.50\linewidth}
@@ -75,15 +71,13 @@
       \end{figure}
       The output shaft from the gearbox was connected to the 90mm wheel via 2 M3 screws that bore down on the shaft flat face.
     \subsubsection{Operator Input Hardware}
-<<<<<<< HEAD
+
     Mobile Robot Hardware Design
     The operator input hardware in the mobil robot is the Xbee and IR sensor. Xbee receive excutives from the commander,         hence it is the input hardware. IR sensor detect the distance from the obstacles and input analog signal to the mobile
-    robot.
-=======
-    
+    robot.\\
     The operator input hardware in the mobil robot is the Xbee and IR sensor. Xbee receive excutives from the commander,         hence it is the input hardware. IR sensor detect the distance from the obstacles and input analog signal to the mobile 
     robot.  
->>>>>>> origin/master
+
     \subsubsection{Operator Output Hardware}
     The output of the mobile robot are PWM motor and Xbee, PWM motor cause the movement of the robot. Xbee can also see as the output hardware since it transmit the robot status back to the commander. Hence it is both input and output hardware.
     \subsubsection{Hardware Quality Assurance}
