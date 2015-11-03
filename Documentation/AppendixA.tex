@@ -1,6 +1,139 @@
-\documentclass[MTRX3700report.tex]{subfiles}
+%\documentclass[MTRX3700report.tex]{subfiles}
+\documentclass[11pt,a4paper]{article}
+% Dpak
+% HARDWARE DESIGN Appendix
+\usepackage{color}
+\usepackage{caption}
+\usepackage{graphics}
+\usepackage{graphicx}
 
 
 \begin{document}
+\title{Appendix A: Hardware Connections}
+\maketitle
+
+\section{Mobile Robot}
+\subsection{Power Board}
+  \label{appA:Power Board}
+  The following tables are the pin connectors located on the power board. Connectors X2, X3 and X5 are connected internally to the Pololu Hbridge motor driver circuit, and all inputs to the motor drivers are instead connected to the power board.
+  \\
+  \begin{table}[h]
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline 1 & +11 V to +20.0 V Input\\
+      \hline 2 & +0.0 V Ground\\
+      \hline
+    \end{tabular}
+    \caption{Connector X1}
+\\  \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline  1 & +5 V Supply to Encoder 1\\
+      \hline  2 & Encoder 1 A Output\\
+      \hline  3 & Encoder 1 B Output\\
+      \hline  4 & +0.0 V Ground\\
+      \hline
+    \end{tabular}
+    \caption{Encoder 1 Connector X5}
+\\
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline 1 & +5 V Supply to Encoder 2\\
+      \hline 2 & Encoder 2 A Output\\
+      \hline 3 & Encoder 2 B Output\\
+      \hline 4 & +0.0 V Ground \\
+      \hline
+    \end{tabular}
+    \caption{Encoder 2 Connector X6}
+\\
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline 1 & + Motor Power Output\\
+      \hline 2 & Motor Power Ground \\
+      \hline
+    \end{tabular}
+    \caption{Motor driver power Connector X7}
+\\  \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline 1 & +12 V to +30 V input\\
+      \hline 2 & +0.0 V Ground\\
+      \hline
+    \end{tabular}
+    \caption{External Power Connector X8}
+\\  \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline 1 & +0.0 V Ground\\
+      \hline 2 & Battery Voltage Output\\
+      \hline 3 & +0.0 V Ground\\
+      \hline
+    \end{tabular}
+    \caption{External power Connector X9}
+\\  \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline 1 & Motor 1 Enable\\
+      \hline 2 & Motor 1 Input A\\
+      \hline 3 & Motor 1 Input B\\
+      \hline 4 & Motor 1 PWM Input\\
+      \hline 5 & (no signal)\\
+      \hline 6 & Encoder 1 A Output\\
+      \hline 7 & Encoder 1 B Output \\
+      \hline
+      \end{tabular}
+    \caption{Connector P2}
+\\  \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline 1 & Motor Driver Ve+\\
+      \hline 2 & +0.0 V Ground\\
+      \hline 3 & +5 V Supply Output\\
+      \hline 4 & +0.0 V Ground\\
+      \hline 5 & Motor Driver Ve+\\
+      \hline
+    \end{tabular}
+    \caption{Connector P3}
+\\  \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline 1 & Motor 2 Enable\\
+      \hline 2 & Motor 2 Input A\\
+      \hline 3 & Motor 2 Input B\\
+      \hline 4 & Motor 2 PWM Input\\
+      \hline 5 & (no signal)\\
+      \hline 6 & Encoder 2 A Output\\
+      \hline 7 & Encoder 2 B Output\\
+      \hline
+    \end{tabular}
+    \caption{Connector P4}
+\\  \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    \begin{tabular}[b]{|l|l|}
+      \hline \textbf{Pin} & \textbf{Signal}\\
+      \hline 1 & +5 V Supply Output\\
+      \hline 2 & ENABLE_MTR_PWR Input\\
+      \hline 3 & PWR_SW_FULL Output\\
+      \hline 4 & +0.0 V Ground     \\
+      \hline
+    \end{tabular}
+    \caption{Connector P5}
+\\  \end{minipage}\hfill
+  \end{table}
+
+\subsection{PIC pin Connections}
+  \label{appA:PIC pin Connections}
+
 
 \end{document}
