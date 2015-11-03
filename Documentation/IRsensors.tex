@@ -19,11 +19,17 @@ The Infrared Sensors module calculates the distance of the robot to the tilt and
 
 \subsubsection{Functional Requirements}
 %This section describes the functional requirements of Module X – those requirements that must be met if the module (and system) is to function correctly. 
+For this module to operate the following modules must first be initialized.
+\begin{itemize}
+	\item \textbf{Analog to Digital Converter} to sample reading from IR sensor.
+	\item \textbf{Serial Communications} to send raw IR reading to controller.
+\end{itemize}
+
 \paragraph{Inputs}
 %Describe each external input, including signal encoding and timing, message encoding and timing, protocols, file formats, protection against input errors, etc, as relevant.
 
 The main input is the analogue signal from the IR sensor received through the Analogue to Digital converter on PORT A bit 1. 
-The other inputs are the global variables 'IR Sample Rate' and 'IR Samples per Estimate' that determine the sampling rate of the IR sensor analogue signal and the number of samples to take before taking an average respectively. These variables can be changed by the user iin Factory Mode through the controller.  
+The other inputs are the global variables 'IR Sample Rate' and 'IR Samples per Estimate' that determine the sampling rate of the IR sensor analogue signal and the number of samples to take before taking an average respectively. These variables can be changed by the user in Factory Mode through the controller.  
 
 \paragraph{Process}
 %Describe the internal signal transformations and/or computer processing functionality required within the module, required performance limits, and error tolerances as appropriate.
