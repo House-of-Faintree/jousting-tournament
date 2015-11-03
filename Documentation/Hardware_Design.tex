@@ -105,11 +105,11 @@
       \end{figure}
       The output shaft from the gearbox was connected to the 90mm wheel via 2 M3 screws that bore down on the shaft flat face.
     \subsubsection{Operator Input Hardware}
-      The input to the Mobile Robot comes from the Commander, and as such there is no operator input hardware other than the power switch which is supplied by the power board circuit.
+      The input to the Mobile Robot comes from the Commander via radio link, and as such there is no operator input hardware other than the power switch which is supplied by the power board circuit.
     \subsubsection{Operator Output Hardware}
-    The output of the mobile robot are PWM motor and Xbee, PWM motor cause the movement of the robot. Xbee can also see as the output hardware since it transmit the robot status back to the commander. Hence it is both input and output hardware.
+      The operator recieves output from the Mobile Robot in the form of motion, and so the motors are an output. All other information about the state of the system is relayed via radio link to the Commander. The Mobile Robot also has a battery voltage indicator which allows for quick diagnosis of the charge level of the battery.
     \subsubsection{Hardware Quality Assurance}
-      The IR sensor is sensitive and it might cause error and unstable value if the system only take 1 IR sensor output value. In order to stablize the IR output data, we store the IR value into an array, and the IR output data is store into the array and it keep overwrite it. In software module, taking the average value in the array and send it to the commander via Xbee will improve the quality of the IR data. The array size is 10 so it have enough buffer to smooth the raw IR data.\\
+      The power requirements of the Mobile Robot are regulated and met by the circuitry inside the power board. It also features a lower battery voltage cutoff of 11V to prevent the battery of excessive discharge. The IR sensor is sensitive and to stop unstable values from being read, the IR sensors were mounted onto the Mobile Robot at fixed locations. The PIC also contains brownout protection, and upon reset the code was written to keep the Mobile Robot stationary until instructed otherwise.\\
 
     Describe any measures that were taken to control (improve) hardware quality and reliability – Heartbeats, brownout conditioning/resets, reset conditions, testing and validation, etc.
 
