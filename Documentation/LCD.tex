@@ -42,7 +42,7 @@ The LCD hardware consists of 14-inputs given as follows:
 	\centering
 	\caption{LCD inputs}
 \end{figure}
-	These hardware inputs are interfaced by software commands and data through Port D by functions such as LCD\textunderscore init and writing functions.
+	These hardware inputs are interfaced by software commands and data through Port D by functions such as LCD\textunderscore init and writing functions. In 4-bit mode, 8-bit data (such as a char) is received in two steps, first the 4 MSB are captured, and then the 4 LSB are captured
 	The main function that uses the LCD to display a message, LCD\textunderscore write\textunderscore string, takes in a string, while the function LCD\textunderscore disp (which utilises LCD\textunderscore write\textunderscore string)takes in two arguments relating to the status of the commander, menu\textunderscore ref\textunderscore 1 and menu\textunderscore ref\textunderscore 2. 
 
 \paragraph{Process and Output}
@@ -108,6 +108,47 @@ Simply uses \texttt{LCD\textunderscore Cmd} to clear LCD with the clear command 
 \paragraph{\texttt{LCD\textunderscore Set\textunderscore Cursor(char row, char col)}} This function takes in two arguments, row and col and sets the cursor position. As their names may suggest, row determines row or line the cursor is moved to and col determines the column. After parsing arguments, function sends command to LCD.
 
 \subsubsection{LCD writing functions}
+\paragraph{\texttt{LCD\textunderscore Write\textunderscore Char(char data)}} This function writes a data char to the screen in 4-bit mode in two steps. It first takes in the 4 MSB and then the 4 LSB. Similar to previous functions, it does this by toggling the enable bit which acts as a capture for data. It is summed up in the following pseudo code: \\\\
+\texttt{Mask and store 4 LSB in variable1;\\Mask and store 4 MSB in variable2;\\Alert LCD of incoming data;\\Send the variable2 (MSB) first (taking only the most significant nibble);\\toggle EN before and after a short delay;\\ Send variable1;\\toggle EN before and after a short delay;\\end;}
+
+\paragraph{\texttt{LCD\textunderscore Write\textunderscore String(char *data)}} This function uses {\texttt{LCD\textunderscore Write\textunderscore Char(char data)} to write a string. It takes a pointer to a string as an argument, pointing to the first character of the string and iterates through the string until a null is reached. Strings are stored in arrays of length 17; the LCD can only display 16 characters per line thus ensuring that all strings stored end with a null. All possible strings are stored in \texttt{Phrases.h} and are given again here and all are of type const char string[17]:\\\\
+\textbf{Menu titles (line 1)}
+\begin{itemize}
+	\item "Manual Mode"
+	\item "Factory Mode"
+	\item "Assisted Mode"
+	\item "Full Auto"
+	\item "Giddyup!"
+	\item "Whoa"
+	\item "Taste my lance!"
+	\item "Bow, for I am"
+	
+\end{itemize}
+\textbf{Submenu (line 2)}
+\begin{itemize}
+		\item "Max speed:"
+		\item "PID gains:"
+		\item "Time hor.:"	//time horizon for MPC system
+		\item "IR samp/est:"
+		\item "IR samp rate:"
+		\item "Raw data:"
+		\item "Avg data:"
+
+\end{itemize}
+	
+In implementing these phrases, we encountered a small issue where idata capacity was exceeded. To resolve this, a pragma code to section the banks of memory was used (\texttt{\#pragma idata section\textunderscore name}). Care was taken so that relevant data that would be accessed together were stored in the same sections to prevent the processor switching banks too frequently.
+
+\paragraph{\texttt{LCD\_disp(int title\_item, int value\_item)}} This function makes the decision as to what is appropriate to display on the LCD given Commander status while in Menu Mode and prints to LCD. It takes in two integer arguments, \texttt{title\_item} which tends to be \texttt{menu\_ref\_1} and determines line 1 display, and \texttt{value\_item} which tends to be \texttt{menu\_ref\_2} and determines line 2 display. There are three arrays of strings and integers:
+\begin{itemize}
+	\item \texttt{menutitle[ ]} is an array that holds the addresses of each Menu Title string (see previous paragraph)
+	\item \texttt{stringtab[ ]} is an array that holds the addresses of each Submenu string
+	\item \texttt{values[ ]} is an array that holds all important variables
+\end{itemize}
+
+In general the argument integers determine which string and value is pointed to to be displayed; there is a set order as to what each of these integers represent and they are given in\underline{Menu Navigation}. The data is parsed firstly by determining the submenu value and the appropriate output; certain variables are represented as percentages and others as integers so it is important to distinguish between the two. Once determined, the first line will be printed with the current run-time mode and the second will consist of a concatenated string formed by joining the correct submenu string with its value using the \texttt{sprintf} function. Pseudo code is given below:\\
+\texttt{void LCD\_disp(a, b)\\\{\\LCD\_Set\_Cursor(1,1);\\LCD\_Write(menutitle[a]);\\\\Form line 2 string:\\string=stringtab[b] concat with values[b];\\\\Send it:\\if b<=1 write string with \%;\\else LCD\_Write(string);\\\}}
+	
 
 
+	
 \end{document}

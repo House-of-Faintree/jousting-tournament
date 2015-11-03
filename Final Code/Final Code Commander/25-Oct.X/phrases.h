@@ -8,7 +8,7 @@
 #ifndef PHRASES_H
 #define	PHRASES_H
 
-#define LCDL 17         //define lcd length, 18th byte is a null
+#define LCDL 17         //define lcd length, 17th bit is a null
 //We ran out of memory 
 
 #pragma idata MODES

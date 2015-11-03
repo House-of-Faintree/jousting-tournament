@@ -99,28 +99,29 @@ void Lcd_Init()
 }
 
 /*Writes a char to the screen in 4-bit mode*/
-void Lcd_Write_Char(char a)
+void Lcd_Write_Char(char data)
 {
-   char temp,y;
-   temp = a&0x0F;	 // Store LSB	
-   y = a&0xF0;		 // Store MSB
+   char temp1,temp2;
+   temp1 = data&0x0F;	 // Store LSB	
+   temp2 = data&0xF0;	 // Store MSB
    RS = 1;             // Alert LCD of incoming data
-   Lcd_Port(y>>4);     // Send MSB
+   Lcd_Port(temp2>>4); // Send MSB
    EN = 1;			 // Input capture	
    Delay10TCYx(4);	 // Delay	
    EN = 0;			 
-   Lcd_Port(temp);	 // Send LSB
+   Lcd_Port(temp1);	 // Send LSB
    EN = 1;			 // Input Capture
    Delay10TCYx(4);
    EN = 0;
 }
 
 /*Takes pointer to string address and iterates through string, writing each character to LCD*/
-void Lcd_Write_String(char *a)
+
+void Lcd_Write_String(char *data)
 {
 	int i;
-	for(i=0;a[i]!='\0';i++)
-	   Lcd_Write_Char(a[i]);
+	for(i=0;data[i]!='\0';i++)
+	   Lcd_Write_Char(data[i]);
 }
 /*A more generalised version of LCD_disp, useful for out of menu displays where global variables are not used*/
 void LCD_title(char *string){
