@@ -7,10 +7,19 @@
 
 %\section{System Performance}
 \subsubsection{Performance Testing}
-Give the results of testing conducted to determine the characteristics and performance of the system - memory usage, loop time, system accuracy, repeatability, ease of use, etc.
+%Give the results of testing conducted to determine the characteristics and performance of the system - memory usage, loop time, system accuracy, repeatability, ease of use, etc.
+
 \subsubsection{State of the System as Delivered}
-A statement of your group’s opinion of the conformance of the system with the specification.
+%A statement of your group’s opinion of the conformance of the system with the specification.
+The system dis not meet all the specifications when delivered. The major downfall was that the communications between the robot and commander broke down with no obvious reason and that the robot continued running when the controller was turned off. There was also no PID or other method of control for the motors.
 \subsubsection{Future Improvements}
-Present a prioritised list of improvements to be made in future releases, giving reasons for the improvement and priority rank.
+%Present a prioritised list of improvements to be made in future releases, giving reasons for the improvement and priority rank.
+\begin{enumerate}
+	\item Fix control for motors
+	\item Implement working handshake function so the robot stops when the controller is suddenly turned off
+	\item Make use of front IR sensor to stop the robot before it hits an obstacle
+	\item Add an additional IR sensor to the side to improve performace of Auto mode 
+	\item Implement a working User assist mode which keeps the robot parallel to the tilt while the user drives it.
+\end{enumerate}
 
 \end{document}
