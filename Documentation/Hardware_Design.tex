@@ -128,24 +128,19 @@
     The design of the Commander changed as the project went on, and the final product that was arrived at was significantly different due to design choices between different sections of the project. The evolution of the design is shown in Figure~\ref{fig:commanderDesign}.
     \begin{figure*}
       \centering
-      \begin{subfigure}{\textbf{Initial Commander}}
-      {
-        \includegraphics[width = 15cm]{initialCommander.png}}
+      \begin{subfigure}[\textbf{Initial Commander}]
+        \includegraphics[width = 15cm]{initialCommander.png}
         \end{subfigure}
       \vspace{25pt}
-      \begin{subfigure}{\textbf{Intermediate Design}}
-        {
+      \begin{subfigure}[\textbf{Intermediate Design}]
         \centering
         \includegraphics[width=10cm]{draftCommander.png}
-        }
       \end{subfigure}
       \vspace{25pt}
       \\
-      \begin{subfigure}{\textbf{Final Commander Design}}
-        {
+      \begin{subfigure}[\textbf{Final Commander Design}]
         \centering
         \includegraphics[width=10cm]{finalCommander.png}
-        }
       \end{subfigure}
       \caption{Design Evolution of the Commander}
       \label{fig:commanderDesign}
@@ -214,8 +209,8 @@
         \item The IR LED was tested firstly with a scope to check that the voltage was in the correct magnitude and range. Next, the IR signal was passed to the ADC on the PIC and displayed via serial to a local PC running Teraterm to ensure that the ADC was reading the values correctly.
         \item The Pololu H bridge circuit was validated by probing the Vin and Gnd pins with a multimeter, as well as probing the OUT xA and B pins with an oscilloscope to check that motoros were getting appropriate signals when the PIC tried to communicate with them.
         \item The motor was tested by checking if the connections to the shaft were secure. This was a regular problem and is part of the maintenance routine.
-        \item The encoders were
-        \item The power board was initially tested with lab power supplies to make sure
+        \item The encoders were tested using the frequency to voltage converter IC.
+        \item The power board was initially tested with lab power supplies to make sure that correct voltages were outputted when the input was appropriate. The various
 
       \end{itemize}
 
