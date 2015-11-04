@@ -58,10 +58,6 @@
         \item It carries the Pololu 707 Dual VNH3SP30 Motor Driver board and provides power to it.
         \item It provides connection points for motor driver signals, motor leads and encoder signals.
       \end{enumerate}
-      \textcolor{red}
-      {
-      \textit{\textbf{INSERT SCHEMATIC HERE}}
-      }
     \subsubsection{Computer Design}
     Description of computer hardware, including all interface circuitry to sensors, actuators, and I/O hardware.
     \subsubsection{Sensor Hardware}
@@ -126,24 +122,26 @@
 
   \subsection{Commander Hardware Design}
     The design of the Commander changed as the project went on, and the final product that was arrived at was significantly different due to design choices between different sections of the project. The evolution of the design is shown in Figure~\ref{fig:commanderDesign}.
-    \begin{figure*}
-      \centering
-      \begin{subfigure}[\textbf{Initial Commander}]
+
+      \begin{figure}
+        \caption{\textbf{Initial Commander}}
         \includegraphics[width = 15cm]{initialCommander.png}
-        \end{subfigure}
+      \end{figure}
       \vspace{25pt}
-      \begin{subfigure}[\textbf{Intermediate Design}]
+      \begin{figure}
+        \caption{\textbf{Intermediate Design}}
         \centering
         \includegraphics[width=10cm]{draftCommander.png}
-      \end{subfigure}
+      \end{figure}
       \vspace{25pt}
       \\
-      \begin{subfigure}[\textbf{Final Commander Design}]
+      \begin{figure}
         \centering
+        \caption{\textbf{Final Commander Design}}
         \includegraphics[width=10cm]{finalCommander.png}
-      \end{subfigure}
-      \caption{Design Evolution of the Commander}
-      \label{fig:commanderDesign}
+        \label{fig:commanderDesign}
+      \end{figure}
+
     \end{figure*}
     \subsubsection{Power Supply}
       Unlike the Mobile Robot, the power requirements of the Commander could be fulfilled from a single 9v battery plugged into the PIC, and all power for peripheral components supplied by the PIC. Due to the many components connected to the power lines, a power rerouting circuit needed to be constructed. This circuit is shown in Figure~\ref{fig:commanderVero}.
@@ -210,19 +208,11 @@
         \item The Pololu H bridge circuit was validated by probing the Vin and Gnd pins with a multimeter, as well as probing the OUT xA and B pins with an oscilloscope to check that motoros were getting appropriate signals when the PIC tried to communicate with them.
         \item The motor was tested by checking if the connections to the shaft were secure. This was a regular problem and is part of the maintenance routine.
         \item The encoders were tested using the frequency to voltage converter IC.
-        \item The power board was initially tested with lab power supplies to make sure that correct voltages were outputted when the input was appropriate. The various
+        \item The power board was initially tested with lab power supplies to make sure that correct voltages were outputted when the input was appropriate. The various output voltages being supplied to the motor driver, the PIC, and the IR leds as well as auxillary power outputs were also probed with a multimeter to ensure correct behaviour.
 
       \end{itemize}
 
-  \subsection{Hardware Calibration Procedures}
-    Procedures for calibration required in the factory, or in the field.
-    \subsubsection{Commander}
-    \subsubsection{Mobile Robot}
 
-  \subsection{Hardware Maintenance and Adjustment}
-    Routine adjustment and maintenance procedures.
-    \subsubsection{Commander}
-    \subsubsection{Mobile Robot}
 
 
 \end{document}
