@@ -3,9 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Bevan/Documents/GitHub/jousting-tournament/Final%20Code/Final%20code%20robot/IR_minimal_test.X/IR_Sample.c</file>
-            <file>file:/C:/Users/Bevan/Documents/GitHub/jousting-tournament/Final%20Code/Final%20code%20robot/IR_minimal_test.X/Robot_main.c</file>
-            <file>file:/C:/Users/Bevan/Documents/GitHub/jousting-tournament/Final%20Code/Final%20code%20robot/IR_minimal_test.X/IR_Sensors.h</file>
+            <file>file:/C:/Users/Bevan/Documents/GitHub/jousting-tournament/Final%20Code/Final%20code%20robot/Robot.X/IR_Sensors.h</file>
+            <file>file:/C:/Users/Bevan/Documents/GitHub/jousting-tournament/Final%20Code/Final%20code%20robot/Robot.X/PWM_Motor.h</file>
+            <file>file:/C:/Users/Bevan/Documents/GitHub/jousting-tournament/Final%20Code/Final%20code%20robot/Robot.X/Robot_main.c</file>
+            <file>file:/C:/Users/Bevan/Documents/GitHub/jousting-tournament/Final%20Code/Final%20code%20robot/Robot.X/IR_Sample.c</file>
+            <file>file:/C:/Users/Bevan/Documents/GitHub/jousting-tournament/Final%20Code/Final%20code%20robot/Robot.X/PWM_Motor.c</file>
         </group>
     </open-files>
 </project-private>

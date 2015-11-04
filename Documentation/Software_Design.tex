@@ -1,18 +1,50 @@
-\documentclass[MTRX3700report.tex]{subfiles}
-
+%\documentclass[MTRX3700report.tex]{subfiles}
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
 
 \begin{document}
 
 %\section{Software Design}  dont include at the end but you can for seperate builds
 The software requirements and overview have been dealt with elsewhere in this document. The present section addresses the design and implementation of the software that forms the X system.
 \subsection{Software Design Process}
-How you went about designing the software – top down, bottom up, OOD, functional view, etc.
+%How you went about designing the software – top down, bottom up, OOD, functional view, etc.
+The software was designed in a modular top down manner for both the robot and the controller. All code for the robot and controller where designed tested and implemented independent of each other with the exception of the Serial Communications module which was identical on both sides. Furthermore each module designed to operate as independently as possible from the others for easier integration.
 \subsubsection{Software Development Environment}
-The tools that were used, both software (compilers, assemblers, etc) and hardware (development boards, etc.).
+%The tools that were used, both software (compilers, assemblers, etc) and hardware (development boards, etc.).
+All software was created and compiled using MPLAB X IDE v3.
+Software was then run and debugged using  the ICD 3 first on the PIC18F452 development board and then on the PIC18F4520 minimal board.
 \subsubsection{Software Implementation Stages and Test Plans}
-Describe the way you went about implementing the software - staged implementation, pseudocode (PDL), unit testing procedures, integration testing, etc. Identify dependencies – e.g this had to be done before that, etc.
+%Describe the way you went about implementing the software - staged implementation, pseudocode (PDL), unit testing procedures, integration testing, etc. Identify dependencies – e.g this had to be done before that, etc.
+Each software was first implemented, debugged and tested on the PIC18F452 development board until it worked.
+
+The modules where then implemented on the PIC18F4520 minimal board and integrated in the following order:
+	\begin{enumerate}
+		\item \textbf{LCD and Menu Nav} on the Controller.
+		\item \textbf{The buttons and Joystic}k was integrated with the Menu Nav of the controller.
+		\item \textbf{PWM motors} operation and control on the jousting robot.
+		\item \textbf{Serial Communications} was then integrated to both the controller and jousting robot and tested. Once this was working the Controller was fully integrated.
+		\item \textbf{Manual Mode} was then integrated on to the robot and tested with the controller via Serial Communications. 
+		\item \textbf{IR Sensors} was then integrated to the robot along with Full Auto and Assited mode.
+		\item After this was all integrated further tests and where conducted for operation under Manual, User Assist and Auto modes for the jousting robot using the joystick and button controller inputs.	
+	\end{enumerate}
+
 \subsection{Software Quality Assurance}
-Describe any measures that were taken to control (improve) the software quality – code or documentation standards, code walkthroughs, testing and validation, etc.
+%Describe any measures that were taken to control (improve) the software quality – code or documentation standards, code walkthroughs, testing and validation, etc.
+Each module had its own .c file and its own header file. All interactions between different modules were outlined in each header file.
+A code header block was used for each file indicating the following in order:
+
+	\begin{itemize}
+		\item The module this file applies to.
+		\item Date created and by whom.
+		\item Date Last edited by whom and details of edit.
+		\item File Description
+		\item File Dependencies
+		\item Current issues with file
+	\end{itemize}
+	
+Another method used to ensure the quality of software was to implement all interrupts in the same file Interrupt\textunderscore Definition\textunderscore Robot calling functions from the respective modules. 
 
 \subsection{Software Design Description}
 \subsubsection{Architecture}
