@@ -209,7 +209,10 @@ void TMR0Init(void)
     INTCONbits.TMR0IF = 0;
 }
 
-/*set the pointer 'rxptr' direction*/
+/*determine the RCREG register status
+ *and pull the rx pointer to the corresponding
+ *address
+ */
 void rx232Isr (void)
 {   
     if (RCREG == Mode)
@@ -295,7 +298,7 @@ void rx232Isr (void)
     *rxptr = RCREG ;
     
     //if the pointer point to end of the buffer, set it back to 
-    //initial position.
+    //initial position to the global receive buffer.
     
     if (RCREG == '\r'||rxptr == &GLOBAL_RXBUFFER[BUFFSIZE])
     {
