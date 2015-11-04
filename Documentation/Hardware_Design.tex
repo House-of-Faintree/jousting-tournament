@@ -22,19 +22,28 @@
   \subsection{Hardware shared between Commander and Mobile Robot}
     The Commander and Mobile robot function in a master/slave relatoionship and so required a common denominator of components for communication between them. These common components included the PIC18f4520 MNML microprocessor, and the Xbee communication hardware.
     \subsubsection{PIC18f4520 Microcontroller}
-    The PIC18f4520 is a RISC microcontroller with harvard architecture and is well suited to embedded projects. The MNML board used provides access to the MPLABx development environment through the RJ45 connector via the ICD (in circuit debugger).
+    The PIC18f4520 is a RISC microcontroller with harvard architecture and is well suited to embedded projects. The MNML board used provides access to the MPLABx development environment through the RJ45 connector via the ICD (in circuit debugger). It is powered by 5V and can supply a maximum current of ~250mA, with each I/O pin being able to supply up to 25mA. These characteristics were enough for our application to the robotic system built.
 
     \begin{figure}[h]
         \includegraphics[width = 10cm]{pic.png}
         \caption{The MNML PIC18f4520 microcontroller}
     \end{figure}
-    The PIC contains:
+    The PIC features used in this project were:
     \begin{itemize}
       \item 3 external interrupt sources
       \item 4 timer modules
       \item 2 CCP (capture/compare/PWM) modules
-      \item
+      \item Addressable USART module compatible with RS232 standard
+      \item 10 bit Analog to Digital converter module
     \end{itemize}
+
+    \subsubsection{Xbee with regulator board}
+      The Xbee hardware is a popular hobby radio communication device that came preconfigured to send and receive transmissions in pairs. That is, a source and destination address identifier was preset so each Xbee could only talk to the other one in the pair, to prevent miscommunications. The range of the device is 10m indoors and up to 30m outdoors. It communicates at a frequency of 2.4GHz and meets the IEEE 802.15.4 standards. The Xbee hardware came with a breakout board that doubled to provide power regulation features.
+      \begin{figure}[h]
+          \includegraphics[width=7cm]{xbee.png}
+          \caption{The Xbee radio communication hardware}
+      \end{figure}
+
 
   \subsection{Mobile Robot Hardware Design}
     \subsubsection{Power Supply}
@@ -117,18 +126,18 @@
     \subsubsection{Power Supply}
       Unlike the Mobile Robot, the power requirements of the Commander could be fulfilled from a single 9v battery plugged into the PIC, and all power for peripheral components supplied by the PIC. Due to the many components connected to the power lines, a power rerouting circuit needed to be constructed. This circuit is shown in the next section as it involved interfacing with the PIC.
     \subsubsection{Computer Design}
-    The input of the microcontroller is the joystick, from PORTA ( analog input ), there are no actuators on the commander, PORTC connect to the Xbee for the communication.\\
-    \begin{document}
-    
-      includegraphics{commander circuit interface}
-      commander circuit interface.
-      \end{document}
       Description of computer hardware, including all interface circuitry to sensors, actuators, and I/O hardware.
     \subsubsection{Sensor Hardware}
+    The main sensor on the Commander is the Joystick, which is 2 dual axis potentiometers connected perpendicular to each other. A breakout board was used to enable easier access to the pins.
+    \begin{figure}[h]
+      \includegraphics[width=8cm]{joystick.png}
+      \caption{The joystick used on the Commander}
+      \label{fig:joystick}
+    \end{figure}
     \subsubsection{Actuator Hardware}
       There was no actuating hardware present on the Commander, however, the Xbee hardware served as a means of communication between Commander and Mobile Robot.
     \subsubsection{Operator Input Hardware}
-      Input hardware consisted of a 2 axis joystick, which is 2 potentiometers at mounted right angles to each other. This joystick also contains a button that can be used by depressing the joystick. A second, separate button was used on the commander for starting and stopping the mobile robot. The commander also included a master power switch.
+      Input hardware consisted of a 2 axis joystick, which is 2 potentiometers at mounted right angles to each other. This joystick also contains a button that can be used by depressing the joystick. A second, separate button was used on the commander for starting and stopping the mobile robot. The commander also included a master power switch. The hardware is shown in Figure~\ref{fig:joystick}
     \subsubsection{Operator Output Hardware}
       The main output hardware consisted of an LCD screen which displayed the state of the system, as well as basic information about the Mobile Robot to to the operator. 3 LEDs were also in the original design, a power indicator, a radio link integrity indicator, and an LED to indicate the Mobile Robot was in Autonomous mode, however these LED indicators were not implemented in the final product.
     \subsubsection{Hardware Quality Assurance}
