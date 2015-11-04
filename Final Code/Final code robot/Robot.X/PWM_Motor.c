@@ -69,16 +69,6 @@ void PWM_motor_setup(void){
 } 
 
 
-//void Inputs_motor_setup(void){
-//    TRISB &=~bit(bit_enable);
-//    PORTB |=  (Motor_enable<<bit_enable) ;   // shift motor_enable left by 3 bits   
-//}
-
-//void ADC_setup(void){
-//    T0CON = 0xC7; //  11000111  Enables TMR0, 8bit with 256 prescale (p103)
-//    ADCON0 = 0x41;  //0100 0001 Fosc/8, A/D enabled
-//    ADCON1 = 0x0E;  // 0000 1110 Make RA0 analog input, Left justify, 1 analog channel
-//}
 
 void direction(unsigned int L_dir, unsigned int R_dir){
     // Left wheel anticlockwise for fwds 01, Right wheel clockwise for fwds 10
@@ -98,13 +88,7 @@ void turn(unsigned int localVel,unsigned int localOmega){
     unsigned int duty;      // mean duty cycle 0-FF
     unsigned int L_PWM;     // duty cycle of left wheel 0-FF
     unsigned int R_PWM;     // duty cycle of right wheel 0-FF    unsigned int localVel = (unsigned int) GLOBAL_VELOCITY;
-   // unsigned int localVel;
-  //  unsigned int localOmega;
     unsigned int maxspeed;
-    //unsigned int localOmega = (unsigned int) GLOBAL_OMEGA;
-//    unsigned int localOmega = 0;
-//    localVel =(unsigned int) GLOBAL_VELOCITY;
-//    localOmega = (unsigned int) GLOBAL_OMEGA;
     int LPWM;
     int RPWM;
     
@@ -119,8 +103,6 @@ void turn(unsigned int localVel,unsigned int localOmega){
         PORTDbits.RD2 = 1;
     }
     
-   // localVel = GLOBAL_VELOCITY;
-   // localOmega = localOmega;
     maxspeed = localVel/100;
     
     if(localVel >= 238){   // max values from serial protocal
@@ -355,6 +337,18 @@ void new_turn(int V, float distdiff)
     
 }
 
+/*
+ * Basic manual control.
+ * Takes inputs for velocity and omega and moves robot in 1 of 5 different ways:
+ * 1.velocity > 200, moves forward at full speed
+ * 2. velocity < 55, moves backward at full speed
+ * 3. omega > 200, turns right 
+ * 4. omega < 55, turns left
+ * 5. else, stops moving and remains stationary
+ * 
+ * The speed of all movements is affected by the Global Variable MAX_SPEED
+ * 
+ */
 void noob_turn(unsigned int localVel,unsigned int localOmega){
     // 128 is middle, which is no turn
         
@@ -364,13 +358,6 @@ void noob_turn(unsigned int localVel,unsigned int localOmega){
     unsigned int duty;      // mean duty cycle 0-FF
     unsigned int L_PWM;     // duty cycle of left wheel 0-FF
     unsigned int R_PWM;     // duty cycle of right wheel 0-FF    unsigned int localVel = (unsigned int) GLOBAL_VELOCITY;
-   // unsigned int localVel;
-  //  unsigned int localOmega;
-   // unsigned int maxspeed;
-    //unsigned int localOmega = (unsigned int) GLOBAL_OMEGA;
-//    unsigned int localOmega = 0;
-//    localVel =(unsigned int) GLOBAL_VELOCITY;
-//    localOmega = (unsigned int) GLOBAL_OMEGA;
     
     if (GLOBAL_RUN == 0)
     {
@@ -383,14 +370,11 @@ void noob_turn(unsigned int localVel,unsigned int localOmega){
         PORTDbits.RD2 = 1;
     }
     
-   // localVel = GLOBAL_VELOCITY;
-    //localOmega = localOmega;
-    //maxspeed = localVel/100;
     
-    if(localVel >= 230){   // max values from serial protocal
+    if(localVel >= 230){   // max values from serial protocol
         localVel = 255;
     }
-    else if (localVel < 25){
+    else if (localVel < 25){ //make symmetrical
         localVel = 0;
     }
     if(localOmega >= 230){
@@ -401,7 +385,7 @@ void noob_turn(unsigned int localVel,unsigned int localOmega){
     }
     
     
-    if ((localVel > 200) ){
+    if ((localVel > 200) ){ //forward
         R_PWM = 255*GLOBAL_MAX_SPEED/100;
         L_PWM = 255*GLOBAL_MAX_SPEED/100;
         
@@ -409,7 +393,7 @@ void noob_turn(unsigned int localVel,unsigned int localOmega){
         R_dir = 1;   
     }
     
-    else if (localVel < 55){
+    else if (localVel < 55){ //backwards
         R_PWM = 255*GLOBAL_MAX_SPEED/100;
         L_PWM = 255*GLOBAL_MAX_SPEED/100;
         
@@ -417,7 +401,7 @@ void noob_turn(unsigned int localVel,unsigned int localOmega){
         R_dir = 0;   
     }
     
-    else if (localOmega > 200){
+    else if (localOmega > 200){ //turn right
         R_PWM = 64*GLOBAL_MAX_SPEED/100;
         L_PWM = 128*GLOBAL_MAX_SPEED/100;
         
@@ -425,7 +409,7 @@ void noob_turn(unsigned int localVel,unsigned int localOmega){
         R_dir = 1;   
     }
     
-    else if (localOmega < 55){
+    else if (localOmega < 55){ //turn left
 
         R_PWM = 128*GLOBAL_MAX_SPEED/100;
         L_PWM = 64*GLOBAL_MAX_SPEED/100;        
@@ -434,65 +418,16 @@ void noob_turn(unsigned int localVel,unsigned int localOmega){
     }
     
     else
-    {
+    { //stop and remain stationary with motors on
         R_PWM = 0;
         L_PWM = 0;
         L_dir = 1;
         R_dir = 1;
                 
     }
-    
-//    if (R_PWM>255){
-//        R_PWM = 255;
-//    }
-//    if (L_PWM>255){
-//        L_PWM = 255;
-//    }
-    
+       
     CCPR1L = (unsigned char) R_PWM;
-    CCPR2L = (unsigned char) L_PWM;    //  some sort of error check?
+    CCPR2L = (unsigned char) L_PWM;    
 
     direction(L_dir,R_dir);            // update direction of wheels
 }
-
-/*
-//void moveForward(int maxspeed){
-// 
-//        R_PWM = 255*maxspeed;
-//        L_PWM = 255*maxspeed;
-//        
-//        L_dir = 1;
-//        R_dir = 1;   
-//    
-//}
-//
-//void moveBackward(int maxspeed){
-// 
-//        R_PWM = 255*maxspeed;
-//        L_PWM = 255*maxspeed;
-//        
-//        L_dir = 0;
-//        R_dir = 0;   
-//    
-//}
-//
-//void moveLeft(int maxspeed){
-//   
-//        R_PWM = 255*maxspeed;
-//        L_PWM = 128*maxspeed;
-//        
-//        L_dir = 1;
-//        R_dir = 1;   
-//    
-//}
-//
-//void moveRight(int maxspeed){
-//   
-//        R_PWM = 255*maxspeed;
-//        L_PWM = 255*maxspeed;
-//        
-//        L_dir = 1;
-//        R_dir = 1;   
-//    
-//}
-*/
