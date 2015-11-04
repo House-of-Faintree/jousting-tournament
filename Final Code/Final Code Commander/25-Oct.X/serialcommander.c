@@ -99,7 +99,7 @@ void sendIRsampleR(void)
 void sendMode(void)
 {
     sendNum(Mode);
-    delay10us(5);
+    delay10us(5);       //delay a while
     sendNum(GLOBAL_MODE);
     delay10us(5);
     sendNum(ModeEnd);
@@ -120,10 +120,10 @@ void sendVelocity(void)
     {
         GLOBAL_VELOCITY = 230;
     }
-    sendNum(Velocity);
-    delay10us(5);
+    sendNum(Velocity);  //send the velocity to the robot
+    delay10us(5);       //delay a while
 
-    sendNum(GLOBAL_VELOCITY);
+    sendNum(GLOBAL_VELOCITY);   //send the maximum global velocity
     delay10us(5);
 
     sendNum(VelocityEnd);
@@ -169,6 +169,7 @@ return values associated with it.
 Baud rate set to 9600 but this is arbitrary. Lower baud is possibly better for multitasking,
 but higher baud makes for smaller data packets. Needs to be experimented with.
 */
+/*configure the serial setup*/
 void setupSerial(void){
   IPR1bits.RCIP = 1;
   RCONbits.IPEN = 1;
@@ -208,7 +209,7 @@ void TMR0Init(void)
     INTCONbits.TMR0IF = 0;
 }
 
-/*reset the pointer 'rxptr'*/
+/*set the pointer 'rxptr' direction*/
 void rx232Isr (void)
 {   
     if (RCREG == Mode)
@@ -293,6 +294,8 @@ void rx232Isr (void)
     }
     *rxptr = RCREG ;
     
+    //if the pointer point to end of the buffer, set it back to 
+    //initial position.
     
     if (RCREG == '\r'||rxptr == &GLOBAL_RXBUFFER[BUFFSIZE])
     {
