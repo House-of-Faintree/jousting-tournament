@@ -22,7 +22,7 @@ Each software was first implemented, debugged and tested on the PIC18F452 develo
 The modules where then implemented on the PIC18F4520 minimal board and integrated in the following order:
 	\begin{enumerate}
 		\item \textbf{LCD and Menu Nav} on the Controller.
-		\item \textbf{The buttons and Joystic}k was integrated with the Menu Nav of the controller.
+		\item \textbf{The buttons and Joystick} was integrated with the Menu Nav of the controller.
 		\item \textbf{PWM motors} operation and control on the jousting robot.
 		\item \textbf{Serial Communications} was then integrated to both the controller and jousting robot and tested. Once this was working the Controller was fully integrated.
 		\item \textbf{Manual Mode} was then integrated on to the robot and tested with the controller via Serial Communications. 
@@ -48,18 +48,49 @@ Another method used to ensure the quality of software was to implement all inter
 
 \subsection{Software Design Description}
 \subsubsection{Architecture}
-Describe the high-level architecture of the software – that is, the top-level flow of control, and how the various functional modules communicate.\\
-In this section, you can put state transition diagrams, sequence diagrams, etc.
+%Describe the high-level architecture of the software – that is, the top-level flow of control, and how the various functional modules communicate.\\
+%In this section, you can put state transition diagrams, sequence diagrams, etc.
+
+The following state transition diagrams show how the run modes are changed both for the controller and robot. Once a change is made on the controller the same change is made on the robot. Refer to Serial communications module for more information on how these changes occur. 
+	\begin{figure}[h]
+		\includegraphics[scale=0.5]{controller_std.png}
+		\centering
+		\caption{Controller State Transition Diagram}
+	\end{figure}
+	
+	\begin{figure}[h]
+		\includegraphics[scale=0.7]{robot_std.png}
+		\centering
+		\caption{Robot State Transition Diagram}
+	\end{figure}
+
 \subsubsection{Software Interface}
-Describe the public interface of each software module.
+%Describe the public interface of each software module.
+
 \subsubsection{Software Components}
-This is a detailed view of the internal workings of each of the software modules.
+%This is a detailed view of the internal workings of each of the software modules.
+
+Commander:
+	\begin{itemize}
+		\item Menu Navigation.
+		\item Menu Navigation submodule LCD.
+		\item Serial Communications. 
+		\item Analog to Digital conversion.
+	\end{itemize}
+	
+Robot:
+	\begin{itemize}
+		\item PWM motors.
+		\item IR Sensors.
+		\item Serial Communications.
+		\item Analog to Digital Conversion.
+	\end{itemize}
 
 \subsection{Preconditions for Software}
 \subsubsection{Preconditions for System Startup}
-Describe any preconditions that must be satisfied before the system can be started.
+%Describe any preconditions that must be satisfied before the system can be started.
 \subsubsection{Preconditions for System Shutdown}
-Describe any preconditions that must be satisfied before the system can be stopped.
+%Describe any preconditions that must be satisfied before the system can be stopped.
 
 
 \end{document}
