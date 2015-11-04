@@ -1,0 +1,6 @@
+\AtBeginDocument{\newcommand{\xdd}{\ddot{x} }}
+\AtBeginDocument{\newcommand{\ydd}{\ddot{y} }}
+\AtBeginDocument{\newcommand{\thetadd}{\ddot{\theta} }}
+\AtBeginDocument{\newcommand{\lam}{\vec{\lambda}}}
+\usepackage{ amssymb }
+\newcommand{\Lagr}{\mathcal{L}}
