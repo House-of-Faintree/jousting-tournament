@@ -2,16 +2,16 @@
 Authored by Leo Lou
 Dated 14 October 2015
 ********************************************************************************
-This file proves external use of some functions related to the serial module.
+This file provides external use of some functions related to the serial module.
 These functions were designed to be run on the COMMANDER side, however some may
 be compatible for running on the MOBILE ROBOT side.
+
+The main function of this file is to serve as the menu navigation software. This 
+software takes in user input, displays output to LCD, and uses external and internal
+serial functions to interface with Robot.
 */
 
-//Code for menu navigation by Leo
-//TODO:
-//    - try and do navigation through function calls
-//    - move interrupt code to interrupts.c
-//    - different run time message for each runtime mode
+
 
 #include  <stdio.h>
 #include  <p18cxxx.h>
