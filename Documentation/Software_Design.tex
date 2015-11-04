@@ -7,7 +7,7 @@
 \begin{document}
 
 %\section{Software Design}  dont include at the end but you can for seperate builds
-The software requirements and overview have been dealt with elsewhere in this document. The present section addresses the design and implementation of the software that forms the X system.
+%The software requirements and overview have been dealt with elsewhere in this document. The present section addresses the design and implementation of the software that forms the X system.
 \subsection{Software Design Process}
 %How you went about designing the software – top down, bottom up, OOD, functional view, etc.
 The software was designed in a modular top down manner for both the robot and the controller. All code for the robot and controller where designed tested and implemented independent of each other with the exception of the Serial Communications module which was identical on both sides. Furthermore each module designed to operate as independently as possible from the others for easier integration.
@@ -66,31 +66,40 @@ The following state transition diagrams show how the run modes are changed both 
 
 \subsubsection{Software Interface}
 %Describe the public interface of each software module.
+The User only has control over the mains for both the commander and the robot.
+The main for the commander consists of the menu navigation and all interaction with user is displayed on the LCD. For the robot the main contains the different modes during runtime: Manual, Assisted and Auto. The user can choose which mode and run it through the commander and in the case of manual use the joystick to control the motion of the jousting robot.
+
 
 \subsubsection{Software Components}
 %This is a detailed view of the internal workings of each of the software modules.
 
 Commander:
-	\begin{itemize}
-		\item Menu Navigation.
-		\item Menu Navigation submodule LCD.
-		\item Serial Communications. 
-		\item Analog to Digital conversion.
-	\end{itemize}
+\begin{itemize}
+	\item Menu Navigation.
+	\item Menu Navigation submodule LCD.
+	\item Serial Communications. 
+	\item Analog to Digital conversion.
+\end{itemize}
 	
-Robot:
-	\begin{itemize}
-		\item PWM motors.
-		\item IR Sensors.
-		\item Serial Communications.
-		\item Analog to Digital Conversion.
-	\end{itemize}
+Jousting Robot:
+
+\begin{itemize}
+	\item Manual Mode
+	\item Assist Mode
+	\item Full Auto Mode
+	\item PWM motors.
+	\item IR Sensors.
+	\item Serial Communications.
+	\item Analog to Digital Conversion.
+\end{itemize}
 
 \subsection{Preconditions for Software}
 \subsubsection{Preconditions for System Startup}
 %Describe any preconditions that must be satisfied before the system can be started.
+Either system Robot or Controller can startup in any order and both can operate. However any changes made on the controller (ie. changing global variables, mode or pressing run button) will not have any effect on the robot unless made while the robot has started up and operational.
 \subsubsection{Preconditions for System Shutdown}
 %Describe any preconditions that must be satisfied before the system can be stopped.
+Precautions have not been taken to stop the robot when the controller is in operation. This means the robot will continue to operate as it was last instructed if the controller suddenly shuts down. However once the controller is restarted normal operation is resumed. 
 
 
 \end{document}
