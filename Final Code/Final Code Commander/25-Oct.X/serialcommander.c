@@ -28,7 +28,9 @@
 //char StrTest[] = "week12!";
 unsigned char *rxptr = GLOBAL_RXBUFFER;
 
-
+/*input a char and send it via the serial once
+ *the TRMT flag is empty, return value 1 for the sucessful 
+ *sending*/
 int sendByte(char *byte){ 
     if(*byte != 0x00){
 
@@ -39,7 +41,7 @@ int sendByte(char *byte){
     }
     return 0;    //we are finished, null terminator found
 }
-
+/*send a interger number to TXREG register*/
 void sendNum(int result){
     while(TXSTAbits.TRMT == 0);
     TXREG = result;
@@ -47,6 +49,7 @@ void sendNum(int result){
     return;
 }
 
+// send a newline and carrage return when it need
 void sendNewLine(void){
     while(TXSTAbits.TRMT == 0);
     TXREG = 0x0a; //Line feed
@@ -55,41 +58,44 @@ void sendNewLine(void){
     TXREG = 0x0d; //carriage return'
     
 }
-
+/*send the whole string to TXREG*/
 void sendString(char *byte){
     
     while(sendByte(byte)){
-        byte++;
+        byte++; //increment the pointer
     }
     sendNewLine();
     return;
     
 }
-
+/* send out the maximum speed to the xbee*/
 void sendMaxSpeed(void)
 {
     sendNum(MaxSpeed);
-    delay10us(5);
+    delay10us(5);   //delay a while
     sendNum(GLOBAL_MAX_SPEED);
     delay10us(5);
     sendNum(MaxSpeedEnd);
 }
+/*send the maximum yaw rate of the robot*/
 void sendMaxYaw(void)
 {
     sendNum(MaxYaw);
-    delay10us(5);
+    delay10us(5);   //dealy a while
     sendNum(GLOBAL_MAX_YAW);
     delay10us(5);
     sendNum(MaxYawEnd);
 }
+/*send the IR sample rate*/
 void sendIRsampleR(void)
 {
     sendNum(IRsampleR);
-    delay10us(5);
+    delay10us(5);   // delay a while
     sendNum(GLOBAL_IRsampleR);
     delay10us(5);
     sendNum(IRsampleREnd);
 }
+/*send the current status of the commander*/
 void sendMode(void)
 {
     sendNum(Mode);
@@ -98,16 +104,18 @@ void sendMode(void)
     delay10us(5);
     sendNum(ModeEnd);
 }
+/*send the string Hello*/
 void sendHello(void)
 {
     sendNum(Hello);
-    delay10us(5);
+    delay10us(5);   //delay a while
     sendNum(HelloEnd);
     delay10us(5);
 }
-
+/*send the velocity and global velocity*/
 void sendVelocity(void)
 {
+    //the velocity shouldnt be greater than 230
     if (GLOBAL_VELOCITY > 230)
     {
         GLOBAL_VELOCITY = 230;
@@ -120,7 +128,7 @@ void sendVelocity(void)
 
     sendNum(VelocityEnd);
 }
-
+/*send the turning angle*/
 void sendOmega(void)
 {
     if (GLOBAL_OMEGA > 230)
@@ -128,14 +136,14 @@ void sendOmega(void)
         GLOBAL_OMEGA = 230;
     }
     sendNum(Turn);
-    delay10us(5);
+    delay10us(5);   //delay a while
 
     sendNum(GLOBAL_OMEGA);
     delay10us(5);
-
-    sendNum(TurnEnd);
+    
+    sendNum(TurnEnd);   //finish the turning
 }
-
+/*send a signal to start the motion of the robot*/
 void sendRun (void)
 {
     sendNum(RunStart);
@@ -144,7 +152,7 @@ void sendRun (void)
     delay10us(5);
     sendNum(RunEnd);
 }
-
+/*send the detail via xbee*/
 void HandShake(void)
 {
     sendMaxSpeed();
@@ -188,7 +196,7 @@ void setupSerial(void){
 //    ADCON0 = 0x41;
 //    ADCON1 = 0x0E;
 //}
-
+/*timer0 setup*/
 void TMR0Init(void)
 {
     T0CONbits.TMR0ON = 1;
@@ -200,9 +208,9 @@ void TMR0Init(void)
     INTCONbits.TMR0IF = 0;
 }
 
-
+/*reset the pointer 'rxptr'*/
 void rx232Isr (void)
-{    
+{   
     if (RCREG == Mode)
     {
         rxptr = &GLOBAL_MODE;
@@ -291,11 +299,9 @@ void rx232Isr (void)
         rxptr = &GLOBAL_RXBUFFER[0];
     }
 }
-
+/*configure the timer0 interrupt*/
 void TMR0Isr (){
-    
     INTCONbits.TMR0IE = 0;
-    
     
     INTCONbits.TMR0IF = 0;    
     //sendString(StrTest);
