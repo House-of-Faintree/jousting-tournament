@@ -13,6 +13,7 @@
 \usepackage{chngcntr}
 \counterwithin{figure}{section}
 \counterwithin{table}{section}
+\counterwithin{equation}{section}
 \usepackage{multirow}
 \setcounter{tocdepth}{5}
 \usepackage{subfiles}
@@ -31,7 +32,7 @@
 \usepackage{amsfonts}
 %\DeclareFixedFont{\titlefont}{T1}{ams}{b}{sc}{0.5in}
 
-% Added
+% Added 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \lhead{MTRX3700}
@@ -66,17 +67,17 @@
 {\hspace*{\normalparindent}\color{paracolour}\theparagraph}{1em}{}
 
 % end added
-\makeatletter
-\def\printauthor{%
-    {\large \@author}}
+\makeatletter                       
+\def\printauthor{%                  
+    {\large \@author}}              
 \makeatother
 \author{%
     Lydia Drabsch \\
     311217591 \\
     \texttt{ldra3557@uni.sydney.edu.au}\vspace{20pt} \\
-    Ayush Sharma \\
-    311247431 \\
-    \texttt{asha6047@uni.sydney.edu.au}\vspace{20pt} \\
+    Melissa Mitrevski \\
+    440207636 \\
+    \texttt{mmit5421@uni.sydney.edu.au}\vspace{20pt} \\
     Meg Flannery \\
     440146450\\
     \texttt{mfla5787@uni.sydney.edu.au}\\
@@ -88,7 +89,22 @@
 \tikz[remember picture,overlay] \node[opacity=1,inner sep=0pt] at ([xshift=5cm]current page.west){\includegraphics[height=\paperheight]{./IMAGEtitle2f}};
 }
 
-
+% added commands
+\AtBeginDocument{\newcommand{\xd}{\dot{x} }}
+\AtBeginDocument{\newcommand{\yd}{\dot{y} }}
+\AtBeginDocument{\newcommand{\thetad}{\dot{\theta} }}
+\AtBeginDocument{\newcommand{\cost}{\cos(\theta) }}
+\AtBeginDocument{\newcommand{\sint}{\sin(\theta) }}
+\AtBeginDocument{\newcommand{\xdd}{\ddot{x} }}
+\AtBeginDocument{\newcommand{\ydd}{\ddot{y} }}
+\AtBeginDocument{\newcommand{\thetadd}{\ddot{\theta} }}
+\AtBeginDocument{\newcommand{\lam}{\vec{\lambda}}}
+\usepackage{ amssymb }
+\newcommand{\Lagr}{\mathcal{L}}
+\usepackage{listings}
+%\usepackage{float}
+\AtBeginDocument{\newfloatcommand{capbtabbox}{table}[][\FBwidth]}
+\usepackage{floatrow}
 
 \begin{document}
 \newgeometry{top=3.7cm, bottom=4cm, left=3cm, right=3cm}
@@ -137,7 +153,7 @@
 
 \setcounter{section}{0}
 \section*{Group Certification}
-We certify that the design, implementation, and documentation presented by our Group are, unless otherwise acknowledged, the work of our group members only, and that the individuals named below were responsible for completing the following percentages of the modules named.
+We certify that the design, implementation, and documentation presented by our Group are, unless otherwise acknowledged, the work of our group members only, and that the individuals named below were responsible for completing the following percentages of the modules named.    
 
 \begin{table}[h]
 \centering
@@ -147,8 +163,8 @@ We certify that the design, implementation, and documentation presented by our G
 \cline{2-3} 311217591 & & & \\
 \cline{2-3} & & & \\
 \cline{2-3} & & & \\
-\hline Ayush SHARMA& & & \\
-\cline{2-3} 311247431 & & & \\
+\hline Melissa MITREVSKI& & & \\
+\cline{2-3} 440207636 & & & \\
 \cline{2-3} & & & \\
 \cline{2-3} & & & \\
 \hline Meg FLANNERY & & & \\
@@ -180,7 +196,7 @@ We certify that the design, implementation, and documentation presented by our G
 
 \subfile{Menu_Nav} % leo
 
-\subfile{LCD} % leo
+%\subfile{LCD} % leo
 
 \subfile{Communications}  % ziji
 

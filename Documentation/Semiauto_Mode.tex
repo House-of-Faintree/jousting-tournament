@@ -5,9 +5,12 @@
 %\AtBeginDocument{\newcommand{\thetad}{\dot{\theta} }}
 %\AtBeginDocument{\newcommand{\cost}{\cos(\theta) }}
 %\AtBeginDocument{\newcommand{\sint}{\sin(\theta) }}
-\AtBeginDocument{\newcommand{\lam}{\vec{\lambda}}}
-\usepackage{ amssymb }
-\newcommand{\Lagr}{\mathcal{L}}
+%\AtBeginDocument{\newcommand{\xdd}{\ddot{x} }}
+%\AtBeginDocument{\newcommand{\ydd}{\ddot{y} }}
+%\AtBeginDocument{\newcommand{\thetadd}{\ddot{\theta} }}
+%\AtBeginDocument{\newcommand{\lam}{\vec{\lambda}}}
+%\usepackage{ amssymb }
+%\newcommand{\Lagr}{\mathcal{L}}
 \begin{document}
 \section{Optimised Automatic Control}
 %\subsection{Module Requirements: Module X}
@@ -123,32 +126,88 @@ The constraint matrix C(q) is defined as $C(q)^T\dot{q} = 0$. Rearranging Eq.\eq
 \begin{equation}
 C(q) = \begin{bmatrix}
 \cos\theta & \sin\theta & 0 & -R/2 & -R/2 \\
--\sin\theta & \cos\theta & 0 &  & 0\\
+-\sin\theta & \cos\theta & 0 & 0  & 0\\
 0 & 0 & 1 & -R/2 & R/2
 \end{bmatrix}
 \end{equation}
 
 
 \paragraph{Dynamics of a Differential Drive Robot}
-Lagrangian dynamics of the system are governed by the euler-lagrange equation:
+Lagrangian dynamics of the system are governed by the euler-lagrange equation for each coordinate:
 \begin{eqnarray}
-\frac{d}{dt}\left( \frac{\partial \Lagr}{\partial \dot{q}_i} \right)+\frac{\partial \Lagr}{\partial q_i} = F + C(q)^T\lam
+\frac{d}{dt}\left( \frac{\partial \Lagr}{\partial \dot{q}_i} \right)+\frac{\partial \Lagr}{\partial q_i} = F + C(q)^T\lam \label{ELE}
 \end{eqnarray}
-Where $\lam = [\lambda_1,\lambda_2,\lambda_3]^T$ are the Lagrangian multipliers associated with the constraints. $\Lagr$ is the Lagrangian Eq.\ref{lag}, which is defined by the difference between the kinetic and potential energy of the system.
+Where $\lam = [\lambda_1,\lambda_2,\lambda_3]^T$ are the Lagrangian multipliers associated with the constraints. F is the force vector defined as $[0,0,0,\tau_R,\tau_L]$. $\Lagr$ is the Lagrangian Eq.\ref{lag}, which is defined by the difference between the kinetic and potential energy of the system.
 \begin{eqnarray}
 \Lagr = \mathcal{T}-\mathcal{V} \label{lag}
 \end{eqnarray}
-The kinetic energy $\mathcal{T}$ of the robot is the sum of the translational and rotational kinetic energy of the body and rotational kinetic energy of each wheel. There is no potential energy as the robot is only used in the x-y plane.
+The kinetic energy $\mathcal{T}$ of the robot is the sum of the translational and rotational kinetic energy of the body and each wheel. There is no potential energy as the robot is only used in the x-y plane. \textbf{velocity of each wheel}
+%\begin{eqnarray}
+%\Lagr &=&  \frac{1}{2}m_t\left( \xd^2+\yd^2 \right) + \frac{1}{2}I_t\thetad^2+\frac{1}{2}I_w\left( \dot{\phi}_R^2 + \dot{\phi}_L^2\right)+\frac{1}{2}\left( v_{w_L}^2 +v_{w_R}^2\right)
+%\end{eqnarray}
+%Where $v_{w_L}$ and $v_{w_R}$ are the linear velocities 
 \begin{eqnarray}
-\Lagr = \frac{1}{2}m_t\left( \xd^2+\yd^2 \right) + \frac{1}{2}I_t\thetad^2+\frac{1}{2}I_w\left( \dot{\phi}_R^2 + \dot{\phi}_L^2\right)
+\Lagr &=& \frac{1}{2}m_t\left( \xd^2+\yd^2 \right) + \frac{1}{2}I_t\thetad^2+\frac{1}{2}I_w\left( \dot{\phi}_R^2 + \dot{\phi}_L^2\right)
 \end{eqnarray}
+The equations of motion are then calculated from Eq.\eqref{ELE} and stored in the form Eq.\ref{form}. Where M(q) is a diagonal matrix with elements $[m_t,m_t,I_t,I_w,I_w]$. Which can be rearranged to calculate the acceleration of coordinates to be used for integration.
+\begin{eqnarray}
+M\ddot{q}-C(q)^T\lam &=& F \label{form}\\
+\ddot{q} &=& M^{-1}[F+C(q)^T\lam] \label{qdd}
+\end{eqnarray}
+To solve for $\lam$, the time derivative of the constraints must equal zero as the constraints are constant.
+\begin{eqnarray}
+\frac{d}{dt}\left( C(q)\dot{q}\right) = 0\\
+C(q)\ddot{q}+\dot{C}(q)\dot{q} = 0 \label{dc}
+\end{eqnarray}
+Substituting in \eqref{qdd} into \ref{dc}:
+\begin{eqnarray}
+CM^{-1}(F+C^T\lam)+\dot{C}\dot{q} &=& 0
+\end{eqnarray}
+Which results in
+\begin{eqnarray}
+\lam &=&-\left( CM^{-1}C^T \right)^{-1}\left( CM^{-1}F+\dot{C}\dot{q} \right)
+\end{eqnarray}
+The total time derivative of the constraint matrix is
+ \begin{equation}
+ \dot{C}(q) = \begin{bmatrix}
+ -\thetad\sin\theta & \thetad\cos\theta & 0 & 0 & 0 \\
+ -\thetad\cos\theta & -\thetad\sin\theta & 0 & 0 & 0\\
+ 0 & 0 & 0 & 0 & 0
+ \end{bmatrix}
+ \end{equation}
+Using matlab symbols $\lam$ is solved as
+\begin{equation}
+\lam = \begin{bmatrix}
+\frac{m_tR(\tau_L+\tau_R)}{R^2m_t+2I_w} - \frac{\thetad\left( \yd\cost-\xd\sint \right)}{R^2m_t+2I_w} \\
+m_t\thetad \left( \xd\cost+\yd\sint \right)\\
+\frac{I_tLR}{I_wL^2+2I_tR^2} (\tau_R-\tau_L)
+\end{bmatrix}
+\end{equation}
+The lagrange multipliers are substituted into Eq.\eqref{qdd}, then the time derivative of the state vector is $\dot{X}=[\dot{q},\ddot{q}]^T$.
 
-
-
+\paragraph{Optimisation}
+ The cost function is applied over the time horizon T with accumulating least squares cost l(X,U) and final cost $V_T(X)$.
+ \begin{eqnarray}
+ J &=& \sum_{t = 0}^{T-1}  l(X,U)  + V_T(X)\\
+ J &=& \sum_{t = 0}^{T-1} \left( (X-X_{ref})Q(X-X_{ref})+U(t)RU(t) \right) + (X_T-X_{ref})Q(X_T-X_{ref})
+ \end{eqnarray}
+ It is this cost function that is to be minimised in order to find the optimal set of control inputs. Using Pontryagin's Maximum Principle the hamiltonian in Eq.\eqref{hamil}, the 'direction' in state space for the minimum cost is calculated. This is because in state space the total cost is approximated as a quadratic function and has a global minimum (convex optimisation). 
+ \begin{eqnarray}
+ H(X,\Lambda,U) = l(X,U)+\Lambda^T(t)\dot{X}(X,U) \label{hamil}
+ \end{eqnarray}
+  Where $\Lambda$ is the adjoint trajectory with a boundary value at time T, it is then integrated backwards in time using runge kutta to find the adjoint trajectory at each timestep.
+ \begin{eqnarray}
+ \Lambda(T) &=& \frac{\partial V}{\partial X}\\
+ \dot{\Lambda}(t) &=& -\frac{\partial H}{\partial X}
+ \end{eqnarray}
+ The search direction for the optimal control inputs is then Eq.\eqref{search} with the corresponding $\Lambda$.
+ \begin{eqnarray}
+ s(t) = -\frac{\partial H}{\partial X} \label{search}
+ \end{eqnarray}
  
-\begin{eqnarray}
-\ddot{x} = -\thetad \left( \xd \cost\sint + \yd\sin^2(\theta)  \right) - 2I_w\thetad\left( -\xd \sint\cost + \yd \cos^2(\theta) \right) +   \label{xdd}
-\end{eqnarray}
+%\begin{eqnarray}
+%\ddot{x} = -\thetad \left( \xd \cost\sint + \yd\sin^2(\theta)  \right) - 2I_w\thetad\left( -\xd \sint\cost + \yd \cos^2(\theta) \right) +   \label{xdd}
+%\end{eqnarray}
 
 
 
