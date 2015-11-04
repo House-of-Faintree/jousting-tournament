@@ -59,41 +59,41 @@ Joystick use for setting the maximum speed, switching the mode and driving the r
 
 
 
-\subsection{Module Requirements}
-The operational scenarios considered place certain requirements on the robot jousting system, and on the modules that comprise it.
-
-\subsubsection{Functional Requirements}
-This section describes the functional requirements – those requirements that must be met if the module (and system) is to function correctly. 
-
-\subsubsection{Inputs}
-
-Joystick x and y axis input: Analog input, encode the signal to digital to the commander minimal board.  \\
-Tactile switch input: Digital input 0 -1. \\
-IR sensors: input is the distance from the obstacle. \\
-Button input: digital, 0 or 1.\\
-Xbee : take input of type CHAR (8 bits).\\
-
-\subsubsection{Process}
-Joystick’s analog input are 2 pins, and it need to be converted to digital by ADC module, by setting up the register ADCON0 and ADCON1. \\
-IR distance sensor analog input to power board to PIN RA2 and it convert it by the ADC module. A relative large error tolerances due to the sensitive of the IR sensor, input analog signal is vary so that the digital value that converted by ADC module is unstable. In addition, the Analog voltage - distance to reflective object graph is non linear. Therefore, convert the digital to distance unit cause tolerances.\\
-Xbee transmit the digital signal between 2 MNML•PIC•18 v2 board ( wireless). The digital is in 8 bit format and the transmission is bidirectional. Sending a byte (8 bits) to TXREG and RCREG register can complete a signal transformations between two Xbee. A sightly delay may occur because for transmission, it need to wait the TRMT flag to be cleared.\\
-The variable type of ADC module should be in INT, not CHAR, since CHAR is a 8 bits variable but INT is 16 bits variable. 8 bits variable can not be used since the AD converter is 10 bits. Hence it can only use 10 bits for the variable of INT. \\
-
-\subsubsection{Ouputs}
-Joystick outputs: digital values with 10bits resolution with prescale value in timer0 as 256, 0-1024 in decimal \\
-Xbee serial communication output: 8 bits value. The timing (frequency) of the communication is based on the the TXIF and RXIF flag.\\
-IR sensor output: analog signal 0 - 3.3V bases on different distance.\\
-Commander minimal board output: Output a 8 bits value to xbee. Outputs CHAR type of format to the Alphanumeric LCD.\\
-Robot minimal board output: digital signal to power board.\\
-Power board outputs: Connector P2 provide encoder 1A/B output to PWM motor.	\\
-
-\subsubsection{Timing}
-The user can stop the PWM motor for running at any time.
-
-\subsubsection{Design Constraints}
-Only use C programming languages and assembly languages that can fit the MCU pic18f4520 and the minimal board. Use joystick as the user input and the final output is 2 PWM motor. 
-
-\subsection{Conceptual Design:}
+%\subsection{Module Requirements}
+%The operational scenarios considered place certain requirements on the robot jousting system, and on the modules that comprise it.
+%
+%\subsubsection{Functional Requirements}
+%This section describes the functional requirements – those requirements that must be met if the module (and system) is to function correctly. 
+%
+%\subsubsection{Inputs}
+%
+%Joystick x and y axis input: Analog input, encode the signal to digital to the commander minimal board.  \\
+%Tactile switch input: Digital input 0 -1. \\
+%IR sensors: input is the distance from the obstacle. \\
+%Button input: digital, 0 or 1.\\
+%Xbee : take input of type CHAR (8 bits).\\
+%
+%\subsubsection{Process}
+%Joystick’s analog input are 2 pins, and it need to be converted to digital by ADC module, by setting up the register ADCON0 and ADCON1. \\
+%IR distance sensor analog input to power board to PIN RA2 and it convert it by the ADC module. A relative large error tolerances due to the sensitive of the IR sensor, input analog signal is vary so that the digital value that converted by ADC module is unstable. In addition, the Analog voltage - distance to reflective object graph is non linear. Therefore, convert the digital to distance unit cause tolerances.\\
+%Xbee transmit the digital signal between 2 MNML•PIC•18 v2 board ( wireless). The digital is in 8 bit format and the transmission is bidirectional. Sending a byte (8 bits) to TXREG and RCREG register can complete a signal transformations between two Xbee. A sightly delay may occur because for transmission, it need to wait the TRMT flag to be cleared.\\
+%The variable type of ADC module should be in INT, not CHAR, since CHAR is a 8 bits variable but INT is 16 bits variable. 8 bits variable can not be used since the AD converter is 10 bits. Hence it can only use 10 bits for the variable of INT. \\
+%
+%\subsubsection{Ouputs}
+%Joystick outputs: digital values with 10bits resolution with prescale value in timer0 as 256, 0-1024 in decimal \\
+%Xbee serial communication output: 8 bits value. The timing (frequency) of the communication is based on the the TXIF and RXIF flag.\\
+%IR sensor output: analog signal 0 - 3.3V bases on different distance.\\
+%Commander minimal board output: Output a 8 bits value to xbee. Outputs CHAR type of format to the Alphanumeric LCD.\\
+%Robot minimal board output: digital signal to power board.\\
+%Power board outputs: Connector P2 provide encoder 1A/B output to PWM motor.	\\
+%
+%\subsubsection{Timing}
+%The user can stop the PWM motor for running at any time.
+%
+%\subsubsection{Design Constraints}
+%Only use C programming languages and assembly languages that can fit the MCU pic18f4520 and the minimal board. Use joystick as the user input and the final output is 2 PWM motor. 
+%
+%\subsection{Conceptual Design:}
 
 
 

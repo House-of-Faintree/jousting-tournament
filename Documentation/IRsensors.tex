@@ -7,7 +7,7 @@
 
 \begin{document}
 
-\subsection{Module Requirements: Module IR sensors}
+\subsection{Module Requirements: Distance Tracking}
 The Infrared Sensors module calculates the distance of the robot to the tilt and then determines whether this distance is either too close or too far away. THis module adheres to the following requirements:
 \begin{enumerate}
 	\item \textbf{Adjust sampling rate} according to the global variables 'IR Sample Rate' and 'IR Samples per Estimate' set by the user.
@@ -87,7 +87,7 @@ This value is large when the distance is short, and small when the distance is l
 %Practical or commercial considerations, such as programming languages, processor or other hardware, etc.
 A major constraint to the design of this module was the use of the timer overflow interrupts. When testing on the PIC18F452 the timer 1 overflow interrupt was used with a defined pre-scaler making it possible to easily calculate the sampling rate for the IR sensors in Hz. However when integrating to the PIC18F4520 minimal board this interrupt along with the timer overflow interrupts for timer 0 and 3 would not work. The problem being unable to clear the interrupt flag. This forced us to use the timer 2 overflow interrupt with timer 2 being used in PWM mode for the motors.   
 
-\subsection{Conceptual Design: Software Module IR Sensors}
+\subsection{Conceptual Design: Distance Tracking}
 
 
 \subsubsection{IR Sensors - an outline}

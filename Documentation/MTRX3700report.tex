@@ -35,8 +35,8 @@
 % Added 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
-\lhead{MTRX3700}
-\rhead{Group COOLNAME}
+\lhead{MTRX3700 Jousting Robot}
+\rhead{Faintree}
 \cfoot{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0.4pt}
@@ -75,12 +75,21 @@
     Lydia Drabsch \\
     311217591 \\
     \texttt{ldra3557@uni.sydney.edu.au}\vspace{20pt} \\
-    Melissa Mitrevski \\
-    440207636 \\
-    \texttt{mmit5421@uni.sydney.edu.au}\vspace{20pt} \\
-    Meg Flannery \\
-    440146450\\
-    \texttt{mfla5787@uni.sydney.edu.au}\\
+    Ayush Sharma \\
+    311247431 \\
+    \texttt{asha6047@uni.sydney.edu.au}\vspace{20pt} \\
+    Leo Lou \\
+    312078722\\
+    \texttt{llou65587@uni.sydney.edu.au}\vspace{20pt}\\
+    Bevan Jones \\
+    312144881\\
+    \texttt{bjon4634@uni.sydney.edu.au}\vspace{20pt}\\
+    Ziji An \\
+    312004966\\
+    \texttt{zian5092@uni.sydney.edu.au}\vspace{20pt}\\
+    Ziton Victor Zhang \\
+    430415441\\
+    \texttt{zzha1258@uni.sydney.edu.au}\\
     }
 
 
@@ -113,24 +122,21 @@
 \titlepagedecoration
 
 \flushright
-\huge{\scshape Final Report: ECG}\\ MTRX2700 Mechatronics 2 \\ Major Project 2015
-
-
-\null\vfill
-\vspace{2cm}
+\huge{\scshape Technical Manual}\\ MTRX3700 Mechatronics 3 \\ Major Project 2015
+\vfill
+%\vspace{2cm}
 \begin{minipage}{0.8\textwidth}
 \centering
 \rule{1\textwidth}{0.02pt}\\
-\Huge{\textbf{\scshape Group CoolName}} \\
-\huge{\scshape Punny Product Name}
+\Huge{\textbf{\scshape Faintree}} \\
+\huge{\scshape Charlemagne de la Robotic}
 \\ \rule{1\textwidth}{0.02pt}\\
 \end{minipage}
-
-
-\null\vfill
-\vspace*{1cm}
-\noindent
-\hfill
+\vfill
+%\null\vfill
+%\vspace*{1cm}
+%\noindent
+%\hfill
 \begin{minipage}{0.45\linewidth}
     \begin{flushright}
         \printauthor
@@ -138,43 +144,22 @@
 \end{minipage}
 %
 \begin{minipage}{0.02\linewidth}
-    \rule{1pt}{170pt}
+    \rule{1pt}{370pt}
 \end{minipage}
 
 
 \end{titlepage}
 \newgeometry{top=2.5cm, bottom=2cm, left=2cm, right=2cm}
 
-\begin{figure*}[h!]
-\centering
-\includegraphics[width=0.99\linewidth]{./Plag}
-\label{fig:Plag}
-\end{figure*}
+%\begin{figure*}[h!]
+%\centering
+%\includegraphics[width=0.99\linewidth]{./Plag}
+%\label{fig:Plag}
+%\end{figure*}
 
 \setcounter{section}{0}
-\section*{Group Certification}
-We certify that the design, implementation, and documentation presented by our Group are, unless otherwise acknowledged, the work of our group members only, and that the individuals named below were responsible for completing the following percentages of the modules named.    
 
-\begin{table}[h]
-\centering
-\begin{tabular}{|p{4cm}|p{0.75cm}|p{5cm}|p{4cm}|}
-\hline Name & \% & of the Module & Signature\\
-\hline Lydia DRABSCH & & &  \\
-\cline{2-3} 311217591 & & & \\
-\cline{2-3} & & & \\
-\cline{2-3} & & & \\
-\hline Melissa MITREVSKI& & & \\
-\cline{2-3} 440207636 & & & \\
-\cline{2-3} & & & \\
-\cline{2-3} & & & \\
-\hline Meg FLANNERY & & & \\
-\cline{2-3} 440291196 & & & \\
-\cline{2-3} & & & \\
-\cline{2-3} & & & \\
-\hline
-\end{tabular}
-\end{table}
-\newpage
+
 
 \tableofcontents
 \listoffigures
@@ -184,16 +169,16 @@ We certify that the design, implementation, and documentation presented by our G
 %\renewcommand{\thepage}{\arabic{page}}
 
 
-\section{Introduction}
+%\section{Introduction}
 \subfile{Introduction}
 
 
-\section{System Description}
+%\section{System Description}
 \subfile{System_Description}
 
 
 % subsections
-
+\subsection{Module Requirements: Menu Navigation}
 \subfile{Menu_Nav} % leo
 
 %\subfile{LCD} % leo
@@ -204,7 +189,7 @@ We certify that the design, implementation, and documentation presented by our G
 
 \subfile{Manual_Mode}		      % Lydia
 
-\subfile{Semiauto_Mode}           % Lydia
+          % Lydia
 
 
 % sections
@@ -219,7 +204,7 @@ We certify that the design, implementation, and documentation presented by our G
 
 \section{System Performance}
 \subfile{System_Performance}
-
+\subfile{Semiauto_Mode} 
 \section{Safety Implications}
 By law (NSW Occupational Health and Safety Act 2000; NSW Occupational Health and Safety
 Regulation 2001) all employees who design plant, machinery or equipment must identify foreseeable safety hazards associated with the equipment, and then assess and control the identified risks. Although this law does not apply directly to student designs, you should consider it here.
