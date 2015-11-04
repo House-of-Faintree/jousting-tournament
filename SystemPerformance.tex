@@ -1,0 +1,25 @@
+
+\begin{document}
+
+  \section{System performance}
+
+    \label{sec:System performance}
+  \subsection{Performance testing}
+    The system was found to perform unreliably with manual control where the joystick values from the Commander were transmitted directly to the Mobile Robot, and used inside the function turn(). We believe it was a result of overflowing data into memory inappropriate memory locations but in the interest of delivering a product that worked, we did not debug this problem, and instead chose to go with a simpler method of manual control, applying the joystick values into a several functions that determined the direction and speed to go at, and put in preset values into the CCPR register. Memory usage was found to be reasonable for the size of the project, with most data memory being taken up by the strings found in phrases.h\\
+    The system was found to be fairly easy to use despite the unpredictable behaviour, due to the design of the menu navigation and start/stop functionality of the motors from the Commander. It was deemed safe, since without the explicit permission of the Commander the Mobile Robot was unable to move.
+
+    \label{sub:Performance testing}
+  \subsection{State of the sytem as delivered}
+    \label{sub:SystemState}
+    The final state of the system included a functioning Manual mode, even though it wasnt implemented with much efficiency in terms of utilizing the joystick data thoroughly. Assist mode was not implemented, and Auto mode was implemented to a small extent, with the robot being able to navigate autonomously at extremely slow speeds, with the latency of calculating an optimal route/turn angle being the limiting factor. The commander however was implemented well, and functioned appropriately. Due to the lack of a handshake protocol being implemented, data integrity could not be verified, and neither could the link status be verified. The Encoders couldnt be implemented due to a hardware issue with the frequency to voltage converter not being picked up until the last days before the system was to be delivered.
+
+    In conclusion
+
+  \subsection{Future Improvements}
+    \label{sub:Future Improvements}
+    The functionality could be improved vastly by the implementation of a handshake/acknowledge on the wireless communication protocol, similar to how TCP protocol is implemented.
+
+
+
+
+\end{document}
